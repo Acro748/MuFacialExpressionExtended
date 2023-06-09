@@ -1,0 +1,23 @@
+{
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg/master/scripts/vcpkg.schema.json",
+  "name": "mufacialexpressionextended",
+  "version-string": "0.1.0",
+  "port-version": 0,
+  "description": "Skyrim Facial Expression Extended by Acro.",
+  "homepage": "https://github.com/Acro748/MuFacialExpressionExtended",
+  "license": "Apache-2.0",
+  "features": {
+    "plugin": {
+      "description": "Build the SKSE plugin.",
+      "dependencies": [
+        "articuno",
+        "commonlibsse-ng",
+        "magic-enum",
+        "xbyak"
+      ]
+    }
+  },
+  "default-features": [
+    "plugin"
+  ]
+}
