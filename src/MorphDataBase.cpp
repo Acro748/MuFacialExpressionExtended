@@ -96,6 +96,8 @@ namespace Mus {
 		if (std::to_underlying(type) < std::to_underlying(morphType::Mood) || std::to_underlying(type) >= std::to_underlying(morphType::total))
 			return false;
 		morphName = lowLetter(morphName);
+		if (IsValidName(morphName))
+			return false;
 		std::string typeName = lowLetter(magic_enum::enum_name(type).data());
 		if (std::find(names[typeName].begin(), names[typeName].end(), morphName) == names[typeName].end())
 		{

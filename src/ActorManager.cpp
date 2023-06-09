@@ -66,4 +66,29 @@ namespace Mus {
 			found->second.Update();
 		}
 	}
+
+	float ActorManager::GetValue(RE::Actor* a_actor, std::string morphName)
+	{
+		if (!a_actor)
+			return 0.0f;
+
+		auto found = find(a_actor->formID);
+		if (found != end()) {
+			return found->second.GetValue(morphName);
+		}
+		return 0.0f;
+	}
+	float ActorManager::GetValue(RE::Actor* a_actor, morphNameEntry::morphType type, std::uint32_t morphNumber)
+	{
+		if (!a_actor)
+			return 0.0f;
+		auto found = find(a_actor->formID);
+		if (found != end()) {
+			auto names = morphNameEntry::GetSingleton().GetNames(type);
+			if (names.size() > morphNumber) {
+				return found->second.GetValue(names.at(morphNumber));
+			}
+		}
+		return 0.0f;
+	}
 }

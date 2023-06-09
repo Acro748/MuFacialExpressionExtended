@@ -30,10 +30,12 @@ namespace MFEE {
 
 		virtual std::vector<std::string> GetFacialExpressionMorphTypes() = 0;
 		virtual std::vector<std::string> GetFacialExpressionMorphNames(std::string a_morphType) = 0;
-		
+		virtual float GetFacialExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
+		virtual float GetFacialExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t a_morphNumber) = 0;
+
 		virtual void SetFacialExpressionByName(RE::Actor* a_actor, std::string a_morphName, float value) = 0;
-		virtual void SetFacialExpressionByType(RE::Actor* a_actor, std::string a_morphType, std::uint32_t morphNumber, float value) = 0;
-		virtual void SetFacialExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t morphNumber, float a_value) = 0;
+		virtual void SetFacialExpressionByType(RE::Actor* a_actor, std::string a_morphType, std::uint32_t a_morphNumber, float value) = 0;
+		virtual void SetFacialExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t a_morphNumber, float a_value) = 0;
 		virtual void RevertFacialExpression(RE::Actor* a_actor) = 0;
 		virtual void UpdateFacialExpression(RE::Actor* a_actor) = 0;
 	};

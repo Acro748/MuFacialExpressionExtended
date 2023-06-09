@@ -39,6 +39,12 @@ namespace Mus {
         std::size_t GetFacialExpressionMorphNamesSize(RE::StaticFunctionTag*, RE::BSFixedString a_morphType) {
             return MFEE::FEE.GetFacialExpressionMorphNames(a_morphType.c_str()).size();
         };
+        float GetFacialExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
+            return MFEE::FEE.GetFacialExpressionValueByName(a_actor, a_morphName.c_str());
+        };
+        float GetFacialExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t a_morphNumber) {
+            return MFEE::FEE.GetFacialExpressionValueByNumber(a_actor, a_morphType, a_morphNumber);
+        };
 
         void SetFacialExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value) {
            MFEE::FEE.SetFacialExpressionByName(a_actor, a_morphName.c_str(), a_value);
@@ -66,6 +72,8 @@ namespace Mus {
             vm->RegisterFunction("GetFacialExpressionMorphTypesSize", ScriptFileName, GetFacialExpressionMorphTypesSize);
             vm->RegisterFunction("GetFacialExpressionMorphNames", ScriptFileName, GetFacialExpressionMorphNames);
             vm->RegisterFunction("GetFacialExpressionMorphNamesSize", ScriptFileName, GetFacialExpressionMorphNamesSize);
+            vm->RegisterFunction("GetFacialExpressionValueByName", ScriptFileName, GetFacialExpressionValueByName);
+            vm->RegisterFunction("GetFacialExpressionValueByNumber", ScriptFileName, GetFacialExpressionValueByNumber);
             vm->RegisterFunction("SetFacialExpressionByName", ScriptFileName, SetFacialExpressionByName);
             vm->RegisterFunction("SetFacialExpressionByType", ScriptFileName, SetFacialExpressionByType);
             vm->RegisterFunction("SetFacialExpressionByNumber", ScriptFileName, SetFacialExpressionByNumber);
