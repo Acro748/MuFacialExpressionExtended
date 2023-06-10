@@ -27,68 +27,68 @@ namespace Mus {
             return MFEE::FEE.RegisterNewMorphName(a_morphName.c_str());
         }
 
-        std::vector<std::string> GetFacialExpressionCategories(RE::StaticFunctionTag*) {
-            return MFEE::FEE.GetFacialExpressionCategories();
+        std::vector<std::string> GetExpressionCategories(RE::StaticFunctionTag*) {
+            return MFEE::FEE.GetExpressionCategories();
         }
-        std::size_t GetFacialExpressionCategoriesSize(RE::StaticFunctionTag*) {
-            return MFEE::FEE.GetFacialExpressionCategories().size();
+        std::size_t GetExpressionCategoriesSize(RE::StaticFunctionTag*) {
+            return MFEE::FEE.GetExpressionCategories().size();
         }
-        std::string GetFacialExpressionCategoryByNumber(RE::StaticFunctionTag*, std::int32_t a_categoryNumber) {
-            return MFEE::FEE.GetFacialExpressionCategoryByNumber(a_categoryNumber);
+        std::string GetExpressionCategoryByNumber(RE::StaticFunctionTag*, std::int32_t a_categoryNumber) {
+            return MFEE::FEE.GetExpressionCategoryByNumber(a_categoryNumber);
         }
-        std::string GetFacialExpressionCategoryByMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
-            return MFEE::FEE.GetFacialExpressionCategoryByMorphName(a_morphName.c_str());
+        std::string GetExpressionCategoryByMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
+            return MFEE::FEE.GetExpressionCategoryByMorphName(a_morphName.c_str());
         }
-        std::int32_t GetFacialExpressionCategoryNumber(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
-            return MFEE::FEE.GetFacialExpressionCategoryNumber(a_category.c_str());
+        std::int32_t GetExpressionCategoryNumber(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
+            return MFEE::FEE.GetExpressionCategoryNumber(a_category.c_str());
         }
-        bool IsValidFacialExpressionCategory(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
-            return MFEE::FEE.IsValidFacialExpressionCategory(a_category.c_str());
-        }
-
-        std::vector<std::string> GetFacialExpressionMorphNames(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
-            return MFEE::FEE.GetFacialExpressionMorphNames(a_morphCategory.c_str());
-        }
-        std::size_t GetFacialExpressionMorphNamesSize(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
-            return MFEE::FEE.GetFacialExpressionMorphNames(a_morphCategory.c_str()).size();
-        }
-        std::vector<std::string> GetFacialExpressionMorphNamesByNumber(RE::StaticFunctionTag*, std::int32_t a_categoryNumber) {
-            return MFEE::FEE.GetFacialExpressionMorphNamesByNumber(a_categoryNumber);
-        }
-        std::string GetFacialExpressionMorphNameByNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, std::int32_t a_morphNumber) {
-            return MFEE::FEE.GetFacialExpressionMorphNameByNumber(a_morphCategory.c_str(), a_morphNumber);
-        }
-        std::string GetFacialExpressionMorphNameByNumbers(RE::StaticFunctionTag*, std::int32_t a_categoryNumber, std::int32_t a_morphNumber) {
-            return MFEE::FEE.GetFacialExpressionMorphNameByNumbers(a_categoryNumber, a_morphNumber);
-        }
-        std::int32_t GetFacialExpressionMorphNameNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
-            return MFEE::FEE.GetFacialExpressionMorphNameNumber(a_morphName.c_str());
-        }
-        bool IsValidFacialExpressionMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
-            return MFEE::FEE.IsValidFacialExpressionMorphName(a_morphName.c_str());
+        bool IsValidExpressionCategory(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
+            return MFEE::FEE.IsValidExpressionCategory(a_category.c_str());
         }
 
-        float GetFacialExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
-            return MFEE::FEE.GetFacialExpressionValueByName(a_actor, a_morphName.c_str());
+        std::vector<std::string> GetExpressionMorphNames(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
+            return MFEE::FEE.GetExpressionMorphNames(a_morphCategory.c_str());
         }
-        float GetFacialExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
-            return MFEE::FEE.GetFacialExpressionValueByNumber(a_actor, a_morphCategory, a_morphNumber);
+        std::size_t GetExpressionMorphNamesSize(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
+            return MFEE::FEE.GetExpressionMorphNames(a_morphCategory.c_str()).size();
+        }
+        std::vector<std::string> GetExpressionMorphNamesByNumber(RE::StaticFunctionTag*, std::int32_t a_categoryNumber) {
+            return MFEE::FEE.GetExpressionMorphNamesByNumber(a_categoryNumber);
+        }
+        std::string GetExpressionMorphNameByNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, std::int32_t a_morphNumber) {
+            return MFEE::FEE.GetExpressionMorphNameByNumber(a_morphCategory.c_str(), a_morphNumber);
+        }
+        std::string GetExpressionMorphNameByNumbers(RE::StaticFunctionTag*, std::int32_t a_categoryNumber, std::int32_t a_morphNumber) {
+            return MFEE::FEE.GetExpressionMorphNameByNumbers(a_categoryNumber, a_morphNumber);
+        }
+        std::int32_t GetExpressionMorphNameNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
+            return MFEE::FEE.GetExpressionMorphNameNumber(a_morphName.c_str());
+        }
+        bool IsValidExpressionMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
+            return MFEE::FEE.IsValidExpressionMorphName(a_morphName.c_str());
         }
 
-        void SetFacialExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value) {
-           MFEE::FEE.SetFacialExpressionByName(a_actor, a_morphName.c_str(), a_value);
+        float GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
+            return MFEE::FEE.GetExpressionValueByName(a_actor, a_morphName.c_str());
         }
-        void SetFacialExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t morphNumber, float a_value) {
-            MFEE::FEE.SetFacialExpressionByType(a_actor, a_morphCategory.c_str(), morphNumber, a_value);
+        float GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
+            return MFEE::FEE.GetExpressionValueByNumber(a_actor, a_morphCategory, a_morphNumber);
         }
-        void SetFacialExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t morphNumber, float a_value) {
-            MFEE::FEE.SetFacialExpressionByNumber(a_actor, a_morphCategory, morphNumber, a_value);
+
+        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value) {
+           MFEE::FEE.SetExpressionByName(a_actor, a_morphName.c_str(), a_value);
         }
-        void RevertFacialExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
-            MFEE::FEE.RevertFacialExpression(a_actor);
+        void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t morphNumber, float a_value) {
+            MFEE::FEE.SetExpressionByType(a_actor, a_morphCategory.c_str(), morphNumber, a_value);
         }
-        void UpdateFacialExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
-            MFEE::FEE.UpdateFacialExpression(a_actor);
+        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t morphNumber, float a_value) {
+            MFEE::FEE.SetExpressionByNumber(a_actor, a_morphCategory, morphNumber, a_value);
+        }
+        void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
+            MFEE::FEE.RevertExpression(a_actor);
+        }
+        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
+            MFEE::FEE.UpdateExpression(a_actor);
         }
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm) {
@@ -99,29 +99,29 @@ namespace Mus {
             vm->RegisterFunction("RegisterNewMorphNameOnType", ScriptFileName, RegisterNewMorphNameOnType);
             vm->RegisterFunction("RegisterNewMorphName", ScriptFileName, RegisterNewMorphName);
 
-            vm->RegisterFunction("GetFacialExpressionCategories", ScriptFileName, GetFacialExpressionCategories);
-            vm->RegisterFunction("GetFacialExpressionCategoriesSize", ScriptFileName, GetFacialExpressionCategoriesSize);
-            vm->RegisterFunction("GetFacialExpressionMorphNamesByNumber", ScriptFileName, GetFacialExpressionMorphNamesByNumber);
-            vm->RegisterFunction("GetFacialExpressionCategoryByMorphName", ScriptFileName, GetFacialExpressionCategoryByMorphName);
-            vm->RegisterFunction("GetFacialExpressionCategoryNumber", ScriptFileName, GetFacialExpressionCategoryNumber);
-            vm->RegisterFunction("IsValidFacialExpressionCategory", ScriptFileName, IsValidFacialExpressionCategory);
+            vm->RegisterFunction("GetExpressionCategories", ScriptFileName, GetExpressionCategories);
+            vm->RegisterFunction("GetExpressionCategoriesSize", ScriptFileName, GetExpressionCategoriesSize);
+            vm->RegisterFunction("GetExpressionMorphNamesByNumber", ScriptFileName, GetExpressionMorphNamesByNumber);
+            vm->RegisterFunction("GetExpressionCategoryByMorphName", ScriptFileName, GetExpressionCategoryByMorphName);
+            vm->RegisterFunction("GetExpressionCategoryNumber", ScriptFileName, GetExpressionCategoryNumber);
+            vm->RegisterFunction("IsValidExpressionCategory", ScriptFileName, IsValidExpressionCategory);
 
-            vm->RegisterFunction("GetFacialExpressionMorphNames", ScriptFileName, GetFacialExpressionMorphNames);
-            vm->RegisterFunction("GetFacialExpressionMorphNamesSize", ScriptFileName, GetFacialExpressionMorphNamesSize);
-            vm->RegisterFunction("GetFacialExpressionMorphNamesByNumber", ScriptFileName, GetFacialExpressionMorphNamesByNumber);
-            vm->RegisterFunction("GetFacialExpressionMorphNameByNumber", ScriptFileName, GetFacialExpressionMorphNameByNumber);
-            vm->RegisterFunction("GetFacialExpressionMorphNameByNumbers", ScriptFileName, GetFacialExpressionMorphNameByNumbers);
-            vm->RegisterFunction("GetFacialExpressionMorphNameNumber", ScriptFileName, GetFacialExpressionMorphNameNumber);
-            vm->RegisterFunction("IsValidFacialExpressionMorphName", ScriptFileName, IsValidFacialExpressionMorphName);
+            vm->RegisterFunction("GetExpressionMorphNames", ScriptFileName, GetExpressionMorphNames);
+            vm->RegisterFunction("GetExpressionMorphNamesSize", ScriptFileName, GetExpressionMorphNamesSize);
+            vm->RegisterFunction("GetExpressionMorphNamesByNumber", ScriptFileName, GetExpressionMorphNamesByNumber);
+            vm->RegisterFunction("GetExpressionMorphNameByNumber", ScriptFileName, GetExpressionMorphNameByNumber);
+            vm->RegisterFunction("GetExpressionMorphNameByNumbers", ScriptFileName, GetExpressionMorphNameByNumbers);
+            vm->RegisterFunction("GetExpressionMorphNameNumber", ScriptFileName, GetExpressionMorphNameNumber);
+            vm->RegisterFunction("IsValidExpressionMorphName", ScriptFileName, IsValidExpressionMorphName);
 
-            vm->RegisterFunction("GetFacialExpressionValueByName", ScriptFileName, GetFacialExpressionValueByName);
-            vm->RegisterFunction("GetFacialExpressionValueByNumber", ScriptFileName, GetFacialExpressionValueByNumber);
+            vm->RegisterFunction("GetExpressionValueByName", ScriptFileName, GetExpressionValueByName);
+            vm->RegisterFunction("GetExpressionValueByNumber", ScriptFileName, GetExpressionValueByNumber);
 
-            vm->RegisterFunction("SetFacialExpressionByName", ScriptFileName, SetFacialExpressionByName);
-            vm->RegisterFunction("SetFacialExpressionByType", ScriptFileName, SetFacialExpressionByType);
-            vm->RegisterFunction("SetFacialExpressionByNumber", ScriptFileName, SetFacialExpressionByNumber);
-            vm->RegisterFunction("RevertFacialExpression", ScriptFileName, RevertFacialExpression);
-            vm->RegisterFunction("UpdateFacialExpression", ScriptFileName, UpdateFacialExpression);
+            vm->RegisterFunction("SetExpressionByName", ScriptFileName, SetExpressionByName);
+            vm->RegisterFunction("SetExpressionByType", ScriptFileName, SetExpressionByType);
+            vm->RegisterFunction("SetExpressionByNumber", ScriptFileName, SetExpressionByNumber);
+            vm->RegisterFunction("RevertExpression", ScriptFileName, RevertExpression);
+            vm->RegisterFunction("UpdateExpression", ScriptFileName, UpdateExpression);
             return true;
         }
     }
