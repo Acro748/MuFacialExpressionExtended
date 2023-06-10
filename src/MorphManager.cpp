@@ -110,11 +110,11 @@ namespace Mus {
 			found->second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
 		}
 		else {
-			/*if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
+			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
 			{
 				logger::error("Couldn't get {} morph data", a_morphName);
 				return false;
-			}*/
+			}
 			MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
 			newMorphManagerRecord.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
 			insert(std::make_pair(a_morphName, newMorphManagerRecord));

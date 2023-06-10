@@ -84,6 +84,11 @@ namespace Mus {
 				Console->Print("%s", print.c_str());
 				return false;
 			}
+			else if (IsSameString(category, "reset"))
+			{
+				ActorManager::GetSingleton().Revert(a_actor);
+				return false;
+			}
 		}
 		// failed to get morphCategory
 		auto morphCategories = morphNameEntry::GetSingleton().GetCategories();
