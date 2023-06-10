@@ -24,23 +24,23 @@ namespace MFEE {
 		virtual std::vector<std::string> GetFacialExpressionCategories() {
 			return Mus::morphNameEntry::GetSingleton().GetCategories();
 		};
-		virtual std::string GetFacialExpressionCategoryByNumber(std::uint32_t a_categoryNumber) {
+		virtual std::string GetFacialExpressionCategoryByNumber(std::int32_t a_categoryNumber) {
 			return Mus::morphNameEntry::GetSingleton().GetCategoryByNumber(a_categoryNumber);
 		};
 		virtual std::string GetFacialExpressionCategoryByMorphName(std::string a_morphName) {
 			return Mus::morphNameEntry::GetSingleton().GetCategoryByMorphName(a_morphName);
 		};
-		virtual std::int32_t GetFacialExpressionCategoryNumber(std::string a_category) {
-			return Mus::morphNameEntry::GetSingleton().GetCategoryNumber(a_category);
+		virtual std::int32_t GetFacialExpressionCategoryNumber(std::string a_morphCategory) {
+			return Mus::morphNameEntry::GetSingleton().GetCategoryNumber(a_morphCategory);
 		};
-		virtual bool IsValidFacialExpressionCategory(std::string a_category) {
-			return Mus::morphNameEntry::GetSingleton().IsValidCategory(a_category);
+		virtual bool IsValidFacialExpressionCategory(std::string a_morphCategory) {
+			return Mus::morphNameEntry::GetSingleton().IsValidCategory(a_morphCategory);
 		};
 
 		virtual std::vector<std::string> GetFacialExpressionMorphNames(std::string a_morphCategory) {
 			return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_morphCategory);
 		};
-		virtual std::vector<std::string> GetFacialExpressionMorphNamesByNumber(std::uint32_t a_categoryNumber) {
+		virtual std::vector<std::string> GetFacialExpressionMorphNamesByNumber(std::int32_t a_categoryNumber) {
 			return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_categoryNumber);
 		};
 		virtual std::string GetFacialExpressionMorphNameByNumber(std::string a_morphCategory, std::int32_t a_morphNumber) {
@@ -52,7 +52,7 @@ namespace MFEE {
 		virtual std::int32_t GetFacialExpressionMorphNameNumber(std::string a_morphName) {
 			return Mus::morphNameEntry::GetSingleton().GetMorphNameNumber(a_morphName);
 		};
-		virtual std::int32_t IsValidFacialExpressionMorphName(std::string a_morphName) {
+		virtual bool IsValidFacialExpressionMorphName(std::string a_morphName) {
 			return Mus::morphNameEntry::GetSingleton().IsValidName(a_morphName);
 		};
 

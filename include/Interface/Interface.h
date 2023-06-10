@@ -29,17 +29,17 @@ namespace MFEE {
 		virtual bool RegisterNewMorphName(std::string a_morphName) = 0;
 
 		virtual std::vector<std::string> GetFacialExpressionCategories() = 0;
-		virtual std::string GetFacialExpressionCategoryByNumber(std::uint32_t a_categoryNumber) = 0;
+		virtual std::string GetFacialExpressionCategoryByNumber(std::int32_t a_categoryNumber) = 0;
 		virtual std::string GetFacialExpressionCategoryByMorphName(std::string a_morphName) = 0;
-		virtual std::int32_t GetFacialExpressionCategoryNumber(std::string a_category) = 0;
-		virtual bool IsValidFacialExpressionCategory(std::string a_category) = 0;
+		virtual std::int32_t GetFacialExpressionCategoryNumber(std::string a_morphCategory) = 0;
+		virtual bool IsValidFacialExpressionCategory(std::string a_morphCategory) = 0;
 
 		virtual std::vector<std::string> GetFacialExpressionMorphNames(std::string a_morphCategory) = 0;
-		virtual std::vector<std::string> GetFacialExpressionMorphNamesByNumber(std::uint32_t a_categoryNumber) = 0;
+		virtual std::vector<std::string> GetFacialExpressionMorphNamesByNumber(std::int32_t a_categoryNumber) = 0;
 		virtual std::string GetFacialExpressionMorphNameByNumber(std::string a_morphCategory, std::int32_t a_morphNumber) = 0;
 		virtual std::string GetFacialExpressionMorphNameByNumbers(std::int32_t a_categoryNumber, std::int32_t a_morphNumber) = 0;
 		virtual std::int32_t GetFacialExpressionMorphNameNumber(std::string a_morphName) = 0;
-		virtual std::int32_t IsValidFacialExpressionMorphName(std::string a_morphName) = 0;
+		virtual bool IsValidFacialExpressionMorphName(std::string a_morphName) = 0;
 
 		virtual float GetFacialExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
 		virtual float GetFacialExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
