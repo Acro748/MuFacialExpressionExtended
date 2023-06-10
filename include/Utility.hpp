@@ -240,12 +240,11 @@ namespace Mus {
 
     inline std::int32_t GetNum(std::string str) 
     {
-        std::int32_t result = std::stoi(str);
         for (auto s : str)
         {
-            if (!isdigit(s))
-                result = -1;
+            if (!std::isdigit(s))
+                return -1;
         }
-        return result;
+        return std::stoi(str);
     }
 }

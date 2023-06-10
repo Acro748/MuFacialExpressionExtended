@@ -9,17 +9,29 @@ namespace Mus {
 		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
 		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, morphBasePath);
 		if (!morphData)
+		{
+			logger::debug("{} couldn't get morph data for {} / {}", a_geometry->name.c_str(), morphName, morphBasePath);
 			return false;
+		}
 
 		RE::BSFaceGenBaseMorphExtraData* extraData = GetMorphExtraData(a_geometry);
 		if (!extraData)
+		{
+			logger::debug("{} couldn't get extra data", a_geometry->name.c_str());
 			return false;
+		}
 
-		if (extraData->vertexCount != morphData->vertexCount)
+		if (extraData->vertexCount != morphData->vertexCount) 
+		{
+			logger::debug("{} vertexCount is not equal", a_geometry->name.c_str());
 			return false;
+		}
 
 		if (extraData->vertexCount != morphData->vertices.size())
+		{
+			logger::debug("{} vertexCount is not equal", a_geometry->name.c_str());
 			return false;
+		}
 
 		float newValue = a_value - value;
 		if (!HasExtraData(a_geometry)) {
@@ -27,8 +39,12 @@ namespace Mus {
 			AddExtraData(a_geometry);
 		}
 		else if (IsEqual(newValue, value))
+		{
+			logger::debug("{} value is not changed", a_geometry->name.c_str());
 			return true;
+		}
 
+		newValue *= 0.01f;
 		for (std::size_t i = 0; i < morphData->vertices.size(); i++)
 		{
 			auto& vert = morphData->vertices.at(i);
@@ -38,6 +54,7 @@ namespace Mus {
 		}
 
 		UpdateModelFace(a_geometry);
+		logger::debug("{} morph updated", a_geometry->name.c_str());
 		return true;
 	}
 	bool MorphManagerRecord::Apply(RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, float a_value)
@@ -93,15 +110,16 @@ namespace Mus {
 			found->second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
 		}
 		else {
-			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
+			/*if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
 			{
 				logger::error("Couldn't get {} morph data", a_morphName);
 				return false;
-			}
+			}*/
 			MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
 			newMorphManagerRecord.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
 			insert(std::make_pair(a_morphName, newMorphManagerRecord));
 		}
+		logger::debug("{:x} {} : expression updated", id, name);
 		return true;
 	}
 	void MorphManager::Revert()

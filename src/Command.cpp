@@ -27,9 +27,9 @@ namespace Mus {
 		if (!a_actor)
 			return false;
 
-		std::string category = buffer1; //morphCategory
-		std::string name = buffer2; //morphName
-		std::string value = buffer3; //value
+		std::string category = RE::BSFixedString(buffer1).c_str(); //morphCategory
+		std::string name = RE::BSFixedString(buffer2).c_str(); //morphName
+		std::string value = RE::BSFixedString(buffer3).c_str(); //value
 
 		if (!category.empty()) //is category entered
 		{
@@ -49,7 +49,7 @@ namespace Mus {
 					if (numMorphName >= 0 || morphNameEntry::GetSingleton().IsValidName(name))
 					{
 						if (numMorphName != -1)
-							name = morphNameEntry::GetSingleton().GetMorphNameNumber(name);
+							name = morphNameEntry::GetSingleton().GetMorphNameByNumber(category, numMorphName);
 
 						if (!value.empty())
 						{
@@ -71,7 +71,7 @@ namespace Mus {
 					}
 				}
 				// failed to get morphName
-				Console->Print("Morph name/number is incorrect!");
+				Console->Print("Morph num/name is incorrect!");
 				auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
 				std::string print;
 				for (std::size_t i = 0; i < morphNames.size(); i++) {
@@ -81,6 +81,7 @@ namespace Mus {
 					print += ":";
 					print += morphNames.at(i);
 				}
+				Console->Print("%s", print.c_str());
 				return false;
 			}
 		}
@@ -96,7 +97,7 @@ namespace Mus {
 		}
 		Console->Print("Please enter the following form");
 		Console->Print("mfee <morphCategoryNumber> <morphNameNumber> <value>");
-		Console->Print("Morph Type numbers = %s", print);
+		Console->Print("%s", print.c_str());
 
 		return false;
 	}

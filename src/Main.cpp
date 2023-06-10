@@ -159,8 +159,8 @@ namespace {
     void kDataloadedFunction()
     {
         Commandhook();
-        static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
+        static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
     }
 
     void InitializeMessaging() 

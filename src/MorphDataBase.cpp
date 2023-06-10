@@ -225,80 +225,108 @@ namespace Mus {
 		if (a_morphBasePath.empty() || a_morphPath.empty())
 			return false;
 
-		RE::BSResourceNiBinaryStream basefile = GetFile(a_morphBasePath);
+		char basefilePath[MAX_PATH];
+		memset(basefilePath, 0, MAX_PATH);
+		sprintf_s(basefilePath, MAX_PATH, "Meshes\\%s", a_morphBasePath.c_str());
+		RE::BSFixedString newBasePath(basefilePath);
+
+		RE::BSResourceNiBinaryStream basefile(newBasePath.data());
 		if (!basefile.good()) {
 			return false;
 		}
 
 		char baseheader[0x08];
-		basefile.read(baseheader, 0x08);
+		Read(&basefile, baseheader, 0x08);
 		if (strncmp(baseheader, "FRTRI003", 8) != 0)
 			return false;
 
-		std::int32_t baseVertexCount = -1;
-		basefile.read(&baseVertexCount, sizeof(baseVertexCount));
+		std::int32_t baseVertexCount;
+		Read(&basefile, &baseVertexCount, sizeof(baseVertexCount));
+		logger::debug("BaseVertexCount : {}", baseVertexCount);
 
 
-		RE::BSResourceNiBinaryStream file = GetFile(a_morphPath);
+		char filePath[MAX_PATH];
+		memset(filePath, 0, MAX_PATH);
+		sprintf_s(filePath, MAX_PATH, "Meshes\\%s", a_morphPath.c_str());
+		RE::BSFixedString newPath(filePath);
+
+		RE::BSResourceNiBinaryStream file(newPath.data());
 		if (!file.good()) {
 			return false;
 		}
 
+		logger::debug("Register {} file for {}...", a_morphPath, a_morphBasePath);
+
 		char header[0x08];
-		file.read(header, 0x08);
+		Read(&file, header, 0x08);
 		if (strncmp(header, "FRTRI003", 8) != 0)
 			return false;
-		std::int32_t vertexCount = -1;
-		file.read(&vertexCount, sizeof(vertexCount));
 
+		std::int32_t vertexCount;
+		Read(&file, &vertexCount, sizeof(vertexCount));
+		logger::debug("vertexCount : {}", vertexCount);
 		if (baseVertexCount != vertexCount)
 			return false;
 
-		std::uint32_t polytris = 0, polyquads = 0, unk2 = 0, unk3 = 0,
-			uvverts = 0, flags = 0, numMorphs = 0, numMods = 0,
-			modVerts = 0, unk7 = 0, unk8 = 0, unk9 = 0, unk10 = 0;
+		std::uint32_t polytris = 0, polyquads = 0, lverts = 0, lsurfs = 0,
+			uvverts = 0, flags = 0, morphCount = 0, statMorphs = 0,
+			statVerts = 0, unk7 = 0, unk8 = 0, unk9 = 0, unk10 = 0;
 
-		file.read(&polytris, sizeof(polytris));
-		file.read(&polyquads, sizeof(polyquads));
-		file.read(&unk2, sizeof(unk2));
-		file.read(&unk3, sizeof(unk3));
-		file.read(&uvverts, sizeof(uvverts));
-		file.read(&flags, sizeof(flags));
-		file.read(&numMorphs, sizeof(numMorphs));
-		file.read(&numMods, sizeof(numMods));
-		file.read(&modVerts, sizeof(modVerts));
-		file.read(&unk7, sizeof(unk7));
-		file.read(&unk8, sizeof(unk8));
-		file.read(&unk9, sizeof(unk9));
-		file.read(&unk10, sizeof(unk10));
+		Read(&file, &polytris, sizeof(polytris));
+		logger::debug("polytris : {}", polytris);
+		Read(&file, &polyquads, sizeof(polyquads));
+		logger::debug("polyquads : {}", polyquads);
+		Read(&file, &lverts, sizeof(lverts));
+		logger::debug("lverts : {}", lverts);
+		Read(&file, &lsurfs, sizeof(lsurfs));
+		logger::debug("lsurfs : {}", lsurfs);
+		Read(&file, &uvverts, sizeof(uvverts));
+		logger::debug("uvverts : {}", uvverts);
+		Read(&file, &flags, sizeof(flags));
+		logger::debug("flags : {}", flags);
+		Read(&file, &morphCount, sizeof(morphCount));
+		logger::debug("morphCount : {}", morphCount);
+		Read(&file, &statMorphs, sizeof(statMorphs));
+		logger::debug("statMorphs : {}", statMorphs);
+		Read(&file, &statVerts, sizeof(statVerts));
+		logger::debug("statVerts : {}", statVerts);
+		Read(&file, &unk7, sizeof(unk7));
+		logger::debug("unk7 : {}", unk7);
+		Read(&file, &unk8, sizeof(unk8));
+		logger::debug("unk8 : {}", unk8);
+		Read(&file, &unk9, sizeof(unk9));
+		logger::debug("unk9 : {}", unk9);
+		Read(&file, &unk10, sizeof(unk10));
+		logger::debug("unk10 : {}", unk10);
 
 		// Skip reference verts
-		file.seek(vertexCount * 3 * sizeof(float));
+		Seek(&file, vertexCount * 3 * sizeof(float));
 
 		// Skip polytris
-		file.seek(polytris * 3 * sizeof(std::uint32_t));
+		Seek(&file, polytris * 3 * sizeof(std::uint32_t));
 
 		// Skip UV
 		if (uvverts > 0)
-			file.seek(uvverts * 2 * sizeof(float));
+			Seek(&file, uvverts * 2 * sizeof(float));
 
 		// Skip text coords
-		file.seek(polytris * 3 * sizeof(std::uint32_t));
+		Seek(&file, polytris * 3 * sizeof(std::uint32_t));
 
-		for (std::uint32_t i = 0; i < numMorphs; i++)
+		for (std::uint32_t i = 0; i < morphCount; i++)
 		{
 			std::uint32_t strLen = 0;
-			file.read(&strLen, sizeof(strLen));
+			Read(&file, &strLen, sizeof(strLen));
 
 			char* morphName = new char[strLen + 1];
 			for (std::uint32_t l = 0; l < strLen; l++)
 			{
-				file.read(&morphName[l], sizeof(char));
+				Read(&file, &morphName[l], sizeof(char));
 			}
 			morphName[strLen] = 0;
+			RE::BSFixedString morphName_(morphName);
 
 			float mult = 0.0f;
-			file.read(&mult, sizeof(mult));
+			Read(&file, &mult, sizeof(mult));
 
 			MorphDataBase::Morph morph;
 			morph.morphBasePath = lowLetter(a_morphBasePath);
@@ -308,44 +336,35 @@ namespace Mus {
 			for (std::uint32_t v = 0; v < vertexCount; v++)
 			{
 				MorphDataBase::Morph::Vertex vert;
-				file.read(&vert, sizeof(vert));
-				morph.vertices.push_back(vert);
+				Read(&file, &vert, sizeof(vert));
+				morph.vertices.emplace_back(vert);
 			}
 
-			std::string morphName_ = lowLetter(morphName);
-			auto found = find(morphName_);
+			std::string newMorphName = lowLetter(morphName_.c_str());
+			auto found = find(newMorphName);
 			if (found != end())
 				found->second.Register(morph);
-			else if (Config::GetSingleton().GetCustomMode() || morphNameEntry::GetSingleton().IsValidName(morphName_)) {
-				if (morphNameEntry::GetSingleton().Register(morphName_))
-				{
-					MorphDataBase newMorphDataBase = MorphDataBase(morphName_);
-					newMorphDataBase.Register(morph);
-					insert(std::make_pair(morphName_, newMorphDataBase));
-				}
+			else if (Config::GetSingleton().GetCustomMode() || morphNameEntry::GetSingleton().IsValidName(newMorphName)) {
+				morphNameEntry::GetSingleton().Register(newMorphName);
+
+				MorphDataBase newMorphDataBase = MorphDataBase(newMorphName);
+				newMorphDataBase.Register(morph);
+				insert(std::make_pair(newMorphName, newMorphDataBase));
 			}
+			else
+				continue;
+			logger::debug("Registered {} morph", morphName_.c_str());
 		}
-		logger::debug("Registered {} file", a_morphPath);
+		logger::info("Registered {} file", a_morphPath);
 		return true;
 	}
 
-	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string a_morphBasePath, std::string a_morphPath) const
+	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string morphName, std::string a_morphBasePath) const
 	{
-		a_morphBasePath = lowLetter(a_morphBasePath);
-		auto found = find(a_morphBasePath);
+		morphName = lowLetter(morphName);
+		auto found = find(morphName);
 		if (found != end())
-			return found->second.GetMorphData(a_morphPath);
+			return found->second.GetMorphData(a_morphBasePath);
 		return nullptr;
-	}
-
-	RE::BSResourceNiBinaryStream MorphDataBaseManager::GetFile(std::string a_filePath)
-	{
-		char filePath[MAX_PATH];
-		memset(filePath, 0, MAX_PATH);
-		sprintf_s(filePath, MAX_PATH, "Meshes\\%s", a_filePath.c_str());
-		RE::BSFixedString newPath(filePath);
-
-		RE::BSResourceNiBinaryStream file(newPath.data());
-		return file;
 	}
 }

@@ -143,7 +143,18 @@ namespace Mus {
 		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::string a_morphBasePath) const;
 
 	private:
-		RE::BSResourceNiBinaryStream GetFile(std::string a_filePath);
+		static std::uint32_t Read(RE::BSResourceNiBinaryStream* stream, void* dst, std::uint32_t len) {
+			using func_t = decltype(&MorphDataBaseManager::Read);
+			REL::VariantID offset(69647, 71027, 0x00CBCBE0);
+			REL::Relocation<func_t> func{ offset };
+			return func(stream, dst, len);
+		}
+		static void Seek(RE::BSResourceNiBinaryStream* stream, std::int32_t delta) {
+			using func_t = decltype(&MorphDataBaseManager::Seek);
+			REL::VariantID offset(69640, 71018, 0x00CBC8C0);
+			REL::Relocation<func_t> func{ offset };
+			return func(stream, delta);
+		}
 	};
 }
 

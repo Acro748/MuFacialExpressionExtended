@@ -74,7 +74,8 @@ namespace Mus {
         configPath += "MuFacialExpressionExtended\\";
 
         auto configList = get_all_files_names_within_folder(configPath.c_str());
-        concurrency::parallel_for(std::size_t(0), configList.size(), [&](std::size_t i) {
+        for(std::size_t i = 0; i < configList.size(); i++) 
+        {
             std::string filename = configList.at(i);
             
             if (filename != "." && filename != "..")
@@ -123,9 +124,9 @@ namespace Mus {
                                     auto extensionfile = split(extensionfiles, ",");
                                     if (extensionfile.size() > 1)
                                     {
-                                        for (std::size_t i = 1; i < extensionfile.size(); i++)
+                                        for (std::size_t j = 1; j < extensionfile.size(); j++)
                                         {
-                                            MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(i));
+                                            MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
                                         }
                                     }
                                 }
@@ -143,16 +144,16 @@ namespace Mus {
                             auto extensionfile = split(extensionfiles, ",");
                             if (extensionfile.size() > 1)
                             {
-                                for (std::size_t i = 1; i < extensionfile.size(); i++)
+                                for (std::size_t j = 1; j < extensionfile.size(); j++)
                                 {
-                                    MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(i));
+                                    MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
                                 }
                             }
                         }
                     }
                 }
             }
-        });
+        }
         return true;
     }
 
@@ -162,7 +163,7 @@ namespace Mus {
             return false;
 
         std::string configPath = GetRuntimeSKSEDirectory();
-        configPath += "MuFacialExpressionExtended\\MorphNames";
+        configPath += "MuFacialExpressionExtended\\Morphs\\";
 
         auto configList = get_all_files_names_within_folder(configPath.c_str());
         for(std::size_t i = 0; i < configList.size(); i++) 
