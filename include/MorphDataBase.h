@@ -14,7 +14,7 @@ namespace Mus {
 
 		void Init();
 
-		enum class morphType {
+		enum class morphCategory {
 			Mood,
 			Misc,
 			Ears,
@@ -28,46 +28,46 @@ namespace Mus {
 			total
 		};
 
-		enum class moodType {
+		enum class moodCategory {
 			MoodAhegao,
 			MoodSulky,
 			MoodLaugh,
 			total
 		};
-		enum class miscType {
+		enum class miscCategory {
 			
 			total
 		};
-		enum class earsType {
+		enum class earsCategory {
 			EarsFront,
 			EarsBack,
 			EarsIn,
 			EarsOut,
 			total
 		};
-		enum class tailType {
+		enum class tailCategory {
 			TailUp,
 			TailDown,
 			total
 		};
-		enum class faceType {
+		enum class faceCategory {
 			FaceInflateCheeks,
 			total
 		};
-		enum class eyesType {
+		enum class eyesCategory {
 			EyesIn,
 			EyesOut,
 			total
 		};
-		enum class browsType {
+		enum class browsCategory {
 
 			total
 		};
-		enum class mouthType {
+		enum class mouthCategory {
 
 			total
 		};
-		enum class tongueType {
+		enum class tongueCategory {
 			TongueOut,
 			TongueUp,
 			TongueDown,
@@ -76,15 +76,26 @@ namespace Mus {
 			total
 		};
 
-		bool Register(morphType type, std::string morphName);
+		bool Register(std::string category, std::string morphName);
 		bool Register(std::string morphName);
-		std::vector<std::string> GetNames(morphType type);
-		std::vector<std::string> GetMorphTypes();
-		bool IsValidName(std::string morphName);
-		morphType GetMorphTypeByString(std::string a_morphType) const;
+		bool RegisterCategory(std::string category);
+
+		std::vector<std::string> GetMorphNames(std::string category);
+		std::vector<std::string> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
+
+		std::int32_t GetMorphNameNumber(std::string morphName);
+		std::string GetMorphNameByNumber(std::string category, std::int32_t morphNumber);
+		std::string GetMorphNameByNumber(std::int32_t categoryNumber, std::int32_t morphNumber) { return GetMorphNameByNumber(GetCategoryByNumber(categoryNumber), morphNumber); };
+
+		std::vector<std::string> GetCategories();
+		std::int32_t GetCategoryNumber(std::string category);
+		std::string GetCategoryByNumber(std::int32_t categoryNumber);
+		std::string GetCategoryByMorphName(std::string morphName);
+
+		bool IsValidName(std::string morphName) { return GetMorphNameNumber(morphName) != -1; }
+		bool IsValidCategory(std::string category) { return GetCategoryNumber(category) != -1; }
 	private:
-		std::unordered_map<std::string, morphType> morphTypes; //morphType_str, morphType
-		std::unordered_map<std::string, std::vector<std::string>> names; //morphType, morphNames
+		std::unordered_map<std::string, std::vector<std::string>> names; //morphCategory, morphNames
 	};
 
 

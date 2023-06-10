@@ -18,12 +18,13 @@ namespace Mus {
 		void Load(SKSE::SerializationInterface* serde, std::uint32_t type);
 
 		void SetMorph(RE::Actor* a_actor, std::string morphName, float value);
-		void SetMorph(RE::Actor* a_actor, morphNameEntry::morphType type, std::uint32_t morphNumber, float value);
+		void SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, float value);
+		void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, float value);
 		void Revert(RE::Actor* a_actor);
 		void Update(RE::Actor* a_actor);
 
 		float GetValue(RE::Actor* a_actor, std::string morphName);
-		float GetValue(RE::Actor* a_actor, morphNameEntry::morphType type, std::uint32_t morphNumber);
+		float GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
 	protected:
 
 	private:

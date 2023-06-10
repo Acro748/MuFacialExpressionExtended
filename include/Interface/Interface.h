@@ -25,17 +25,28 @@ namespace MFEE {
 	{
 	public:
 		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) = 0;
-		virtual bool RegisterNewMorphNameOnType(std::string a_morphType, std::string a_morphName) = 0;
+		virtual bool RegisterNewMorphNameOnType(std::string a_morphCategory, std::string a_morphName) = 0;
 		virtual bool RegisterNewMorphName(std::string a_morphName) = 0;
 
-		virtual std::vector<std::string> GetFacialExpressionMorphTypes() = 0;
-		virtual std::vector<std::string> GetFacialExpressionMorphNames(std::string a_morphType) = 0;
+		virtual std::vector<std::string> GetFacialExpressionCategories() = 0;
+		virtual std::string GetFacialExpressionCategoryByNumber(std::uint32_t a_categoryNumber) = 0;
+		virtual std::string GetFacialExpressionCategoryByMorphName(std::string a_morphName) = 0;
+		virtual std::int32_t GetFacialExpressionCategoryNumber(std::string a_category) = 0;
+		virtual bool IsValidFacialExpressionCategory(std::string a_category) = 0;
+
+		virtual std::vector<std::string> GetFacialExpressionMorphNames(std::string a_morphCategory) = 0;
+		virtual std::vector<std::string> GetFacialExpressionMorphNamesByNumber(std::uint32_t a_categoryNumber) = 0;
+		virtual std::string GetFacialExpressionMorphNameByNumber(std::string a_morphCategory, std::int32_t a_morphNumber) = 0;
+		virtual std::string GetFacialExpressionMorphNameByNumbers(std::int32_t a_categoryNumber, std::int32_t a_morphNumber) = 0;
+		virtual std::int32_t GetFacialExpressionMorphNameNumber(std::string a_morphName) = 0;
+		virtual std::int32_t IsValidFacialExpressionMorphName(std::string a_morphName) = 0;
+
 		virtual float GetFacialExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
-		virtual float GetFacialExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t a_morphNumber) = 0;
+		virtual float GetFacialExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
 
 		virtual void SetFacialExpressionByName(RE::Actor* a_actor, std::string a_morphName, float value) = 0;
-		virtual void SetFacialExpressionByType(RE::Actor* a_actor, std::string a_morphType, std::uint32_t a_morphNumber, float value) = 0;
-		virtual void SetFacialExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphType, std::uint32_t a_morphNumber, float a_value) = 0;
+		virtual void SetFacialExpressionByType(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, float value) = 0;
+		virtual void SetFacialExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, float a_value) = 0;
 		virtual void RevertFacialExpression(RE::Actor* a_actor) = 0;
 		virtual void UpdateFacialExpression(RE::Actor* a_actor) = 0;
 	};

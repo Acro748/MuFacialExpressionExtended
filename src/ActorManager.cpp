@@ -33,12 +33,23 @@ namespace Mus {
 			insert(std::make_pair(a_actor->formID, newMorphManager));
 		}
 	}
-	void ActorManager::SetMorph(RE::Actor* a_actor, morphNameEntry::morphType type, std::uint32_t morphNumber, float value)
+	void ActorManager::SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, float value)
 	{
 		if (!a_actor)
 			return;
 
-		auto names = morphNameEntry::GetSingleton().GetNames(type);
+		auto names = morphNameEntry::GetSingleton().GetMorphNames(category);
+		if (names.size() < morphNumber)
+		{
+			SetMorph(a_actor, names.at(morphNumber), value);
+		}
+	}
+	void ActorManager::SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, float value)
+	{
+		if (!a_actor)
+			return;
+
+		auto names = morphNameEntry::GetSingleton().GetMorphNames(categoryNumber);
 		if (names.size() < morphNumber)
 		{
 			SetMorph(a_actor, names.at(morphNumber), value);
@@ -78,13 +89,17 @@ namespace Mus {
 		}
 		return 0.0f;
 	}
-	float ActorManager::GetValue(RE::Actor* a_actor, morphNameEntry::morphType type, std::uint32_t morphNumber)
+	float ActorManager::GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber)
 	{
 		if (!a_actor)
 			return 0.0f;
+		auto categories = morphNameEntry::GetSingleton().GetCategories();
+		if (categories.size() >= categoryNumber)
+			return 0.0f;
+
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			auto names = morphNameEntry::GetSingleton().GetNames(type);
+			auto names = morphNameEntry::GetSingleton().GetMorphNames(categories.at(categoryNumber));
 			if (names.size() > morphNumber) {
 				return found->second.GetValue(names.at(morphNumber));
 			}

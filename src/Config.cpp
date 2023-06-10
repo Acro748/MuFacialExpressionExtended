@@ -158,13 +158,15 @@ namespace Mus {
 
     bool MultipleConfig::LoadMorphNameConfig()
     {
+        if (!GetCustomMode())
+            return false;
+
         std::string configPath = GetRuntimeSKSEDirectory();
         configPath += "MuFacialExpressionExtended\\MorphNames";
 
-        auto morphTypes = magic_enum::enum_entries<morphNameEntry::morphType>();
-
         auto configList = get_all_files_names_within_folder(configPath.c_str());
-        concurrency::parallel_for(std::size_t(0), configList.size(), [&](std::size_t i) {
+        for(std::size_t i = 0; i < configList.size(); i++) 
+        {
             std::string filename = configList.at(i);
 
             if (filename != "." && filename != "..")
@@ -188,7 +190,7 @@ namespace Mus {
                         std::string line;
                         std::string currentSetting;
 
-                        morphNameEntry::morphType morphType;
+                        std::string morphCategory;
                         std::string morphNames;
                         bool isReading = false;
                         while (std::getline(file, line))
@@ -207,7 +209,7 @@ namespace Mus {
                             std::string variableName;
                             std::string variableValue = GetConfigSettingsStringValue(line, variableName);
 
-                            if (variableName == "MorphType")
+                            if (variableName == "morphCategory")
                             {
                                 if (isReading)
                                 {
@@ -215,18 +217,11 @@ namespace Mus {
                                     if (morphName.size() > 1)
                                     {
                                         for (auto& name : morphName) {
-                                            morphNameEntry::GetSingleton().Register(morphType, name);
+                                            morphNameEntry::GetSingleton().Register(morphCategory, name);
                                         }
                                     }
                                 }
-                                auto found = std::find_if(morphTypes.begin(), morphTypes.end(), [variableValue](std::pair<morphNameEntry::morphType, std::string_view> pair) {
-                                    return IsSameString(pair.second.data(), variableValue);
-                                    }
-                                );
-                                if (found != morphTypes.end())
-                                    morphType = found->first;
-                                else
-                                    logger::error("{} : {} is incorrect morphType!", filename, variableValue);
+                                morphNameEntry::GetSingleton().RegisterCategory(variableValue);
                                 isReading = false;
                             }
                             else if (variableName == "MorphName")
@@ -237,7 +232,7 @@ namespace Mus {
                                     if (morphName.size() > 1)
                                     {
                                         for (auto& name : morphName) {
-                                            morphNameEntry::GetSingleton().Register(morphType, name);
+                                            morphNameEntry::GetSingleton().Register(morphCategory, name);
                                         }
                                     }
                                 }
@@ -256,14 +251,14 @@ namespace Mus {
                             if (morphName.size() > 1)
                             {
                                 for (auto& name : morphName) {
-                                    morphNameEntry::GetSingleton().Register(morphType, name);
+                                    morphNameEntry::GetSingleton().Register(morphCategory, name);
                                 }
                             }
                         }
                     }
                 }
             }
-            });
+        }
         return true;
     }
 }

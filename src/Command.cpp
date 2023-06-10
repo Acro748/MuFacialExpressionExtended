@@ -27,44 +27,36 @@ namespace Mus {
 		if (!a_actor)
 			return false;
 
-		std::string param1 = buffer1; //morphType
-		std::string param2 = buffer2; //morphName
-		std::string param3 = buffer3; //value
+		std::string category = buffer1; //morphCategory
+		std::string name = buffer2; //morphName
+		std::string value = buffer3; //value
 
-		auto morphTypes = magic_enum::enum_entries<morphNameEntry::morphType>();
-		if (!param1.empty()) //is morphType entered
+		if (!category.empty()) //is category entered
 		{
-			std::int32_t numMorphType = GetNum(param1);
-			if (auto found = std::find_if(morphTypes.begin(), morphTypes.end(), [param1](std::pair<morphNameEntry::morphType, std::string_view> pair) { return IsSameString(pair.second.data(), param1); });
-				found != morphTypes.end()
-				|| (numMorphType != -1 && numMorphType < morphTypes.size() - 1))
+			std::int32_t numMorphCategory = GetNum(category);
+			category = lowLetter(category);
+			auto categories = morphNameEntry::GetSingleton().GetCategories();
+			if ((numMorphCategory >= 0 && numMorphCategory < categories.size()) || morphNameEntry::GetSingleton().IsValidCategory(category))
 			{
-				morphNameEntry::morphType morphType;
-				if (numMorphType != -1)
-					morphType = morphNameEntry::morphType(numMorphType);
-				else
-					morphType = found->first;
-
-				auto morphNames = morphNameEntry::GetSingleton().GetNames(morphType);
-				if (!param2.empty()) //is morphName entered
+				if (numMorphCategory != -1)
 				{
-					std::int32_t numMorphName = GetNum(param2);
-					if (auto found = std::find_if(morphNames.begin(), morphNames.end(), [param2](std::string str) { return IsSameString(str.data(), param2); });
-						found != morphNames.end()
-						|| (numMorphName != -1 && numMorphName < morphNames.size() - 1))
-					{
-						std::string morphName;
-						if (numMorphName != -1)
-							morphName = morphNames.at(numMorphName);
-						else
-							morphName = found->c_str();
+					category = morphNameEntry::GetSingleton().GetCategories().at(numMorphCategory);
+				}
 
-						if (!param3.empty())
+				if (!name.empty()) //is morphName entered
+				{
+					std::int32_t numMorphName = GetNum(name);
+					if (numMorphName >= 0 || morphNameEntry::GetSingleton().IsValidName(name))
+					{
+						if (numMorphName != -1)
+							name = morphNameEntry::GetSingleton().GetMorphNameNumber(name);
+
+						if (!value.empty())
 						{
-							float value = std::stof(param3);
-							if (value <= 100 && 0 <= value || !Config::GetSingleton().GetRestriction())
+							float a_value = std::stof(value);
+							if (a_value <= 100 && 0 <= a_value || !Config::GetSingleton().GetRestriction())
 							{
-								ActorManager::GetSingleton().SetMorph(a_actor, morphName, value);
+								ActorManager::GetSingleton().SetMorph(a_actor, name, a_value);
 							}
 							else
 							{
@@ -80,30 +72,30 @@ namespace Mus {
 				}
 				// failed to get morphName
 				Console->Print("Morph name/number is incorrect!");
+				auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
 				std::string print;
 				for (std::size_t i = 0; i < morphNames.size(); i++) {
 					if (i != 0)
 						print += " / ";
 					print += std::to_string(i);
-					print += " : ";
+					print += ":";
 					print += morphNames.at(i);
 				}
 				return false;
 			}
 		}
-		// failed to get morphType
+		// failed to get morphCategory
+		auto morphCategories = morphNameEntry::GetSingleton().GetCategories();
 		std::string print;
-		for (auto& type : morphTypes) {
-			if (type.first == morphNameEntry::morphType::total)
-				continue;
-			else if (type.first != morphNameEntry::morphType::Mood)
+		for (std::size_t i = 0; i < morphCategories.size(); i++) {
+			if (i != 0)
 				print += " / ";
-			print += std::to_string(std::to_underlying(type.first));
-			print += " : ";
-			print += type.second.data();
+			print += std::to_string(i);
+			print += ":";
+			print += morphCategories.at(i);
 		}
 		Console->Print("Please enter the following form");
-		Console->Print("mfee <morphTypeNumber> <morphNameNumber> <value>");
+		Console->Print("mfee <morphCategoryNumber> <morphNameNumber> <value>");
 		Console->Print("Morph Type numbers = %s", print);
 
 		return false;
@@ -139,7 +131,7 @@ namespace Mus {
 		RE::SCRIPT_FUNCTION cmd = *command;
 		cmd.functionName = "mfee";
 		cmd.shortName = "mfee";
-		cmd.helpString = "mfee <morphTypeName or morphTypeNumber> <morphName or morphNumber> <value>";
+		cmd.helpString = "mfee <morphCategoryName or morphCategoryNumber> <morphName or morphNumber> <value>";
 		cmd.referenceFunction = false;
 		cmd.numParams = 3;
 		cmd.params = params;
