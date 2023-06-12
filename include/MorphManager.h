@@ -37,8 +37,8 @@ namespace Mus {
 		float GetValue(std::string a_morphName) const;
 
 		bool Apply(std::string a_morphName, float a_value);
-		void Revert();
-		void Update();
+		void Revert(std::string category = "");
+		void Update(std::string category = "");
 	private:
 	};
 }

@@ -199,18 +199,25 @@ namespace Mus {
         return Letter;
     }
 
+    inline std::string fixLetter(std::string Letter)
+    {
+        Letter = lowLetter(Letter);
+        Letter = std::regex_replace(Letter, std::regex("/"), "\\");
+        return Letter;
+    }
+
     inline bool IsContainString(std::string base, std::string find)
     {
-        base = lowLetter(base);
-        find = lowLetter(find);
+        base = fixLetter(base);
+        find = fixLetter(find);
 
         return (base.find(find) != std::string::npos);
     }
 
     inline bool IsSameString(std::string str1, std::string str2)
     {
-        str1 = lowLetter(str1);
-        str2 = lowLetter(str2);
+        str1 = fixLetter(str1);
+        str2 = fixLetter(str2);
 
         return (str1 == str2);
     }

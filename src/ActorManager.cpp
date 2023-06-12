@@ -23,15 +23,19 @@ namespace Mus {
 		if (!a_actor)
 			return;
 
+		bool isApplied = false;
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			found->second.Apply(morphName, value);
+			isApplied = found->second.Apply(morphName, value);
 		}
 		else {
 			MorphManager newMorphManager = MorphManager(a_actor);
-			newMorphManager.Apply(morphName, value);
+			isApplied = newMorphManager.Apply(morphName, value);
 			insert(std::make_pair(a_actor->formID, newMorphManager));
 		}
+
+		if (!isApplied)
+			logger::error("{:x} {} : Couldn't apply the {}", a_actor->formID, a_actor->GetName(), morphName);
 	}
 	void ActorManager::SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, float value)
 	{
@@ -56,25 +60,25 @@ namespace Mus {
 		}
 	}
 
-	void ActorManager::Revert(RE::Actor* a_actor)
+	void ActorManager::Revert(RE::Actor* a_actor, std::string category)
 	{
 		if (!a_actor)
 			return;
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			found->second.Revert();
+			found->second.Revert(category);
 		}
 	}
 
-	void ActorManager::Update(RE::Actor* a_actor)
+	void ActorManager::Update(RE::Actor* a_actor, std::string category)
 	{
 		if (!a_actor)
 			return;
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			found->second.Update();
+			found->second.Update(category);
 		}
 	}
 

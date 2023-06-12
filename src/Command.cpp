@@ -31,11 +31,11 @@ namespace Mus {
 		std::string name = RE::BSFixedString(buffer2).c_str(); //morphName
 		std::string value = RE::BSFixedString(buffer3).c_str(); //value
 
+		auto categories = morphNameEntry::GetSingleton().GetCategories();
 		if (!category.empty()) //is category entered
 		{
 			std::int32_t numMorphCategory = GetNum(category);
-			category = lowLetter(category);
-			auto categories = morphNameEntry::GetSingleton().GetCategories();
+			category = fixLetter(category);
 			if ((numMorphCategory >= 0 && numMorphCategory < categories.size()) || morphNameEntry::GetSingleton().IsValidCategory(category))
 			{
 				if (numMorphCategory != -1)
@@ -43,10 +43,11 @@ namespace Mus {
 					category = morphNameEntry::GetSingleton().GetCategories().at(numMorphCategory);
 				}
 
+				auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
 				if (!name.empty()) //is morphName entered
 				{
 					std::int32_t numMorphName = GetNum(name);
-					if (numMorphName >= 0 || morphNameEntry::GetSingleton().IsValidName(name))
+					if ((numMorphName >= 0 && numMorphName < morphNames.size()) || morphNameEntry::GetSingleton().IsValidName(name))
 					{
 						if (numMorphName != -1)
 							name = morphNameEntry::GetSingleton().GetMorphNameByNumber(category, numMorphName);
@@ -69,10 +70,14 @@ namespace Mus {
 						Console->Print("Value is incorrect!");
 						return false;
 					}
+					else if (IsSameString(name, "reset"))
+					{
+						ActorManager::GetSingleton().Revert(a_actor, category);
+						return false;
+					}
 				}
 				// failed to get morphName
 				Console->Print("Morph num/name is incorrect!");
-				auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
 				std::string print;
 				for (std::size_t i = 0; i < morphNames.size(); i++) {
 					if (i != 0)
@@ -91,14 +96,13 @@ namespace Mus {
 			}
 		}
 		// failed to get morphCategory
-		auto morphCategories = morphNameEntry::GetSingleton().GetCategories();
 		std::string print;
-		for (std::size_t i = 0; i < morphCategories.size(); i++) {
+		for (std::size_t i = 0; i < categories.size(); i++) {
 			if (i != 0)
 				print += " / ";
 			print += std::to_string(i);
 			print += ":";
-			print += morphCategories.at(i);
+			print += categories.at(i);
 		}
 		Console->Print("Please enter the following form");
 		Console->Print("mfee <morphCategoryNumber> <morphNameNumber> <value>");

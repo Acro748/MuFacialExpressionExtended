@@ -73,11 +73,11 @@ namespace MFEE {
 			Mus::ActorManager::GetSingleton().SetMorph(a_actor, a_morphCategory, a_morphNumber, a_value);
 		};
 
-		virtual void RevertExpression(RE::Actor* a_actor) {
-			Mus::ActorManager::GetSingleton().Revert(a_actor);
+		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") {
+			Mus::ActorManager::GetSingleton().Revert(a_actor, a_morphCategory);
 		};
-		virtual void UpdateExpression(RE::Actor* a_actor) {
-			Mus::ActorManager::GetSingleton().Update(a_actor);
+		virtual void UpdateExpression(RE::Actor* a_actor, std::string a_morphCategory = "") {
+			Mus::ActorManager::GetSingleton().Update(a_actor, a_morphCategory);
 		};
 	};
 	static FacialExpressionExtended FEE;

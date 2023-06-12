@@ -38,21 +38,22 @@ namespace Mus {
 			newValue = a_value;
 			AddExtraData(a_geometry);
 		}
-		else if (IsEqual(newValue, value))
+		
+		if (!IsEqual(newValue, value))
 		{
 			logger::debug("{} value is not changed", a_geometry->name.c_str());
-			return true;
 		}
-
-		newValue *= 0.01f;
-		for (std::size_t i = 0; i < morphData->vertices.size(); i++)
+		else
 		{
-			auto& vert = morphData->vertices.at(i);
-			extraData->vertexData[i].x += (float)((double)vert.x * (double)morphData->multiplier * (double)newValue);
-			extraData->vertexData[i].y += (float)((double)vert.y * (double)morphData->multiplier * (double)newValue);
-			extraData->vertexData[i].z += (float)((double)vert.z * (double)morphData->multiplier * (double)newValue);
+			newValue *= 0.01f;
+			for (std::size_t i = 0; i < morphData->vertices.size(); i++)
+			{
+				auto& vert = morphData->vertices.at(i);
+				extraData->vertexData[i].x += (float)((double)vert.x * (double)morphData->multiplier * (double)newValue);
+				extraData->vertexData[i].y += (float)((double)vert.y * (double)morphData->multiplier * (double)newValue);
+				extraData->vertexData[i].z += (float)((double)vert.z * (double)morphData->multiplier * (double)newValue);
+			}
 		}
-
 		UpdateModelFace(a_geometry);
 		logger::debug("{} morph updated", a_geometry->name.c_str());
 		return true;
@@ -68,11 +69,12 @@ namespace Mus {
 				continue;
 			Apply(headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(headpart->formEditorID)), a_value);
 
-			for (auto extraPart : headpart->extraParts) {
+			//is no need to get extra parts?, are extra parts already included in headparts?
+			/*for (auto extraPart : headpart->extraParts) {
 				if (!extraPart)
 					continue;
-				Apply(headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(extraPart->formEditorID)), a_value);
-			}
+				Apply(extraPart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(extraPart->formEditorID)), a_value);
+			}*/
 		}
 		value = a_value;
 		return true;
@@ -104,7 +106,7 @@ namespace Mus {
 		if (!actorBase)
 			return false;
 
-		a_morphName = lowLetter(a_morphName);
+		a_morphName = fixLetter(a_morphName);
 		auto found = find(a_morphName);
 		if (found != end()) {
 			found->second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
@@ -112,7 +114,7 @@ namespace Mus {
 		else {
 			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
 			{
-				logger::error("Couldn't get {} morph data", a_morphName);
+				logger::debug("Couldn't get {} morph data", a_morphName);
 				return false;
 			}
 			MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
@@ -122,7 +124,7 @@ namespace Mus {
 		logger::debug("{:x} {} : expression updated", id, name);
 		return true;
 	}
-	void MorphManager::Revert()
+	void MorphManager::Revert(std::string category)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
 		if (!actor)
@@ -132,12 +134,26 @@ namespace Mus {
 		if (!actorBase)
 			return;
 
-		for (auto& morph : *this)
+		if (category.empty())
 		{
-			morph.second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), 0.0f);
+			for (auto& morph : *this)
+			{
+				morph.second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), 0.0f);
+			}
+		}
+		else
+		{
+			category = fixLetter(category);
+			auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
+			for (auto name : morphNames) 
+			{
+				auto found = find(name);
+				if (found != end())
+					found->second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), 0.0f);
+			}
 		}
 	}
-	void MorphManager::Update()
+	void MorphManager::Update(std::string category)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
 		if (!actor)
@@ -146,16 +162,29 @@ namespace Mus {
 		RE::TESNPC* actorBase = actor->GetActorBase();
 		if (!actorBase)
 			return;
-
-		for (auto& morph : *this)
+		if (category.empty())
 		{
-			morph.second.Update(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode());
+			for (auto& morph : *this)
+			{
+				morph.second.Update(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode());
+			}
+		}
+		else
+		{
+			category = fixLetter(category);
+			auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
+			for (auto name : morphNames)
+			{
+				auto found = find(name);
+				if (found != end())
+					found->second.Update(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode());
+			}
 		}
 	}
 
 	float MorphManager::GetValue(std::string a_morphName) const
 	{
-		lowLetter(a_morphName);
+		a_morphName = fixLetter(a_morphName);
 		auto found = find(a_morphName);
 		if (found != end())
 			return found->second.GetValue();

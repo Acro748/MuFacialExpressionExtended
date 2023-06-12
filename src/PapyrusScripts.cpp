@@ -84,11 +84,11 @@ namespace Mus {
         void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t morphNumber, float a_value) {
             MFEE::FEE.SetExpressionByNumber(a_actor, a_morphCategory, morphNumber, a_value);
         }
-        void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
-            MFEE::FEE.RevertExpression(a_actor);
+        void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
+            MFEE::FEE.RevertExpression(a_actor, a_morphCategory.c_str());
         }
-        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
-            MFEE::FEE.UpdateExpression(a_actor);
+        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
+            MFEE::FEE.UpdateExpression(a_actor, a_morphCategory.c_str());
         }
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm) {

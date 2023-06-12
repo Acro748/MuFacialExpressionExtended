@@ -20,8 +20,8 @@ namespace Mus {
 		void SetMorph(RE::Actor* a_actor, std::string morphName, float value);
 		void SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, float value);
 		void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, float value);
-		void Revert(RE::Actor* a_actor);
-		void Update(RE::Actor* a_actor);
+		void Revert(RE::Actor* a_actor, std::string category = "");
+		void Update(RE::Actor* a_actor, std::string category = "");
 
 		float GetValue(RE::Actor* a_actor, std::string morphName);
 		float GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);

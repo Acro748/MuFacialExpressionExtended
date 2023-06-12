@@ -31,8 +31,8 @@ namespace Mus {
         void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value);
         void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t morphNumber, float a_value);
         void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t morphNumber, float a_value);
-        void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor);
-        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor);
+        void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
+        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm);
     }

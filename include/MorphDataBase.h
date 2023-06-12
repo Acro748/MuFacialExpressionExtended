@@ -57,6 +57,7 @@ namespace Mus {
 		enum class eyesCategory {
 			EyesIn,
 			EyesOut,
+			EyesSurprise,
 			total
 		};
 		enum class browsCategory {
@@ -73,6 +74,8 @@ namespace Mus {
 			TongueDown,
 			TongueLeft,
 			TongueRight,
+			TongueTwistLight,
+			TongueTwistRight,
 			total
 		};
 
@@ -103,7 +106,7 @@ namespace Mus {
 	{
 		std::string morphName;
 	public:
-		MorphDataBase(std::string a_morphName) : morphName(lowLetter(a_morphName)) {};
+		MorphDataBase(std::string a_morphName) : morphName(fixLetter(a_morphName)) {};
 		~MorphDataBase() {};
 
 		struct Morph {

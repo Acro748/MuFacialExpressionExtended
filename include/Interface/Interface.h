@@ -47,8 +47,8 @@ namespace MFEE {
 		virtual void SetExpressionByName(RE::Actor* a_actor, std::string a_morphName, float value) = 0;
 		virtual void SetExpressionByType(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, float value) = 0;
 		virtual void SetExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, float a_value) = 0;
-		virtual void RevertExpression(RE::Actor* a_actor) = 0;
-		virtual void UpdateExpression(RE::Actor* a_actor) = 0;
+		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") = 0;
+		virtual void UpdateExpression(RE::Actor* a_actor, std::string a_morphCategory = "") = 0;
 	};
 
 	class InterfaceManager {
