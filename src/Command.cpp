@@ -94,6 +94,14 @@ namespace Mus {
 				ActorManager::GetSingleton().Revert(a_actor);
 				return false;
 			}
+			else if (IsSameString(category, "reload"))
+			{
+				ActorManager::GetSingleton().Revert();
+				Config::GetSingleton().LoadConfig();
+				static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
+				static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
+				return false;
+			}
 		}
 		// failed to get morphCategory
 		std::string print;

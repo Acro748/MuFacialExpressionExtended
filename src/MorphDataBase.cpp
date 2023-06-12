@@ -4,85 +4,93 @@ namespace Mus {
 	void morphNameEntry::Init()
 	{
 		auto moodNames = magic_enum::enum_names<moodCategory>();
-		auto miscNames = magic_enum::enum_names<miscCategory>();
-		auto earsNames = magic_enum::enum_names<earsCategory>();
-		auto tailNames = magic_enum::enum_names<tailCategory>();
-		auto faceNames = magic_enum::enum_names<faceCategory>();
-		auto eyesNames = magic_enum::enum_names<eyesCategory>();
-		auto browsNames = magic_enum::enum_names<browsCategory>();
-		auto mouthNames = magic_enum::enum_names<mouthCategory>();
-		auto tongueNames = magic_enum::enum_names<tongueCategory>();
-
-		std::string typeName = fixLetter(magic_enum::enum_name(morphCategory::Mood).data());
+		std::string category = fixLetter(magic_enum::enum_name(morphCategory::Mood).data());
+		RegisterCategory(category);
 		for (auto& name : moodNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Misc).data());
+		auto miscNames = magic_enum::enum_names<miscCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Misc).data());
+		RegisterCategory(category);
 		for (auto& name : miscNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Ears).data());
+		auto earsNames = magic_enum::enum_names<earsCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Ears).data());
+		RegisterCategory(category);
 		for (auto& name : earsNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Tail).data());
+		auto tailNames = magic_enum::enum_names<tailCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Tail).data());
+		RegisterCategory(category);
 		for (auto& name : tailNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Face).data());
+		auto faceNames = magic_enum::enum_names<faceCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Face).data());
+		RegisterCategory(category);
 		for (auto& name : faceNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Eyes).data());
+		auto eyesNames = magic_enum::enum_names<eyesCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Eyes).data());
+		RegisterCategory(category);
 		for (auto& name : eyesNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Brows).data());
+		auto browsNames = magic_enum::enum_names<browsCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Brows).data());
+		RegisterCategory(category);
 		for (auto& name : browsNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Mouth).data());
+		auto mouthNames = magic_enum::enum_names<mouthCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Mouth).data());
+		RegisterCategory(category);
 		for (auto& name : mouthNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 
-		typeName = fixLetter(magic_enum::enum_name(morphCategory::Tongue).data());
+		auto tongueNames = magic_enum::enum_names<tongueCategory>();
+		category = fixLetter(magic_enum::enum_name(morphCategory::Tongue).data());
+		RegisterCategory(category);
 		for (auto& name : tongueNames) {
 			std::string name_ = fixLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
-			names[typeName].emplace_back(name_);
+			Register(category, name_);
 		}
 	}
 

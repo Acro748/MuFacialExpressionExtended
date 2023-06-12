@@ -62,23 +62,33 @@ namespace Mus {
 
 	void ActorManager::Revert(RE::Actor* a_actor, std::string category)
 	{
-		if (!a_actor)
-			return;
-
-		auto found = find(a_actor->formID);
-		if (found != end()) {
-			found->second->Revert(category);
+		if (a_actor)
+		{
+			if (auto found = find(a_actor->formID); found != end()) {
+				found->second->Revert(category);
+			}
+		}
+		else
+		{
+			for (auto& morphManager : *this) {
+				morphManager.second->Revert();
+			}
 		}
 	}
 
 	void ActorManager::Update(RE::Actor* a_actor, std::string category)
 	{
-		if (!a_actor)
-			return;
-
-		auto found = find(a_actor->formID);
-		if (found != end()) {
-			found->second->Update(category);
+		if (a_actor)
+		{
+			if (auto found = find(a_actor->formID); found != end()) {
+				found->second->Update(category);
+			}
+		}
+		else
+		{
+			for (auto& morphManager : *this) {
+				morphManager.second->Revert();
+			}
 		}
 	}
 
