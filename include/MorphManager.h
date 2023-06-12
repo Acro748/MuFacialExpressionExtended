@@ -1,6 +1,7 @@
 #pragma once
 
 namespace Mus {
+	static RE::NiExtraData* extraData = RE::NiBooleanExtraData::Create("MFEE_APPLIED", true);
 	class MorphManagerRecord
 	{
 		std::string morphName;
@@ -14,8 +15,6 @@ namespace Mus {
 
 		float GetValue() const { return value; }
 	private:
-		RE::NiExtraData* extraData = RE::NiBooleanExtraData::Create("MFEE_APPLIED", true);
-
 		bool Apply(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value);
 
 		bool HasExtraData(RE::BSGeometry* a_geometry) { return a_geometry->HasExtraData(extraData->name); }
@@ -40,5 +39,6 @@ namespace Mus {
 		void Revert(std::string category = "");
 		void Update(std::string category = "");
 	private:
+		std::recursive_mutex m_lock;
 	};
 }

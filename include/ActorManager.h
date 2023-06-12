@@ -1,8 +1,9 @@
 #pragma once
 
 namespace Mus {
+	typedef std::shared_ptr<MorphManager> MorphManagerPtr;
 	class ActorManager :
-		public concurrency::concurrent_unordered_map<RE::FormID, MorphManager>
+		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>
 	{
 	public:
 		ActorManager() {};

@@ -39,7 +39,7 @@ namespace Mus {
 			AddExtraData(a_geometry);
 		}
 		
-		if (!IsEqual(newValue, value))
+		if (IsEqual(newValue, value))
 		{
 			logger::debug("{} value is not changed", a_geometry->name.c_str());
 		}
@@ -108,6 +108,7 @@ namespace Mus {
 
 		a_morphName = fixLetter(a_morphName);
 		auto found = find(a_morphName);
+		m_lock.lock();
 		if (found != end()) {
 			found->second.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
 		}
@@ -115,12 +116,15 @@ namespace Mus {
 			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
 			{
 				logger::debug("Couldn't get {} morph data", a_morphName);
-				return false;
 			}
-			MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
-			newMorphManagerRecord.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
-			insert(std::make_pair(a_morphName, newMorphManagerRecord));
+			else
+			{
+				MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
+				newMorphManagerRecord.Apply(actorBase->headParts, actorBase->numHeadParts, actor->GetFaceNode(), a_value);
+				insert(std::make_pair(a_morphName, newMorphManagerRecord));
+			}
 		}
+		m_lock.unlock();
 		logger::debug("{:x} {} : expression updated", id, name);
 		return true;
 	}

@@ -26,11 +26,11 @@ namespace Mus {
 		bool isApplied = false;
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			isApplied = found->second.Apply(morphName, value);
+			isApplied = found->second->Apply(morphName, value);
 		}
 		else {
-			MorphManager newMorphManager = MorphManager(a_actor);
-			isApplied = newMorphManager.Apply(morphName, value);
+			auto newMorphManager = std::make_shared<MorphManager>(a_actor);
+			isApplied = newMorphManager->Apply(morphName, value);
 			insert(std::make_pair(a_actor->formID, newMorphManager));
 		}
 
@@ -67,7 +67,7 @@ namespace Mus {
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			found->second.Revert(category);
+			found->second->Revert(category);
 		}
 	}
 
@@ -78,7 +78,7 @@ namespace Mus {
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			found->second.Update(category);
+			found->second->Update(category);
 		}
 	}
 
@@ -89,7 +89,7 @@ namespace Mus {
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			return found->second.GetValue(morphName);
+			return found->second->GetValue(morphName);
 		}
 		return 0.0f;
 	}
@@ -105,7 +105,7 @@ namespace Mus {
 		if (found != end()) {
 			auto names = morphNameEntry::GetSingleton().GetMorphNames(categories.at(categoryNumber));
 			if (names.size() > morphNumber) {
-				return found->second.GetValue(names.at(morphNumber));
+				return found->second->GetValue(names.at(morphNumber));
 			}
 		}
 		return 0.0f;
