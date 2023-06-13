@@ -102,6 +102,11 @@ namespace Mus {
 				static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 				return false;
 			}
+			else if (IsSameString(category, "update"))
+			{
+				ActorManager::GetSingleton().Update(a_actor);
+				return false;
+			}
 		}
 		// failed to get morphCategory
 		std::string print;

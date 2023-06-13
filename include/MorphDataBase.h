@@ -79,6 +79,11 @@ namespace Mus {
 			total
 		};
 
+		struct morphNameEntryData {
+			std::string morphCategory;
+			std::vector<std::string> morphNames;
+		};
+
 		bool Register(std::string category, std::string morphName);
 		bool Register(std::string morphName);
 		bool RegisterCategory(std::string category);
@@ -98,7 +103,7 @@ namespace Mus {
 		bool IsValidName(std::string morphName) { return GetMorphNameNumber(morphName) != -1; }
 		bool IsValidCategory(std::string category) { return GetCategoryNumber(category) != -1; }
 	private:
-		std::unordered_map<std::string, std::vector<std::string>> names; //morphCategory, morphNames
+		std::vector<morphNameEntryData> names; //morphCategory, morphNames
 	};
 
 

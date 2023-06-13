@@ -102,11 +102,17 @@ namespace Mus {
 			return false;
 		if (IsValidName(morphName))
 			return false;
-		if (std::find(names[category].begin(), names[category].end(), morphName) == names[category].end())
+		if (auto foundCategory = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
+			return IsSameString(category, data.morphCategory);
+			}
+		); foundCategory != names.end())
 		{
-			names[category].emplace_back(morphName);
-			logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
-			return true;
+			if (auto foundName = std::find(foundCategory->morphNames.begin(), foundCategory->morphNames.end(), morphName); foundName == foundCategory->morphNames.end())
+			{
+				foundCategory->morphNames.emplace_back(morphName);
+				logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
+				return true;
+			}
 		}
 		return false;
 	}
@@ -117,45 +123,54 @@ namespace Mus {
 			return false;
 
 		std::string category;
-		if (auto found = std::find_if(names.begin(), names.end(), [morphName](std::pair<std::string, std::vector<std::string>> pair) {
-			return IsContainString(morphName, pair.first);
+		if (auto found = std::find_if(names.begin(), names.end(), [morphName](morphNameEntryData data) {
+			return IsContainString(morphName, data.morphCategory);
 			}); found != names.end())
 		{
-			category = found->first;
+			category = found->morphCategory;
 		}
 		else
 		{
 			category = fixLetter(magic_enum::enum_name(morphCategory::Misc).data());
 		}
-		names[category].emplace_back(morphName);
-		logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
-		return true;
+
+		if (auto found = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
+			return IsSameString(category, data.morphCategory);
+			}); found != names.end())
+		{
+			found->morphNames.emplace_back(morphName);
+			logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
+			return true;
+		}
+			return false;
 	}
 	bool morphNameEntry::RegisterCategory(std::string category)
 	{
 		if (IsValidCategory(category))
 			return false;
 
-		category = fixLetter(category);
-		std::vector<std::string> newNamelist;
-		names.insert(std::make_pair(category, newNamelist));
+		morphNameEntryData newData;
+		newData.morphCategory = fixLetter(category);
+		names.emplace_back(newData);
 		logger::debug("morphNameEntry : Registered {} category", category);
 		return true;
 	}
 	std::vector<std::string> morphNameEntry::GetMorphNames(std::string category)
 	{
-		if (!IsValidCategory(category))
-			return std::vector<std::string>();
-
 		category = fixLetter(category);
-		return names[category];
+		if (auto found = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
+			return IsSameString(data.morphCategory, category);
+			}
+		); found != names.end())
+			return found->morphNames;
+		return std::vector<std::string>();
 	}
 	std::int32_t morphNameEntry::GetMorphNameNumber(std::string morphName)
 	{
 		morphName = fixLetter(morphName);
 		for (auto name : names) {
-			for (std::size_t i = 0; i < name.second.size(); i++) {
-				if (IsSameString(name.second.at(i), morphName))
+			for (std::size_t i = 0; i < name.morphNames.size(); i++) {
+				if (IsSameString(name.morphNames.at(i), morphName))
 					return i;
 			}
 		}
@@ -174,19 +189,18 @@ namespace Mus {
 	std::vector<std::string> morphNameEntry::GetCategories()
 	{
 		std::vector<std::string> result;
-		for (auto name : names) {
-			result.emplace_back(name.first);
+		for (std::size_t i = 0; i < names.size(); i++) {
+			std::string category = names.at(i).morphCategory;
+			result.emplace_back(category);
 		}
 		return result;
 	}
 	std::int32_t morphNameEntry::GetCategoryNumber(std::string category)
 	{
 		category = fixLetter(category);
-		std::int32_t i = 0;
-		for (auto name : names) {
-			if (IsSameString(name.first, category))
+		for (std::int32_t i = 0; i < names.size(); i++) {
+			if (IsSameString(names.at(i).morphCategory, category))
 				return i;
-			i++;
 		}
 		return -1;
 	}
@@ -203,10 +217,10 @@ namespace Mus {
 	{
 		morphName = fixLetter(morphName);
 		for (auto name : names) {
-			if (std::find_if(name.second.begin(), name.second.end(), [morphName](std::string str) {
+			if (std::find_if(name.morphNames.begin(), name.morphNames.end(), [morphName](std::string str) {
 				return IsSameString(str, morphName);
-				}) != name.second.end())
-				return name.first;
+				}) != name.morphNames.end())
+				return name.morphCategory;
 		}
 		return "";
 	}
