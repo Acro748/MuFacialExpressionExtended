@@ -39,11 +39,11 @@ namespace Mus {
         std::string GetExpressionCategoryByMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName) {
             return MFEE::FEE.GetExpressionCategoryByMorphName(a_morphName.c_str());
         }
-        std::int32_t GetExpressionCategoryNumber(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
-            return MFEE::FEE.GetExpressionCategoryNumber(a_category.c_str());
+        std::int32_t GetExpressionCategoryNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
+            return MFEE::FEE.GetExpressionCategoryNumber(a_morphCategory.c_str());
         }
-        bool IsValidExpressionCategory(RE::StaticFunctionTag*, RE::BSFixedString a_category) {
-            return MFEE::FEE.IsValidExpressionCategory(a_category.c_str());
+        bool IsValidExpressionCategory(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
+            return MFEE::FEE.IsValidExpressionCategory(a_morphCategory.c_str());
         }
 
         std::vector<std::string> GetExpressionMorphNames(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
@@ -78,11 +78,11 @@ namespace Mus {
         void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value) {
            MFEE::FEE.SetExpressionByName(a_actor, a_morphName.c_str(), a_value);
         }
-        void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t morphNumber, float a_value) {
-            MFEE::FEE.SetExpressionByType(a_actor, a_morphCategory.c_str(), morphNumber, a_value);
+        void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, float a_value) {
+            MFEE::FEE.SetExpressionByType(a_actor, a_morphCategory.c_str(), a_morphNumber, a_value);
         }
-        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t morphNumber, float a_value) {
-            MFEE::FEE.SetExpressionByNumber(a_actor, a_morphCategory, morphNumber, a_value);
+        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber, float a_value) {
+            MFEE::FEE.SetExpressionByNumber(a_actor, a_categoryNumber, a_morphNumber, a_value);
         }
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
             MFEE::FEE.RevertExpression(a_actor, a_morphCategory.c_str());

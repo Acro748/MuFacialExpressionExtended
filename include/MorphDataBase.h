@@ -74,7 +74,7 @@ namespace Mus {
 			TongueDown,
 			TongueLeft,
 			TongueRight,
-			TongueTwistLight,
+			TongueTwistLeft,
 			TongueTwistRight,
 			total
 		};
