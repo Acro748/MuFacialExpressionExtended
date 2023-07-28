@@ -194,4 +194,9 @@ namespace Mus {
 			return found->second.GetValue();
 		return 0.0f;
 	}
+
+	void MorphManager::Reset()
+	{
+		clear();
+	}
 }

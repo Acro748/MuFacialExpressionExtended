@@ -120,4 +120,20 @@ namespace Mus {
 		}
 		return 0.0f;
 	}
+
+	ActorManager::EventResult ActorManager::ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) 
+	{
+		if (!evn || evn->menuName.empty())
+			return EventResult::kContinue;
+
+		if (evn->opening && IsSameString(evn->menuName.c_str(), "RaceSex Menu"))
+		{
+			if (auto p = RE::PlayerCharacter::GetSingleton(); p)
+			{
+				if (auto found = find(p->formID); found != end())
+					found->second->Reset();
+			}
+		}
+		return EventResult::kContinue;
+	};
 }

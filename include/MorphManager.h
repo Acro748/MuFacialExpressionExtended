@@ -38,6 +38,7 @@ namespace Mus {
 		bool Apply(std::string a_morphName, float a_value);
 		void Revert(std::string category = "");
 		void Update(std::string category = "");
+		void Reset();
 	private:
 		std::recursive_mutex m_lock;
 	};

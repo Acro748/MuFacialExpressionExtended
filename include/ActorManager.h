@@ -3,7 +3,8 @@
 namespace Mus {
 	typedef std::shared_ptr<MorphManager> MorphManagerPtr;
 	class ActorManager :
-		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>
+		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>,
+		public RE::BSTEventSink<RE::MenuOpenCloseEvent>
 	{
 	public:
 		ActorManager() {};
@@ -27,7 +28,8 @@ namespace Mus {
 		float GetValue(RE::Actor* a_actor, std::string morphName);
 		float GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
 	protected:
-
+		using EventResult = RE::BSEventNotifyControl;
+		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
 	private:
 
 	};
