@@ -1,7 +1,6 @@
 #pragma once
 
 namespace Mus {
-	static RE::NiExtraData* extraData = RE::NiBooleanExtraData::Create("MFEE_APPLIED", true);
 	class MorphManagerRecord
 	{
 		std::string morphName;
@@ -17,8 +16,9 @@ namespace Mus {
 	private:
 		bool Apply(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value);
 
-		bool HasExtraData(RE::BSGeometry* a_geometry) { return a_geometry->HasExtraData(extraData->name); }
-		bool AddExtraData(RE::BSGeometry* a_geometry) { return a_geometry->AddExtraData(extraData); }
+		const std::string extraDataName = "MFEE_APPLIED";
+		bool HasExtraData(RE::BSGeometry* a_geometry) { return a_geometry->HasExtraData(extraDataName.c_str()); }
+		bool AddExtraData(RE::BSGeometry* a_geometry) { return a_geometry->AddExtraData(RE::NiBooleanExtraData::Create(extraDataName.c_str(), true)); }
 
 		RE::BSFaceGenBaseMorphExtraData* GetMorphExtraData(RE::BSGeometry* a_geometry);
 		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
