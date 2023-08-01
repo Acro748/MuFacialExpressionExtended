@@ -131,8 +131,6 @@ namespace util {
 
 #include "B/BSFaceGenBaseMorphExtraData.h"
 
-#include "dirent.h"
-
 #include "nifUtil.h"
 #include "Utility.hpp"
 #include "Store.h"

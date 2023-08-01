@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.1.2
+        VERSION 0.2.0
         DESCRIPTION "MuFacialExpressionExtended - NG by Acro."
         LANGUAGES CXX
 )
@@ -25,7 +25,6 @@ configure_file(
 set(headers
         ExtraRE/B/BSFaceGenBaseMorphExtraData.h
 
-        include/dirent.h
         include/Utility.hpp
         include/nifUtil.h
         include/Config.h
