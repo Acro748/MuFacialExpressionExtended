@@ -1,6 +1,13 @@
 #include "ActorManager.h"
 
 namespace Mus {
+	void ActorManager::Init()
+	{
+		if (const auto Menu = RE::UI::GetSingleton(); Menu) {
+			Menu->AddEventSink<RE::MenuOpenCloseEvent>(this);
+		}
+	}
+
 	void ActorManager::Save(SKSE::SerializationInterface* serde)
 	{
 		if (!serde->OpenRecord(ActorManagerRecord, 0)) {
@@ -14,7 +21,6 @@ namespace Mus {
 	{
 		if (type == ActorManagerRecord) {
 			logger::info("Loding on cosave ActorManagerRecord...");
-			
 		}
 	}
 

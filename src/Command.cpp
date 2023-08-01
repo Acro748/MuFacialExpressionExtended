@@ -89,7 +89,7 @@ namespace Mus {
 				Console->Print("%s", print.c_str());
 				return false;
 			}
-			else if (IsSameString(category, "reset"))
+			else if (IsSameString(category, "reset") || IsSameString(category, "r"))
 			{
 				ActorManager::GetSingleton().Revert(a_actor);
 				return false;

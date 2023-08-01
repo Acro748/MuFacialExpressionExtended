@@ -73,35 +73,25 @@ namespace Mus {
         std::string configPath = GetRuntimeSKSEDirectory();
         configPath += "MuFacialExpressionExtended\\";
 
-        auto configList = get_all_files_names_within_folder(configPath.c_str());
-        for(std::size_t i = 0; i < configList.size(); i++) 
+        auto files = GetAllFiles(configPath);
+        for(auto& file : files)
         {
-            std::string filename = configList.at(i);
-            
+            std::u8string filename_utf8 = file.filename().u8string();
+            std::string filename(filename_utf8.begin(), filename_utf8.end());
             if (filename != "." && filename != "..")
             {
                 if (stringEndsWith(filename, ".ini"))
                 {
                     logger::info("File found: {}", filename);
-
-                    std::string filepath = configPath;
-                    filepath.append(filename);
-                    std::ifstream file(filepath);
-
-                    if (!file.is_open())
-                    {
-                        transform(filepath.begin(), filepath.end(), filepath.begin(), ::tolower);
-                        file.open(filepath);
-                    }
-
-                    if (file.is_open())
+                    std::ifstream ifile(file);
+                    if (ifile.is_open())
                     {
                         std::string line;
                         std::string currentSetting;
 
                         std::string extensionfiles;
                         bool isReading = false;
-                        while (std::getline(file, line))
+                        while (std::getline(ifile, line))
                         {
                             //trim(line);
                             skipComments(line);
@@ -165,28 +155,18 @@ namespace Mus {
         std::string configPath = GetRuntimeSKSEDirectory();
         configPath += "MuFacialExpressionExtended\\Morphs\\";
 
-        auto configList = get_all_files_names_within_folder(configPath.c_str());
-        for(std::size_t i = 0; i < configList.size(); i++) 
+        auto files = GetAllFiles(configPath);
+        for(auto& file : files)
         {
-            std::string filename = configList.at(i);
-
+            std::u8string filename_utf8 = file.filename().u8string();
+            std::string filename(filename_utf8.begin(), filename_utf8.end());
             if (filename != "." && filename != "..")
             {
                 if (stringEndsWith(filename, ".ini"))
                 {
                     logger::info("File found: {}", filename);
-
-                    std::string filepath = configPath;
-                    filepath.append(filename);
-                    std::ifstream file(filepath);
-
-                    if (!file.is_open())
-                    {
-                        transform(filepath.begin(), filepath.end(), filepath.begin(), ::tolower);
-                        file.open(filepath);
-                    }
-
-                    if (file.is_open())
+                    std::ifstream ifile(file);
+                    if (ifile.is_open())
                     {
                         std::string line;
                         std::string currentSetting;
@@ -194,7 +174,7 @@ namespace Mus {
                         std::string morphCategory;
                         std::string morphNames;
                         bool isReading = false;
-                        while (std::getline(file, line))
+                        while (std::getline(ifile, line))
                         {
                             //trim(line);
                             skipComments(line);

@@ -15,6 +15,8 @@ namespace Mus {
 			return instance;
 		}
 
+		void Init();
+
 		const std::uint32_t ActorManagerRecord = _byteswap_ulong('FEEA');
 		void Save(SKSE::SerializationInterface* serde);
 		void Load(SKSE::SerializationInterface* serde, std::uint32_t type);

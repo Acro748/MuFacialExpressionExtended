@@ -153,6 +153,7 @@ namespace {
     }
     void kPostLoadFunction()
     {
+        ActorManager::GetSingleton().Init();
         morphNameEntry::GetSingleton().Init();
         InitializeInterface();
     }

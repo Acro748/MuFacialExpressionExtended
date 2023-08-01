@@ -204,45 +204,21 @@ namespace Mus {
         bool LoadMorphConfig();
         bool LoadMorphNameConfig();
 
-        static inline std::vector<std::string> get_all_files_names_within_folder(std::string folder)
+        static inline std::vector<std::filesystem::path> GetAllFiles(std::string folder)
         {
-            std::vector<std::string> names;
-
-            DIR* directory = opendir(folder.c_str());
-            struct dirent* direntStruct;
-
-            if (directory != nullptr) {
-                while (direntStruct = readdir(directory)) {
-                    names.emplace_back(direntStruct->d_name);
-                }
+            std::vector<std::filesystem::path> files;
+            for (const auto& file : std::filesystem::directory_iterator(folder))
+            {
+                files.emplace_back(file.path());
             }
-            closedir(directory);
-
-            return names;
-        }
-
-        static inline bool stringStartsWith(std::string str, std::string prefix)
-        {
-            str = lowLetter(str);
-            prefix = lowLetter(prefix);
-            if (str.find(prefix) == 0)
-                return true;
-            else
-                return false;
+            return files;
         }
 
         static inline bool stringEndsWith(std::string str, std::string suffix)
         {
             str = lowLetter(str);
             suffix = lowLetter(suffix);
-            if (str.length() >= suffix.length())
-            {
-                return (0 == str.compare(str.length() - suffix.length(), suffix.length(), suffix));
-            }
-            else
-            {
-                return false;
-            }
+            return str.ends_with(suffix);
         }
     };
 }
