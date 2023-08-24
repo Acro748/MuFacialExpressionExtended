@@ -68,13 +68,6 @@ namespace Mus {
 			if (!headpart || headpart->formEditorID.empty())
 				continue;
 			Apply(headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(headpart->formEditorID)), a_value);
-
-			//is no need to get extra parts?, are extra parts already included in headparts?
-			/*for (auto extraPart : headpart->extraParts) {
-				if (!extraPart)
-					continue;
-				Apply(extraPart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(extraPart->formEditorID)), a_value);
-			}*/
 		}
 		value = a_value;
 		return true;

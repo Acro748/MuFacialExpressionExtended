@@ -140,6 +140,27 @@ namespace Mus {
 					found->second->Reset();
 			}
 		}
+		else if (!evn->opening && IsSameString(evn->menuName.c_str(), "RaceSex Menu"))
+		{
+			if (auto p = RE::PlayerCharacter::GetSingleton(); p)
+			{
+				if (auto found = find(p->formID); found != end())
+					found->second->Reset();
+			}
+		}
+		return EventResult::kContinue;
+	};
+
+	ActorManager::EventResult ActorManager::ProcessEvent(const RE::TESResetEvent* evn, RE::BSTEventSource<RE::TESResetEvent>*)
+	{
+		if (!evn || !evn->object)
+			return EventResult::kContinue;
+
+		auto found = find(evn->object->formID);
+		if (found == end())
+			return EventResult::kContinue;
+
+		found->second->Reset();
 		return EventResult::kContinue;
 	};
 }

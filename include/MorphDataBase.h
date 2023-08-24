@@ -32,10 +32,12 @@ namespace Mus {
 			MoodAhegao,
 			MoodSulky,
 			MoodLaugh,
+
 			total
 		};
 		enum class miscCategory {
-			
+			empty,
+
 			total
 		};
 		enum class earsCategory {
@@ -43,28 +45,34 @@ namespace Mus {
 			EarsBack,
 			EarsIn,
 			EarsOut,
+
 			total
 		};
 		enum class tailCategory {
 			TailUp,
 			TailDown,
+
 			total
 		};
 		enum class faceCategory {
 			FaceInflateCheeks,
+
 			total
 		};
 		enum class eyesCategory {
 			EyesIn,
 			EyesOut,
 			EyesSurprise,
+
 			total
 		};
 		enum class browsCategory {
+			empty,
 
 			total
 		};
 		enum class mouthCategory {
+			MouthLaugh,
 
 			total
 		};
@@ -76,6 +84,7 @@ namespace Mus {
 			TongueRight,
 			TongueTwistLeft,
 			TongueTwistRight,
+
 			total
 		};
 
