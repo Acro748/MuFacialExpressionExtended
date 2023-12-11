@@ -32,11 +32,12 @@ namespace Mus {
 			MoodAhegao,
 			MoodSulky,
 			MoodLaugh,
+			MoodFlabbergasted,
+			MoodTemptation,
 
 			total
 		};
 		enum class miscCategory {
-			empty,
 
 			total
 		};
@@ -51,6 +52,8 @@ namespace Mus {
 		enum class tailCategory {
 			TailUp,
 			TailDown,
+			TailLeft,
+			TailRight,
 
 			total
 		};
@@ -63,16 +66,18 @@ namespace Mus {
 			EyesIn,
 			EyesOut,
 			EyesSurprise,
+			EyesShock,
 
 			total
 		};
 		enum class browsCategory {
-			empty,
 
 			total
 		};
 		enum class mouthCategory {
 			MouthLaugh,
+			MouthTemptation,
+			MouthSmacklips,
 
 			total
 		};
@@ -94,8 +99,11 @@ namespace Mus {
 		};
 
 		bool Register(std::string category, std::string morphName);
-		bool Register(std::string morphName);
 		bool RegisterCategory(std::string category);
+		void UnRegisterAll() { 
+			names.clear(); 
+			Init();
+		};
 
 		std::vector<std::string> GetMorphNames(std::string category);
 		std::vector<std::string> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
@@ -120,7 +128,7 @@ namespace Mus {
 	{
 		std::string morphName;
 	public:
-		MorphDataBase(std::string a_morphName) : morphName(fixLetter(a_morphName)) {};
+		MorphDataBase(std::string a_morphName) : morphName(lowLetter(a_morphName)) {};
 		~MorphDataBase() {};
 
 		struct Morph {
@@ -159,6 +167,7 @@ namespace Mus {
 		bool Register(std::string a_morphBasePath, std::string a_morphPath);
 		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::string a_morphBasePath) const;
 
+		void UnRegisterAll() { clear(); };
 	private:
 		static std::uint32_t Read(RE::BSResourceNiBinaryStream* stream, void* dst, std::uint32_t len) {
 			using func_t = decltype(&MorphDataBaseManager::Read);

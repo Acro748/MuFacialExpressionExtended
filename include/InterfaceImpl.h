@@ -5,19 +5,14 @@ namespace MFEE {
 		public IFacialExpressionExtended
 	{
 	public:
-		virtual std::uint32_t GetVersion() { return 1; };
+		virtual std::uint32_t GetVersion() { return 2; };
 
 		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) { 
 			return Mus::MorphDataBaseManager::GetSingleton().Register(a_morphBasePath, a_morphPath);
 		};
-		virtual bool RegisterNewMorphNameOnType(std::string a_morphCategory, std::string a_morphName) {
+		virtual bool RegisterNewMorphNameOnCategory(std::string a_morphCategory, std::string a_morphName) {
 			if (Mus::Config::GetSingleton().GetCustomMode())
 				return Mus::morphNameEntry::GetSingleton().Register(a_morphCategory, a_morphName);
-			return false;
-		};
-		virtual bool RegisterNewMorphName(std::string a_morphName) {
-			if (Mus::Config::GetSingleton().GetCustomMode())
-				return Mus::morphNameEntry::GetSingleton().Register(a_morphName);
 			return false;
 		};
 
@@ -56,28 +51,28 @@ namespace MFEE {
 			return Mus::morphNameEntry::GetSingleton().IsValidName(a_morphName);
 		};
 
-		virtual float GetExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) {
+		virtual int32_t GetExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) {
 			return Mus::ActorManager::GetSingleton().GetValue(a_actor, a_morphName);
 		}
-		virtual float GetExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) {
+		virtual int32_t GetExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) {
 			return Mus::ActorManager::GetSingleton().GetValue(a_actor, a_morphCategoryNumber, a_morphNumber);
 		}
 
-		virtual void SetExpressionByName(RE::Actor* a_actor, std::string a_morphName, float a_value) { 
+		virtual void SetExpressionByName(RE::Actor* a_actor, std::string a_morphName, int32_t a_value) {
 			Mus::ActorManager::GetSingleton().SetMorph(a_actor, a_morphName, a_value); 
 		};
-		virtual void SetExpressionByType(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, float a_value) {
+		virtual void SetExpressionByCategory(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) {
 			Mus::ActorManager::GetSingleton().SetMorph(a_actor, a_morphCategory, a_morphNumber, a_value);
 		};
-		virtual void SetExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, float a_value) {
+		virtual void SetExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) {
 			Mus::ActorManager::GetSingleton().SetMorph(a_actor, a_morphCategory, a_morphNumber, a_value);
 		};
 
 		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") {
 			Mus::ActorManager::GetSingleton().Revert(a_actor, a_morphCategory);
 		};
-		virtual void UpdateExpression(RE::Actor* a_actor, std::string a_morphCategory = "") {
-			Mus::ActorManager::GetSingleton().Update(a_actor, a_morphCategory);
+		virtual void UpdateExpression(RE::Actor* a_actor) {
+			Mus::ActorManager::GetSingleton().Update(a_actor);
 		};
 	};
 	static FacialExpressionExtended FEE;

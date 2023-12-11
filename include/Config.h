@@ -22,8 +22,11 @@ namespace Mus {
         [[nodiscard]] inline bool GetCustomMode() const noexcept {
             return CustomMode;
         }
-        [[nodiscard]] inline bool GetRestriction() const noexcept {
-            return Restriction;
+        [[nodiscard]] inline int32_t GetMin() const noexcept {
+            return Min;
+        }
+        [[nodiscard]] inline int32_t GetMax() const noexcept {
+            return Max;
         }
 
     private:
@@ -33,7 +36,8 @@ namespace Mus {
 
         //General
         bool CustomMode = false;
-        bool Restriction = true;
+        int32_t Min = 0.0f;
+        int32_t Max = 100.0f;
 
     public:
         // trim from start (in place)
@@ -207,6 +211,13 @@ namespace Mus {
         static inline std::vector<std::filesystem::path> GetAllFiles(std::string folder)
         {
             std::vector<std::filesystem::path> files;
+
+            auto path = std::filesystem::path(folder);
+            if (!std::filesystem::exists(path))
+                return files;
+            if (!std::filesystem::is_directory(path))
+                return files;
+
             for (const auto& file : std::filesystem::directory_iterator(folder))
             {
                 files.emplace_back(file.path());

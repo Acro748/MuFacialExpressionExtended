@@ -13,4 +13,6 @@ namespace Mus {
 	constexpr float Scale_skyrimMetric = 0.70028f;
 
 	constexpr float TimeTick60 = 1.0f / 60.0f;
+
+	extern std::atomic<bool> IsShowracemenuLoaded;
 }

@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.2.1
+        VERSION 0.3.0
         DESCRIPTION "MuFacialExpressionExtended - NG by Acro."
         LANGUAGES CXX
 )
@@ -97,13 +97,12 @@ target_include_directories(${PROJECT_NAME}
         PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ExtraRE>
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/detours/include>)
+)
 
 target_link_libraries(${PROJECT_NAME}
         PRIVATE
         ryml::ryml
         magic_enum::magic_enum
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/detours/lib.X64/detours.lib>
 )
 
 target_precompile_headers(${PROJECT_NAME}

@@ -34,8 +34,23 @@ namespace Mus {
 		auto categories = morphNameEntry::GetSingleton().GetCategories();
 		if (!category.empty()) //is category entered
 		{
+			if (IsSameString(category, "debug"))//debug mode
+			{
+				if (IsSameString(name, "reload"))
+				{
+					ActorManager::GetSingleton().Revert();
+					MorphDataBaseManager::GetSingleton().UnRegisterAll();
+					morphNameEntry::GetSingleton().UnRegisterAll();
+					Config::GetSingleton().LoadConfig();
+					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
+					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
+					Console->Print("Reload done");
+				}
+				return false;
+			}
+
 			std::int32_t numMorphCategory = GetNum(category);
-			category = fixLetter(category);
+			category = lowLetter(category);
 			if ((numMorphCategory >= 0 && numMorphCategory < categories.size()) || morphNameEntry::GetSingleton().IsValidCategory(category))
 			{
 				if (numMorphCategory != -1)
@@ -47,32 +62,32 @@ namespace Mus {
 				if (!name.empty()) //is morphName entered
 				{
 					std::int32_t numMorphName = GetNum(name);
-					if ((numMorphName >= 0 && numMorphName < morphNames.size()) || morphNameEntry::GetSingleton().IsValidName(name))
+					if (IsSameString(name, "reset") || IsSameString(name, "r"))
+					{
+						ActorManager::GetSingleton().Revert(a_actor, category);
+						return false;
+					}
+					else if ((numMorphName >= 0 && numMorphName < morphNames.size()) || morphNameEntry::GetSingleton().IsValidName(name))
 					{
 						if (numMorphName != -1)
 							name = morphNameEntry::GetSingleton().GetMorphNameByNumber(category, numMorphName);
 
 						if (!value.empty())
 						{
-							float a_value = std::stof(value);
-							if (a_value <= 100 && 0 <= a_value || !Config::GetSingleton().GetRestriction())
+							int32_t a_value = std::stoi(value);
+							if (a_value <= Config::GetSingleton().GetMax() && Config::GetSingleton().GetMin() <= a_value)
 							{
 								ActorManager::GetSingleton().SetMorph(a_actor, name, a_value);
 							}
 							else
 							{
 								Console->Print("Value range restrict exceeded!");
-								Console->Print("Please enter 0 ~ 100 range");
+								Console->Print("Please enter {} ~ {} range", Config::GetSingleton().GetMin(), Config::GetSingleton().GetMax());
 							}
 							return false;
 						}
 						//failed to get value
 						Console->Print("Value is incorrect!");
-						return false;
-					}
-					else if (IsSameString(name, "reset"))
-					{
-						ActorManager::GetSingleton().Revert(a_actor, category);
 						return false;
 					}
 				}

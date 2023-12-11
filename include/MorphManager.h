@@ -1,27 +1,20 @@
 #pragma once
 
 namespace Mus {
+	typedef std::unordered_map<std::string, std::vector<RE::NiPoint3>> Vertices; //morphBasePath, vertieces
+
 	class MorphManagerRecord
 	{
 		std::string morphName;
-		float value = 0.0f;
+		int32_t value = 0.0f;
 	public:
 		MorphManagerRecord(std::string a_morphName) : morphName(a_morphName) {};
 		~MorphManagerRecord() {};
 
-		bool Apply(RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, float a_value);
-		bool Update(RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode);
-
-		float GetValue() const { return value; }
+		bool Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value);
+		int32_t GetValue() const { return value; }
 	private:
-		bool Apply(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value);
-
-		const std::string extraDataName = "MFEE_APPLIED";
-		bool HasExtraData(RE::BSGeometry* a_geometry) { return a_geometry->HasExtraData(extraDataName.c_str()); }
-		bool AddExtraData(RE::BSGeometry* a_geometry) { return a_geometry->AddExtraData(RE::NiBooleanExtraData::Create(extraDataName.c_str(), true)); }
-
-		RE::BSFaceGenBaseMorphExtraData* GetMorphExtraData(RE::BSGeometry* a_geometry);
-		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
+		bool Apply(Vertices& vertices, RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, int32_t a_value);
 	};
 
 	class MorphManager :
@@ -33,13 +26,22 @@ namespace Mus {
 		MorphManager(RE::Actor* a_actor) : id(a_actor->formID), name(a_actor->GetName()) {};
 		~MorphManager() {};
 
-		float GetValue(std::string a_morphName) const;
+		int32_t GetValue(std::string a_morphName) const;
 
-		bool Apply(std::string a_morphName, float a_value);
+		bool Initial(int32_t slot = -1);
+
+		bool Apply(std::string a_morphName, int32_t a_value);
 		void Revert(std::string category = "");
-		void Update(std::string category = "");
-		void Reset();
+		void Update();
+
+		static RE::BSFaceGenBaseMorphExtraData* GetMorphExtraData(RE::BSGeometry* a_geometry);
 	private:
+		bool Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
+		bool GetOriginalVertexData(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
+		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
+
 		std::recursive_mutex m_lock;
+
+		Vertices vertices;
 	};
 }

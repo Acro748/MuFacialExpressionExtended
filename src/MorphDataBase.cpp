@@ -4,90 +4,90 @@ namespace Mus {
 	void morphNameEntry::Init()
 	{
 		auto moodNames = magic_enum::enum_names<moodCategory>();
-		std::string category = fixLetter(magic_enum::enum_name(morphCategory::Mood).data());
+		std::string category = lowLetter(magic_enum::enum_name(morphCategory::Mood).data());
 		RegisterCategory(category);
 		for (auto& name : moodNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto miscNames = magic_enum::enum_names<miscCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Misc).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Misc).data());
 		RegisterCategory(category);
 		for (auto& name : miscNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto earsNames = magic_enum::enum_names<earsCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Ears).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Ears).data());
 		RegisterCategory(category);
 		for (auto& name : earsNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto tailNames = magic_enum::enum_names<tailCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Tail).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Tail).data());
 		RegisterCategory(category);
 		for (auto& name : tailNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto faceNames = magic_enum::enum_names<faceCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Face).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Face).data());
 		RegisterCategory(category);
 		for (auto& name : faceNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto eyesNames = magic_enum::enum_names<eyesCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Eyes).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Eyes).data()); 
 		RegisterCategory(category);
 		for (auto& name : eyesNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto browsNames = magic_enum::enum_names<browsCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Brows).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Brows).data());
 		RegisterCategory(category);
 		for (auto& name : browsNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto mouthNames = magic_enum::enum_names<mouthCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Mouth).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Mouth).data());
 		RegisterCategory(category);
 		for (auto& name : mouthNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
 		}
 
 		auto tongueNames = magic_enum::enum_names<tongueCategory>();
-		category = fixLetter(magic_enum::enum_name(morphCategory::Tongue).data());
+		category = lowLetter(magic_enum::enum_name(morphCategory::Tongue).data());
 		RegisterCategory(category);
 		for (auto& name : tongueNames) {
-			std::string name_ = fixLetter(name.data());
+			std::string name_ = lowLetter(name.data());
 			if (IsSameString(name_, "total"))
 				continue;
 			Register(category, name_);
@@ -96,12 +96,13 @@ namespace Mus {
 
 	bool morphNameEntry::Register(std::string category, std::string morphName)
 	{
-		category = fixLetter(category);
-		morphName = fixLetter(morphName);
-		if (!IsValidCategory(category))
-			return false;
+		category = lowLetter(category);
+		morphName = lowLetter(morphName);
+
 		if (IsValidName(morphName))
 			return false;
+		RegisterCategory(category);
+
 		if (auto foundCategory = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
 			return IsSameString(category, data.morphCategory);
 			}
@@ -110,39 +111,11 @@ namespace Mus {
 			if (auto foundName = std::find(foundCategory->morphNames.begin(), foundCategory->morphNames.end(), morphName); foundName == foundCategory->morphNames.end())
 			{
 				foundCategory->morphNames.emplace_back(morphName);
-				logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
+				logger::info("morphNameEntry : Registered {} for {}", morphName, category);
 				return true;
 			}
 		}
 		return false;
-	}
-	bool morphNameEntry::Register(std::string morphName)
-	{
-		morphName = fixLetter(morphName);
-		if (IsValidName(morphName))
-			return false;
-
-		std::string category;
-		if (auto found = std::find_if(names.begin(), names.end(), [morphName](morphNameEntryData data) {
-			return IsContainString(morphName, data.morphCategory);
-			}); found != names.end())
-		{
-			category = found->morphCategory;
-		}
-		else
-		{
-			category = fixLetter(magic_enum::enum_name(morphCategory::Misc).data());
-		}
-
-		if (auto found = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
-			return IsSameString(category, data.morphCategory);
-			}); found != names.end())
-		{
-			found->morphNames.emplace_back(morphName);
-			logger::debug("morphNameEntry : Registered {} for {}", morphName, category);
-			return true;
-		}
-			return false;
 	}
 	bool morphNameEntry::RegisterCategory(std::string category)
 	{
@@ -150,14 +123,15 @@ namespace Mus {
 			return false;
 
 		morphNameEntryData newData;
-		newData.morphCategory = fixLetter(category);
+		newData.morphCategory = lowLetter(category);
 		names.emplace_back(newData);
-		logger::debug("morphNameEntry : Registered {} category", category);
+		logger::info("morphNameEntry : Registered {} category", category);
 		return true;
 	}
+
 	std::vector<std::string> morphNameEntry::GetMorphNames(std::string category)
 	{
-		category = fixLetter(category);
+		category = lowLetter(category);
 		if (auto found = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
 			return IsSameString(data.morphCategory, category);
 			}
@@ -167,7 +141,7 @@ namespace Mus {
 	}
 	std::int32_t morphNameEntry::GetMorphNameNumber(std::string morphName)
 	{
-		morphName = fixLetter(morphName);
+		morphName = lowLetter(morphName);
 		for (auto name : names) {
 			for (std::size_t i = 0; i < name.morphNames.size(); i++) {
 				if (IsSameString(name.morphNames.at(i), morphName))
@@ -197,7 +171,7 @@ namespace Mus {
 	}
 	std::int32_t morphNameEntry::GetCategoryNumber(std::string category)
 	{
-		category = fixLetter(category);
+		category = lowLetter(category);
 		for (std::int32_t i = 0; i < names.size(); i++) {
 			if (IsSameString(names.at(i).morphCategory, category))
 				return i;
@@ -215,7 +189,7 @@ namespace Mus {
 	}
 	std::string morphNameEntry::GetCategoryByMorphName(std::string morphName)
 	{
-		morphName = fixLetter(morphName);
+		morphName = lowLetter(morphName);
 		for (auto name : names) {
 			if (std::find_if(name.morphNames.begin(), name.morphNames.end(), [morphName](std::string str) {
 				return IsSameString(str, morphName);
@@ -238,7 +212,7 @@ namespace Mus {
 
 	const MorphDataBase::Morph* MorphDataBase::GetMorphData(std::string a_morphBasePath) const
 	{
-		a_morphBasePath = fixLetter(a_morphBasePath);
+		a_morphBasePath = fixPath(a_morphBasePath);
 		auto found = morphData.find(a_morphBasePath);
 		if (found != morphData.end())
 			return &found->second;
@@ -354,7 +328,7 @@ namespace Mus {
 			Read(&file, &mult, sizeof(mult));
 
 			MorphDataBase::Morph morph;
-			morph.morphBasePath = fixLetter(a_morphBasePath);
+			morph.morphBasePath = fixPath(a_morphBasePath);
 			morph.vertexCount = vertexCount;
 			morph.multiplier = mult;
 
@@ -365,19 +339,17 @@ namespace Mus {
 				morph.vertices.emplace_back(vert);
 			}
 
-			std::string newMorphName = fixLetter(morphName_.c_str());
+			std::string newMorphName = lowLetter(morphName_.c_str());
 			auto found = find(newMorphName);
 			if (found != end())
 				found->second.Register(morph);
-			else if (Config::GetSingleton().GetCustomMode() || morphNameEntry::GetSingleton().IsValidName(newMorphName)) {
-				morphNameEntry::GetSingleton().Register(newMorphName);
-
+			else /*if (morphNameEntry::GetSingleton().IsValidName(newMorphName))*/ {
 				MorphDataBase newMorphDataBase = MorphDataBase(newMorphName);
 				newMorphDataBase.Register(morph);
 				insert(std::make_pair(newMorphName, newMorphDataBase));
 			}
-			else
-				continue;
+			/*else
+				continue;*/
 			logger::debug("Registered {} morph", morphName_.c_str());
 		}
 		logger::info("Registered {} file", a_morphPath);
@@ -386,7 +358,7 @@ namespace Mus {
 
 	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string morphName, std::string a_morphBasePath) const
 	{
-		morphName = fixLetter(morphName);
+		morphName = lowLetter(morphName);
 		auto found = find(morphName);
 		if (found != end())
 			return found->second.GetMorphData(a_morphBasePath);

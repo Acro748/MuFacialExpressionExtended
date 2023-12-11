@@ -18,13 +18,9 @@ namespace Mus {
         {
             return MFEE::FEE.RegisterNewMorphData(a_morphBasePath.c_str(), a_morphPath.c_str());
         }
-        bool RegisterNewMorphNameOnType(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, RE::BSFixedString a_morphName)
+        bool RegisterNewMorphNameOnCategory(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, RE::BSFixedString a_morphName)
         {
-            return MFEE::FEE.RegisterNewMorphNameOnType(a_morphCategory.c_str(), a_morphName.c_str());
-        }
-        bool RegisterNewMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName)
-        {
-            return MFEE::FEE.RegisterNewMorphName(a_morphName.c_str());
+            return MFEE::FEE.RegisterNewMorphNameOnCategory(a_morphCategory.c_str(), a_morphName.c_str());
         }
 
         std::vector<std::string> GetExpressionCategories(RE::StaticFunctionTag*) {
@@ -68,27 +64,27 @@ namespace Mus {
             return MFEE::FEE.IsValidExpressionMorphName(a_morphName.c_str());
         }
 
-        float GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
+        int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
             return MFEE::FEE.GetExpressionValueByName(a_actor, a_morphName.c_str());
         }
-        float GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
+        int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
             return MFEE::FEE.GetExpressionValueByNumber(a_actor, a_morphCategory, a_morphNumber);
         }
 
-        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value) {
+        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, int32_t a_value) {
            MFEE::FEE.SetExpressionByName(a_actor, a_morphName.c_str(), a_value);
         }
-        void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, float a_value) {
-            MFEE::FEE.SetExpressionByType(a_actor, a_morphCategory.c_str(), a_morphNumber, a_value);
+        void SetExpressionByCategory(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) {
+            MFEE::FEE.SetExpressionByCategory(a_actor, a_morphCategory.c_str(), a_morphNumber, a_value);
         }
-        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber, float a_value) {
+        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber, int32_t a_value) {
             MFEE::FEE.SetExpressionByNumber(a_actor, a_categoryNumber, a_morphNumber, a_value);
         }
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
             MFEE::FEE.RevertExpression(a_actor, a_morphCategory.c_str());
         }
-        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
-            MFEE::FEE.UpdateExpression(a_actor, a_morphCategory.c_str());
+        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
+            MFEE::FEE.UpdateExpression(a_actor);
         }
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm) {
@@ -96,8 +92,7 @@ namespace Mus {
             vm->RegisterFunction("GetVersion", ScriptFileName, GetVersion);
 
             vm->RegisterFunction("RegisterNewMorphData", ScriptFileName, RegisterNewMorphData);
-            vm->RegisterFunction("RegisterNewMorphNameOnType", ScriptFileName, RegisterNewMorphNameOnType);
-            vm->RegisterFunction("RegisterNewMorphName", ScriptFileName, RegisterNewMorphName);
+            vm->RegisterFunction("RegisterNewMorphNameOnCategory", ScriptFileName, RegisterNewMorphNameOnCategory);
 
             vm->RegisterFunction("GetExpressionCategories", ScriptFileName, GetExpressionCategories);
             vm->RegisterFunction("GetExpressionCategoriesSize", ScriptFileName, GetExpressionCategoriesSize);
@@ -118,7 +113,7 @@ namespace Mus {
             vm->RegisterFunction("GetExpressionValueByNumber", ScriptFileName, GetExpressionValueByNumber);
 
             vm->RegisterFunction("SetExpressionByName", ScriptFileName, SetExpressionByName);
-            vm->RegisterFunction("SetExpressionByType", ScriptFileName, SetExpressionByType);
+            vm->RegisterFunction("SetExpressionByCategory", ScriptFileName, SetExpressionByCategory);
             vm->RegisterFunction("SetExpressionByNumber", ScriptFileName, SetExpressionByNumber);
             vm->RegisterFunction("RevertExpression", ScriptFileName, RevertExpression);
             vm->RegisterFunction("UpdateExpression", ScriptFileName, UpdateExpression);

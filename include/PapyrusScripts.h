@@ -7,8 +7,7 @@ namespace Mus {
         std::uint32_t GetVersion(RE::StaticFunctionTag*);
 
         bool RegisterNewMorphData(RE::StaticFunctionTag*, RE::BSFixedString a_morphBasePath, RE::BSFixedString a_morphPath);
-        bool RegisterNewMorphNameOnType(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, RE::BSFixedString a_morphName);
-        bool RegisterNewMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName);
+        bool RegisterNewMorphNameOnCategory(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, RE::BSFixedString a_morphName);
 
         std::vector<std::string> GetExpressionCategories(RE::StaticFunctionTag*);
         std::size_t GetExpressionCategoriesSize(RE::StaticFunctionTag*);
@@ -25,14 +24,14 @@ namespace Mus {
         std::int32_t GetExpressionMorphNameNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphName);
         bool IsValidExpressionMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName);
 
-        float GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName);
-        float GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber);
+        int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName);
+        int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber);
 
-        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, float a_value);
-        void SetExpressionByType(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, float a_value);
-        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, float a_value);
+        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, int32_t a_value);
+        void SetExpressionByCategory(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value);
+        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value);
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
-        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
+        void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor);
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm);
     }

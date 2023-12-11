@@ -56,11 +56,15 @@ namespace Mus {
             {
                 if (variableName == "CustomMode")
                 {
-                    //CustomMode = GetConfigSettingsBoolValue(variableValue);
+                    CustomMode = GetConfigSettingsBoolValue(variableValue);
                 }
-                else if (variableName == "Restriction")
+                else if (variableName == "Min")
                 {
-                    Restriction = GetConfigSettingsBoolValue(variableValue);
+                    Min = GetConfigSettingsIntValue(variableValue);
+                }
+                else if (variableName == "Max")
+                {
+                    Max = GetConfigSettingsIntValue(variableValue);
                 }
             }
         }
@@ -74,72 +78,66 @@ namespace Mus {
         configPath += "MuFacialExpressionExtended\\";
 
         auto files = GetAllFiles(configPath);
-        for(auto& file : files)
+        for (auto& file : files)
         {
             std::u8string filename_utf8 = file.filename().u8string();
             std::string filename(filename_utf8.begin(), filename_utf8.end());
-            if (filename != "." && filename != "..")
+            if (filename == "." || filename == "..")
+                continue;
+            if (!stringEndsWith(filename, ".ini"))
+                continue;
+            logger::info("File found: {}", filename);
+            std::ifstream ifile(file);
+            if (!ifile.is_open())
             {
-                if (stringEndsWith(filename, ".ini"))
+                logger::info("Unable to open the file: {}", filename);
+                continue;
+            }
+
+            std::string line;
+            std::string extensionfiles;
+            bool isReading = false;
+            while (std::getline(ifile, line))
+            {
+                //trim(line);
+                skipComments(line);
+                trim(line);
+                if (line.length() == 0)
+                    continue;
+
+                std::string variableName;
+                std::string variableValue = GetConfigSettingsStringValue(line, variableName);
+
+                if (variableName == "ExtensionFile")
                 {
-                    logger::info("File found: {}", filename);
-                    std::ifstream ifile(file);
-                    if (ifile.is_open())
+                    if (isReading)
                     {
-                        std::string line;
-                        std::string currentSetting;
-
-                        std::string extensionfiles;
-                        bool isReading = false;
-                        while (std::getline(ifile, line))
+                        auto extensionfile = split(extensionfiles, ",");
+                        if (extensionfile.size() > 1)
                         {
-                            //trim(line);
-                            skipComments(line);
-                            trim(line);
-                            if (line.length() == 0)
-                                continue;
-
-                            if (line.substr(0, 1) == "[")
+                            for (std::size_t j = 1; j < extensionfile.size(); j++)
                             {
-                                currentSetting = line;
-                                continue;
-                            }
-                            std::string variableName;
-                            std::string variableValue = GetConfigSettingsStringValue(line, variableName);
-
-                            if (variableName == "ExtensionFile")
-                            {
-                                if (isReading)
-                                {
-                                    auto extensionfile = split(extensionfiles, ",");
-                                    if (extensionfile.size() > 1)
-                                    {
-                                        for (std::size_t j = 1; j < extensionfile.size(); j++)
-                                        {
-                                            MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
-                                        }
-                                    }
-                                }
-                                extensionfiles = variableValue;
-                                isReading = true;
-                            }
-                            else if (isReading)
-                            {
-                                extensionfiles += variableValue;
+                                MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
                             }
                         }
+                    }
+                    extensionfiles = variableValue;
+                    isReading = true;
+                }
+                else if (isReading)
+                {
+                    extensionfiles += variableValue;
+                }
+            }
 
-                        if (isReading)
-                        {
-                            auto extensionfile = split(extensionfiles, ",");
-                            if (extensionfile.size() > 1)
-                            {
-                                for (std::size_t j = 1; j < extensionfile.size(); j++)
-                                {
-                                    MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
-                                }
-                            }
-                        }
+            if (isReading)
+            {
+                auto extensionfile = split(extensionfiles, ",");
+                if (extensionfile.size() > 1)
+                {
+                    for (std::size_t j = 1; j < extensionfile.size(); j++)
+                    {
+                        MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
                     }
                 }
             }
@@ -156,88 +154,37 @@ namespace Mus {
         configPath += "MuFacialExpressionExtended\\Morphs\\";
 
         auto files = GetAllFiles(configPath);
-        for(auto& file : files)
+        for (auto& file : files)
         {
             std::u8string filename_utf8 = file.filename().u8string();
             std::string filename(filename_utf8.begin(), filename_utf8.end());
-            if (filename != "." && filename != "..")
+            if (filename == "." || filename == "..")
+                continue;
+            if (!stringEndsWith(filename, ".ini"))
+                continue;
+            logger::info("File found: {}", filename);
+            std::ifstream ifile(file);
+            if (!ifile.is_open())
             {
-                if (stringEndsWith(filename, ".ini"))
-                {
-                    logger::info("File found: {}", filename);
-                    std::ifstream ifile(file);
-                    if (ifile.is_open())
-                    {
-                        std::string line;
-                        std::string currentSetting;
+                logger::info("Unable to open the file: {}", filename);
+                continue;
+            }
 
-                        std::string morphCategory;
-                        std::string morphNames;
-                        bool isReading = false;
-                        while (std::getline(ifile, line))
-                        {
-                            //trim(line);
-                            skipComments(line);
-                            trim(line);
-                            if (line.length() == 0)
-                                continue;
+            std::string line;
+            while (std::getline(ifile, line))
+            {
+                //trim(line);
+                skipComments(line);
+                trim(line);
+                if (line.length() == 0)
+                    continue;
 
-                            if (line.substr(0, 1) == "[")
-                            {
-                                currentSetting = line;
-                                continue;
-                            }
-                            std::string variableName;
-                            std::string variableValue = GetConfigSettingsStringValue(line, variableName);
-
-                            if (variableName == "morphCategory")
-                            {
-                                if (isReading)
-                                {
-                                    auto morphName = split(morphNames, ",");
-                                    if (morphName.size() > 1)
-                                    {
-                                        for (auto& name : morphName) {
-                                            morphNameEntry::GetSingleton().Register(morphCategory, name);
-                                        }
-                                    }
-                                }
-                                morphNameEntry::GetSingleton().RegisterCategory(variableValue);
-                                isReading = false;
-                            }
-                            else if (variableName == "MorphName")
-                            {
-                                if (isReading)
-                                {
-                                    auto morphName = split(morphNames, ",");
-                                    if (morphName.size() > 1)
-                                    {
-                                        for (auto& name : morphName) {
-                                            morphNameEntry::GetSingleton().Register(morphCategory, name);
-                                        }
-                                    }
-                                }
-                                morphNames = variableValue;
-                                isReading = true;
-                            }
-                            else if (isReading)
-                            {
-                                morphNames += variableValue;
-                            }
-                        }
-
-                        if (isReading)
-                        {
-                            auto morphName = split(morphNames, ",");
-                            if (morphName.size() > 1)
-                            {
-                                for (auto& name : morphName) {
-                                    morphNameEntry::GetSingleton().Register(morphCategory, name);
-                                }
-                            }
-                        }
-                    }
-                }
+                auto newMorph = split(line, "|");
+                if (newMorph.size() != 2)
+                    continue;
+                if (newMorph.at(0).empty() || newMorph.at(1).empty())
+                    continue;
+                morphNameEntry::GetSingleton().Register(newMorph.at(0), newMorph.at(1));
             }
         }
         return true;
