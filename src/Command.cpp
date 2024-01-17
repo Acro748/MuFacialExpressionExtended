@@ -42,6 +42,7 @@ namespace Mus {
 					MorphDataBaseManager::GetSingleton().UnRegisterAll();
 					morphNameEntry::GetSingleton().UnRegisterAll();
 					Config::GetSingleton().LoadConfig();
+					spdlog::set_level(Config::GetSingleton().GetLogLevel());
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 					Console->Print("Reload done");

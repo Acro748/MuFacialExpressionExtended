@@ -30,6 +30,7 @@ namespace Mus {
 
 		enum class moodCategory {
 			MoodAhegao,
+			MoodAhegao2,
 			MoodSulky,
 			MoodLaugh,
 			MoodFlabbergasted,
@@ -78,6 +79,9 @@ namespace Mus {
 			MouthLaugh,
 			MouthTemptation,
 			MouthSmacklips,
+			MouthFlabbergasted,
+			MouthCry,
+			MouthCat,
 
 			total
 		};

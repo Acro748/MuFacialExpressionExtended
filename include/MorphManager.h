@@ -14,7 +14,7 @@ namespace Mus {
 		bool Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value);
 		int32_t GetValue() const { return value; }
 	private:
-		bool Apply(Vertices& vertices, RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, int32_t a_value);
+		bool Apply(Vertices& vertices, RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value);
 	};
 
 	class MorphManager :
@@ -38,10 +38,12 @@ namespace Mus {
 	private:
 		bool Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
 		bool GetOriginalVertexData(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
+		void SetVerticesAsOriginalVertexData();
 		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
 
 		std::recursive_mutex m_lock;
 
 		Vertices vertices;
+		Vertices orig_vertices;
 	};
 }

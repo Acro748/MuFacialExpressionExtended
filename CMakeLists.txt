@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.3.0
+        VERSION 0.3.1
         DESCRIPTION "MuFacialExpressionExtended - NG by Acro."
         LANGUAGES CXX
 )
@@ -91,7 +91,8 @@ target_include_directories(${PROJECT_NAME}
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/src>
         $<INSTALL_INTERFACE:src>
-        ${ARTICUNO_INCLUDE_DIRS})
+        ${ARTICUNO_INCLUDE_DIRS}
+)
 
 target_include_directories(${PROJECT_NAME}
         PUBLIC
