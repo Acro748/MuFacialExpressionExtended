@@ -47,15 +47,15 @@ namespace Mus {
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 					Console->Print("Reload done");
 				}
-				else if (IsSameString(category, "update"))
+				else if (IsSameString(name, "update"))
 				{
 					ActorManager::GetSingleton().Update(a_actor);
-					return false;
+					Console->Print("Update done");
 				}
-				else if (IsSameString(category, "initial") || IsSameString(category, "init"))
+				else if (IsSameString(name, "initial") || IsSameString(name, "init"))
 				{
-					ActorManager::GetSingleton().Revert(a_actor);
 					ActorManager::GetSingleton().Initial(a_actor);
+					Console->Print("Initial done");
 				}
 				return false;
 			}

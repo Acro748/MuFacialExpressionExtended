@@ -32,6 +32,7 @@ namespace Mus {
         void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value);
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
         void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor);
+        void InitialMorphData(RE::StaticFunctionTag*, RE::Actor* a_actor);
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm);
     }

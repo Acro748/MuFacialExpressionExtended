@@ -106,7 +106,9 @@ namespace Mus {
 					continue;
 			}
 			else if (slot == -1)
+			{
 				GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
+			}
 			else if (slot == -2)
 			{
 				std::string morphBasePath = headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();

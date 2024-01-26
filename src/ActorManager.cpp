@@ -110,7 +110,7 @@ namespace Mus {
 		}
 	}
 
-	void ActorManager::Initial(RE::Actor* a_actor)
+	void ActorManager::Initial(RE::Actor* a_actor, std::int32_t a_slot)
 	{
 		if (IsShowracemenuLoaded.load())
 			return;
@@ -118,7 +118,9 @@ namespace Mus {
 		if (a_actor)
 		{
 			if (auto found = find(a_actor->formID); found != end()) {
-				found->second->Initial();
+				found->second->Revert();
+				found->second->Update();
+				found->second->Initial(a_slot);
 			}
 		}
 	}

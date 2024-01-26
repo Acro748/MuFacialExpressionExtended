@@ -7,7 +7,7 @@ namespace MFEE {
 		Interface() {};
 		virtual ~Interface() {};
 
-		virtual std::uint32_t GetVersion() = 0; //latest version is 2
+		virtual std::uint32_t GetVersion() = 0; //current version is 3
 	};
 
 	struct InterfaceExchangeMessage
@@ -48,6 +48,7 @@ namespace MFEE {
 		virtual void SetExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) = 0;
 		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") = 0;
 		virtual void UpdateExpression(RE::Actor* a_actor) = 0;
+		virtual void InitialMorphData(RE::Actor* a_actor) = 0;
 	};
 
 	class InterfaceManager {

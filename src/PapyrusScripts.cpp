@@ -86,6 +86,9 @@ namespace Mus {
         void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor) {
             MFEE::FEE.UpdateExpression(a_actor);
         }
+        void InitialMorphData(RE::StaticFunctionTag*, RE::Actor* a_actor) {
+            MFEE::FEE.InitialMorphData(a_actor);
+        }
 
         bool RegisterPapyrusFunctions(RE::BSScript::IVirtualMachine* vm) {
             vm->RegisterFunction("PrintConsole", ScriptFileName, PrintConsole);
@@ -117,6 +120,7 @@ namespace Mus {
             vm->RegisterFunction("SetExpressionByNumber", ScriptFileName, SetExpressionByNumber);
             vm->RegisterFunction("RevertExpression", ScriptFileName, RevertExpression);
             vm->RegisterFunction("UpdateExpression", ScriptFileName, UpdateExpression);
+            vm->RegisterFunction("InitialMorphData", ScriptFileName, InitialMorphData);
             return true;
         }
     }
