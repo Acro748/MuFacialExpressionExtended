@@ -14,14 +14,19 @@ namespace Mus {
 		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, morphBasePath);
 		if (!morphData)
 		{
-			logger::debug("{} couldn't get morph data for {} / {}", a_geometry->name.c_str(), morphName, morphBasePath);
+			logger::error("{} couldn't get morph data for {} / {}", a_geometry->name.c_str(), morphName, morphBasePath);
 			return false;
 		}
 
 		auto vertexDatas = vertices.find(morphBasePath);
-		if (vertexDatas == vertices.end() || vertexDatas->second.size() != morphData->vertexCount)
+		if (vertexDatas == vertices.end())
 		{
-			logger::debug("{} invalid vertex count for morphData of {}", a_geometry->name.c_str(), morphName);
+			logger::error("{} / {} invalid vertex data for morphData of {}", a_geometry->name.c_str(), morphBasePath, morphName);
+			return false;
+		}
+		if (vertexDatas->second.size() != morphData->vertexCount)
+		{
+			logger::error("{} / {} wrong vertex count {} for morphData {} of {}", a_geometry->name.c_str(), morphBasePath, vertexDatas->second.size(), morphData->vertexCount, morphName);
 			return false;
 		}
 		auto& vertexData = vertexDatas->second;
@@ -45,7 +50,7 @@ namespace Mus {
 		float newValue = (a_value - value) * 0.01f;
 		if (IsEqual(newValue, 0.0f))
 		{
-			logger::debug("value is not changed");
+			logger::trace("value is not changed");
 			return true;
 		}
 		for (std::uint8_t i = 0; i < a_numHeadparts; i++) {
@@ -74,8 +79,10 @@ namespace Mus {
 
 		m_lock.lock();
 		if (slot == -1)
+		{
 			vertices.clear();
-
+			orig_vertices.clear();
+		}
 		RE::BGSHeadPart** headParts = actorBase->HasOverlays() ? actorBase->GetBaseOverlays() : actorBase->headParts;
 		std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
 
@@ -84,7 +91,7 @@ namespace Mus {
 			if (!headpart || headpart->formEditorID.empty())
 				continue;
 
-			if (slot != -1)
+			if (slot >= 0)
 			{
 				if (slot == headpart->type.underlying())
 				{
@@ -98,8 +105,18 @@ namespace Mus {
 				else
 					continue;
 			}
+			else if (slot == -1)
+				GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
+			else if (slot == -2)
+			{
+				std::string morphBasePath = headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
+				if (morphBasePath.empty())
+					continue;
+				morphBasePath = fixPath(morphBasePath);
+				if (auto found = orig_vertices.find(morphBasePath); found == orig_vertices.end())		
+					GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
 
-			GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
+			}
 		}
 		SetVerticesAsOriginalVertexData();
 		clear();
@@ -122,6 +139,7 @@ namespace Mus {
 		if (!extraData)
 			return false;
 
+		orig_vertices[morphBasePath].clear();
 		for (std::uint32_t i = 0; i < extraData->vertexCount; i++)
 		{
 			RE::NiPoint3 vertex = extraData->vertexData[i];
@@ -164,7 +182,7 @@ namespace Mus {
 		else {
 			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
 			{
-				logger::debug("Couldn't get {} morph data", a_morphName);
+				logger::error("Couldn't get {} morph data", a_morphName);
 			}
 			else
 			{
@@ -256,14 +274,19 @@ namespace Mus {
 		RE::BSFaceGenBaseMorphExtraData* extraData = MorphManager::GetMorphExtraData(a_geometry);
 		if (!extraData)
 		{
-			logger::debug("{} couldn't get extra data", a_geometry->name.c_str());
+			logger::error("{} couldn't get extra data", a_geometry->name.c_str());
 			return false;
 		}
 
 		const auto vertexDatas = vertices.find(morphBasePath);
-		if (vertexDatas == vertices.end() || vertexDatas->second.size() != extraData->vertexCount)
+		if (vertexDatas == vertices.end())
 		{
-			logger::debug("{} vertex data is wrong", a_geometry->name.c_str());
+			logger::error("{} invalid vertex data : {}", a_geometry->name.c_str(), morphBasePath);
+			return false;
+		}
+		if (vertexDatas->second.size() != extraData->vertexCount)
+		{
+			logger::error("wrong vertex count {} for extraData {} of {} / {}", vertexDatas->second.size(), extraData->vertexCount, a_geometry->name.c_str(), morphBasePath);
 			return false;
 		}
 		const auto& vertexData = vertexDatas->second;

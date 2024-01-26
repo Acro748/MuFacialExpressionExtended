@@ -110,6 +110,19 @@ namespace Mus {
 		}
 	}
 
+	void ActorManager::Initial(RE::Actor* a_actor)
+	{
+		if (IsShowracemenuLoaded.load())
+			return;
+
+		if (a_actor)
+		{
+			if (auto found = find(a_actor->formID); found != end()) {
+				found->second->Initial();
+			}
+		}
+	}
+
 	float ActorManager::GetValue(RE::Actor* a_actor, std::string morphName)
 	{
 		if (!a_actor)

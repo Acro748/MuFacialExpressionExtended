@@ -96,12 +96,16 @@ namespace Mus {
 
 	bool morphNameEntry::Register(std::string category, std::string morphName)
 	{
+		if (category.empty())
+			return false;
 		category = lowLetter(category);
-		morphName = lowLetter(morphName);
+		RegisterCategory(category);
 
+		if (morphName.empty()) //adding category only
+			return true;
+		morphName = lowLetter(morphName);
 		if (IsValidName(morphName))
 			return false;
-		RegisterCategory(category);
 
 		if (auto foundCategory = std::find_if(names.begin(), names.end(), [category](morphNameEntryData data) {
 			return IsSameString(category, data.morphCategory);
@@ -352,7 +356,7 @@ namespace Mus {
 				continue;*/
 			logger::debug("Registered {} morph", morphName_.c_str());
 		}
-		logger::info("Registered {} file", a_morphPath);
+		logger::info("Registered {} file", a_morphBasePath);
 		return true;
 	}
 

@@ -7,7 +7,7 @@ namespace MFEE {
 		Interface() {};
 		virtual ~Interface() {};
 
-		virtual std::uint32_t GetVersion() = 0;
+		virtual std::uint32_t GetVersion() = 0; //latest version is 2
 	};
 
 	struct InterfaceExchangeMessage

@@ -82,6 +82,11 @@ namespace Mus {
 			MouthFlabbergasted,
 			MouthCry,
 			MouthCat,
+			MouthClench,
+			MouthClenchLip,
+			MouthPucker,
+			MouthUpperUp,
+			MouthUpperUpRound,
 
 			total
 		};

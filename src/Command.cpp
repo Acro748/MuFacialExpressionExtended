@@ -47,6 +47,16 @@ namespace Mus {
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 					Console->Print("Reload done");
 				}
+				else if (IsSameString(category, "update"))
+				{
+					ActorManager::GetSingleton().Update(a_actor);
+					return false;
+				}
+				else if (IsSameString(category, "initial") || IsSameString(category, "init"))
+				{
+					ActorManager::GetSingleton().Revert(a_actor);
+					ActorManager::GetSingleton().Initial(a_actor);
+				}
 				return false;
 			}
 
@@ -108,19 +118,6 @@ namespace Mus {
 			else if (IsSameString(category, "reset") || IsSameString(category, "r"))
 			{
 				ActorManager::GetSingleton().Revert(a_actor);
-				return false;
-			}
-			else if (IsSameString(category, "reload"))
-			{
-				ActorManager::GetSingleton().Revert();
-				Config::GetSingleton().LoadConfig();
-				static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
-				static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
-				return false;
-			}
-			else if (IsSameString(category, "update"))
-			{
-				ActorManager::GetSingleton().Update(a_actor);
 				return false;
 			}
 		}
