@@ -158,9 +158,9 @@ namespace Mus {
 	{
 		if (morphNumber == -1)
 			return "";
-		auto names = GetMorphNames(category);
-		if (morphNumber < names.size())
-			return names.at(morphNumber);
+		auto morphNames = GetMorphNames(category);
+		if (morphNumber < morphNames.size())
+			return morphNames.at(morphNumber);
 		return "";
 	}
 
@@ -336,7 +336,7 @@ namespace Mus {
 			morph.vertexCount = vertexCount;
 			morph.multiplier = mult;
 
-			for (std::uint32_t v = 0; v < vertexCount; v++)
+			for (std::int32_t v = 0; v < vertexCount; v++)
 			{
 				MorphDataBase::Morph::Vertex vert;
 				Read(&file, &vert, sizeof(vert));

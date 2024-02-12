@@ -82,7 +82,7 @@ namespace MFEE {
 	protected:
 
 	private:
-		inline bool IsLoaded() { return GetModuleHandle("MuFacialExpressionExtended.dll"); }
+		inline bool IsLoaded() { return GetModuleHandle(L"MuFacialExpressionExtended.dll"); }
 
 		bool load_Check = false;
 		InterfaceExchangeMessage exchangeMessage;

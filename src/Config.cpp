@@ -1,9 +1,6 @@
 #include "Config.h"
 
-#include <articuno/archives/ryml/ryml.h>
 #include <direct.h>
-
-using namespace articuno::ryml;
 
 namespace Mus {
     bool Config::LoadConfig() {

@@ -275,7 +275,7 @@ namespace Mus::nif {
 
         std::uint16_t extraDataSize = obj->extraDataSize;
 
-        for (std::uint16_t i = 0; i < obj->extraDataSize; i++)
+        for (std::uint16_t i = 0; i < extraDataSize; i++)
         {
             RE::NiStringExtraData* stringData = netimmerse_cast<RE::NiStringExtraData*>(obj->extra[i]);
             if (stringData)

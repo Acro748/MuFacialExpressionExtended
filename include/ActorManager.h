@@ -29,8 +29,8 @@ namespace Mus {
 		void Update(RE::Actor* a_actor = nullptr);
 		void Initial(RE::Actor* a_actor = nullptr, std::int32_t a_slot = -2);
 
-		float GetValue(RE::Actor* a_actor, std::string morphName);
-		float GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
+		std::int32_t GetValue(RE::Actor* a_actor, std::string morphName);
+		std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;

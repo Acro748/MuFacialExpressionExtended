@@ -54,7 +54,7 @@ namespace Mus {
 			return;
 
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(category);
-		if (names.size() < morphNumber)
+		if (names.size() > morphNumber)
 		{
 			SetMorph(a_actor, names.at(morphNumber), value);
 		}
@@ -65,7 +65,7 @@ namespace Mus {
 			return;
 
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(categoryNumber);
-		if (names.size() < morphNumber)
+		if (names.size() > morphNumber)
 		{
 			SetMorph(a_actor, names.at(morphNumber), value);
 		}
@@ -125,31 +125,31 @@ namespace Mus {
 		}
 	}
 
-	float ActorManager::GetValue(RE::Actor* a_actor, std::string morphName)
+	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, std::string morphName)
 	{
 		if (!a_actor)
-			return 0.0f;
+			return 0;
 
 		if (isPlayer(a_actor->formID) && IsShowracemenuLoaded.load())
-			return 0.0f;
+			return 0;
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
 			return found->second->GetValue(morphName);
 		}
-		return 0.0f;
+		return 0;
 	}
-	float ActorManager::GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber)
+	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber)
 	{
 		if (!a_actor)
-			return 0.0f;
+			return 0;
 
 		if (isPlayer(a_actor->formID) && IsShowracemenuLoaded.load())
-			return 0.0f;
+			return 0;
 
 		auto categories = morphNameEntry::GetSingleton().GetCategories();
-		if (categories.size() >= categoryNumber)
-			return 0.0f;
+		if (categories.size() <= categoryNumber)
+			return 0;
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
@@ -158,7 +158,7 @@ namespace Mus {
 				return found->second->GetValue(names.at(morphNumber));
 			}
 		}
-		return 0.0f;
+		return 0;
 	}
 
 	ActorManager::EventResult ActorManager::ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) 

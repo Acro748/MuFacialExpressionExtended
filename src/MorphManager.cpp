@@ -18,7 +18,7 @@ namespace Mus {
 			return false;
 		}
 
-		auto vertexDatas = vertices.find(morphBasePath);
+		auto vertexDatas = vertices.find(a_headpart->formID);
 		if (vertexDatas == vertices.end())
 		{
 			logger::error("{} / {} invalid vertex data for morphData of {}", a_geometry->name.c_str(), morphBasePath, morphName);
@@ -42,7 +42,7 @@ namespace Mus {
 		logger::debug("{} vertexData applied", a_geometry->name.c_str());
 		return true;
 	}
-	bool MorphManagerRecord::Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value)
+	bool MorphManagerRecord::Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value)
 	{
 		if (!a_headparts || !a_facegenNinode)
 			return false;
@@ -78,6 +78,14 @@ namespace Mus {
 			return false;
 
 		m_lock.lock();
+		std::unordered_map<std::string, std::int32_t> valueTemp;
+		for (auto& values : *this)
+		{
+			std::string morphName = values.second.GetMorphName();
+			valueTemp[morphName] = values.second.GetValue();
+		}
+		Revert();
+
 		if (slot == -1)
 		{
 			vertices.clear();
@@ -111,17 +119,16 @@ namespace Mus {
 			}
 			else if (slot == -2)
 			{
-				std::string morphBasePath = headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
-				if (morphBasePath.empty())
-					continue;
-				morphBasePath = fixPath(morphBasePath);
-				if (auto found = orig_vertices.find(morphBasePath); found == orig_vertices.end())		
+				if (auto found = orig_vertices.find(headpart->formID); found == orig_vertices.end())		
 					GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
-
 			}
 		}
 		SetVerticesAsOriginalVertexData();
 		clear();
+
+		for (auto v : valueTemp)
+			Apply(v.first, v.second);
+
 		m_lock.unlock();
 		logger::debug("{:x} {} : expression initialed", id, name);
 
@@ -141,11 +148,11 @@ namespace Mus {
 		if (!extraData)
 			return false;
 
-		orig_vertices[morphBasePath].clear();
+		orig_vertices[a_headpart->formID].clear();
 		for (std::uint32_t i = 0; i < extraData->vertexCount; i++)
 		{
 			RE::NiPoint3 vertex = extraData->vertexData[i];
-			orig_vertices[morphBasePath].emplace_back(vertex);
+			orig_vertices[a_headpart->formID].emplace_back(vertex);
 		}
 		return true;
 	}
@@ -154,11 +161,11 @@ namespace Mus {
 		vertices.clear();
 		for (auto& vertices_ : orig_vertices)
 		{
-			std::string morphBasePath = vertices_.first;
+			RE::FormID headpartID = vertices_.first;
 			for (auto& vertex : vertices_.second)
 			{
 				RE::NiPoint3 vertex_ = vertex;
-				vertices[morphBasePath].emplace_back(vertex_);
+				vertices[headpartID].emplace_back(vertex_);
 			}
 		}
 	}
@@ -220,11 +227,11 @@ namespace Mus {
 		{
 			category = lowLetter(category);
 			auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
-			for (auto name : morphNames) 
+			for (auto morphName : morphNames) 
 			{
-				auto found = find(name);
+				auto found = find(morphName);
 				if (found != end())
-					found->second.Apply(vertices, headParts, numHeadParts, actor->GetFaceNode(), 0.0f);
+					found->second.Apply(vertices, headParts, numHeadParts, actor->GetFaceNode(), 0);
 			}
 		}
 		m_lock.unlock();
@@ -260,7 +267,7 @@ namespace Mus {
 		auto found = find(a_morphName);
 		if (found != end())
 			return found->second.GetValue();
-		return 0.0f;
+		return 0;
 	}
 
 	bool MorphManager::Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry)
@@ -280,7 +287,7 @@ namespace Mus {
 			return false;
 		}
 
-		const auto vertexDatas = vertices.find(morphBasePath);
+		const auto vertexDatas = vertices.find(a_headpart->formID);
 		if (vertexDatas == vertices.end())
 		{
 			logger::error("{} invalid vertex data : {}", a_geometry->name.c_str(), morphBasePath);

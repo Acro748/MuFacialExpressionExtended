@@ -25,7 +25,6 @@
 #include <algorithm>
 #include <any>
 #include <array>
-#include <articuno/articuno.h>
 #include <atomic>
 #include <barrier>
 #include <bit>

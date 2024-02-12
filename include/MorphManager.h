@@ -1,18 +1,19 @@
 #pragma once
 
 namespace Mus {
-	typedef std::unordered_map<std::string, std::vector<RE::NiPoint3>> Vertices; //morphBasePath, vertieces
+	typedef std::unordered_map<RE::FormID, std::vector<RE::NiPoint3>> Vertices; //headpart, vertieces
 
 	class MorphManagerRecord
 	{
 		std::string morphName;
-		int32_t value = 0.0f;
+		std::int32_t value = 0.0f;
 	public:
 		MorphManagerRecord(std::string a_morphName) : morphName(a_morphName) {};
 		~MorphManagerRecord() {};
 
-		bool Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint8_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value);
-		int32_t GetValue() const { return value; }
+		bool Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value);
+		std::string GetMorphName() const { return morphName; }
+		std::int32_t GetValue() const { return value; }
 	private:
 		bool Apply(Vertices& vertices, RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value);
 	};
