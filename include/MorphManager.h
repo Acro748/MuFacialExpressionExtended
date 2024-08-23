@@ -36,6 +36,12 @@ namespace Mus {
 		void Update();
 
 		static RE::BSFaceGenBaseMorphExtraData* GetMorphExtraData(RE::BSGeometry* a_geometry);
+
+		struct ActiveMorphSet {
+			std::string morphName = "";
+			std::int32_t value = 0;
+		};
+		std::vector<ActiveMorphSet> GetAllActiveMorphs();
 	private:
 		bool Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
 		bool GetOriginalVertexData(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);

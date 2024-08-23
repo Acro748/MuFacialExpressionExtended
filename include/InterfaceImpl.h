@@ -5,7 +5,7 @@ namespace MFEE {
 		public IFacialExpressionExtended
 	{
 	public:
-		virtual std::uint32_t GetVersion() { return 3; };
+		virtual std::uint32_t GetVersion() { return 4; };
 
 		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) { 
 			return Mus::MorphDataBaseManager::GetSingleton().Register(a_morphBasePath, a_morphPath);
@@ -76,6 +76,17 @@ namespace MFEE {
 		};
 		virtual void InitialMorphData(RE::Actor* a_actor) {
 			Mus::ActorManager::GetSingleton().Initial(a_actor);
+		};
+
+		virtual std::vector<IActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) {
+			auto allActiveMorphs = Mus::ActorManager::GetSingleton().GetAllActiveMorphs(a_actor);
+			std::vector<IActiveMorphSet> result;
+			for (auto& m : allActiveMorphs)
+			{
+				IActiveMorphSet newIActiveMorphSet = { m.morphName, m.value };
+				result.push_back(newIActiveMorphSet);
+			}
+			return result;
 		};
 	};
 	static FacialExpressionExtended FEE;

@@ -161,6 +161,18 @@ namespace Mus {
 		return 0;
 	}
 
+	std::vector<MorphManager::ActiveMorphSet> ActorManager::GetAllActiveMorphs(RE::Actor* a_actor)
+	{
+		if (!a_actor)
+			return std::vector<MorphManager::ActiveMorphSet>();
+
+		if (const auto found = find(a_actor->formID); found != end())
+		{
+			return found->second->GetAllActiveMorphs();
+		}
+		return std::vector<MorphManager::ActiveMorphSet>();
+	}
+
 	ActorManager::EventResult ActorManager::ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) 
 	{
 		if (!evn || evn->menuName.empty())

@@ -57,6 +57,10 @@ namespace Mus {
 					ActorManager::GetSingleton().Initial(a_actor);
 					Console->Print("Initial done");
 				}
+				else
+				{
+					Console->Print("debug list : reload, update, initial");
+				}
 				return false;
 			}
 
@@ -118,6 +122,16 @@ namespace Mus {
 			else if (IsSameString(category, "reset") || IsSameString(category, "r"))
 			{
 				ActorManager::GetSingleton().Revert(a_actor);
+				return false;
+			}
+			else if (IsSameString(category, "list") || IsSameString(category, "l"))
+			{
+				Console->Print("Active morph list");
+				const auto& activeList = ActorManager::GetSingleton().GetAllActiveMorphs(a_actor);
+				for (const auto& al : activeList)
+				{
+					Console->Print("%s : %d", al.morphName, al.value);
+				}
 				return false;
 			}
 		}

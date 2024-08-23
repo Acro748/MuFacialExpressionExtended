@@ -321,4 +321,20 @@ namespace Mus {
 		REL::Relocation<func_t> func{ offset };
 		return func(obj);
 	}
+
+	std::vector<MorphManager::ActiveMorphSet> MorphManager::GetAllActiveMorphs()
+	{
+		std::vector<ActiveMorphSet> result;
+		for (const auto& m : *this)
+		{
+			if (m.second.GetValue() != 0)
+			{
+				ActiveMorphSet newActiveMorphSet;
+				newActiveMorphSet.morphName = m.first;
+				newActiveMorphSet.value = m.second.GetValue();
+				result.push_back(newActiveMorphSet);
+			}
+		}
+		return result;
+	}
 }

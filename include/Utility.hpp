@@ -1,82 +1,44 @@
 #pragma once
 
 namespace Mus {
-    inline std::string GetRuntimeDirectory()
-    {
-        char RuntimeDirectory[4096];
-        if (_getcwd(RuntimeDirectory, 4096) == NULL)
-        {
-            SKSE::stl::report_and_fail("Unable to lookup Runtime directory.");
-        }
-        std::string Directory = RuntimeDirectory;
-
-        return Directory;
-    }
-
     inline std::string GetRuntimeDataDirectory()
     {
-        std::string Directory = GetRuntimeDirectory();
-        Directory += "\\Data\\";
-
-        return Directory;
+        return "Data\\";
     }
 
     inline std::string GetRuntimeMeshesDirectory()
     {
-        std::string Directory = GetRuntimeDirectory();
-        Directory += "\\Data\\Meshes\\";
-
-        return Directory;
+        return "Data\\Meshes\\";
     }
 
     inline std::string GetRuntimeTexturesDirectory()
     {
-        std::string Directory = GetRuntimeDirectory();
-        Directory += "\\Data\\Textures\\";
-
-        return Directory;
+        return "Data\\Textures\\";
     }
 
     inline std::string GetRuntimeSKSEDirectory()
     {
-        std::string Directory = GetRuntimeDirectory();
-        Directory += "\\Data\\SKSE\\Plugins\\";
-
-        return Directory;
+        return "Data\\SKSE\\Plugins\\";
     }
 
-    inline RE::TESForm* GetFormByID(RE::FormID id, std::string_view modname)
+    inline RE::TESForm* GetFormByID(RE::FormID id, std::string_view modname = "")
     {
-        if (modname != "")
+        if (!modname.empty())
         {
             RE::TESDataHandler* DataHandler = RE::TESDataHandler::GetSingleton();
             if (!DataHandler)
                 return nullptr;
 
-            //auto esp = DataHandler->LookupModByName(modname);
-            //if (!esp)
-            //    return nullptr;
-
-            //RE::FormID index = 0;
-
-            //if (REL::Module::IsVR() || (!REL::Module::IsVR() && !esp->IsLight()))
-            //{
-            //    RE::FormID Compileindex = esp->GetCompileIndex();
-            //    index = (Compileindex << 24);
-            //}
-            //else
-            //{
-            //    RE::FormID Compileindex = esp->GetSmallFileCompileIndex();
-            //    index = ((0xFE000 | Compileindex) << 24);
-            //}
-
-            //id += index;
-
             id = DataHandler->LookupFormID(id, modname);
         }
-        RE::TESForm* result = id ? RE::TESForm::LookupByID(id) : nullptr;
-
+        RE::TESForm* result = RE::TESForm::LookupByID(id);
         return result ? result : nullptr;
+    }
+
+    template <typename T>
+    inline T GetFormByID(RE::FormID id, std::string_view modname = "")
+    {
+        return skyrim_cast<T>(GetFormByID(id, modname));
     }
 
     inline bool IsThereTheESP(std::string_view modname)
@@ -84,7 +46,7 @@ namespace Mus {
         RE::TESDataHandler* DataHandler = RE::TESDataHandler::GetSingleton();
         if (!DataHandler)
             return false;
-        auto esp = DataHandler->LookupModByName(modname);
+        auto esp = DataHandler->LookupLoadedModByName(modname);
         return esp ? true : false;
     }
 
@@ -93,7 +55,7 @@ namespace Mus {
         RE::TESDataHandler* DataHandler = RE::TESDataHandler::GetSingleton();
         if (!DataHandler)
             return 0;
-        auto esp = DataHandler->LookupModByName(modname);
+        auto esp = DataHandler->LookupLoadedModByName(modname);
         if (!esp)
             return 0;
         std::uint32_t index = esp->GetPartialIndex();
@@ -120,7 +82,7 @@ namespace Mus {
 
     inline bool IsLightMod(RE::FormID id)
     {
-        return REL::Module::IsVR() ? false : ((id >> 24) == 0xFE); //VR hasn't esl
+        return REL::Module::IsVR() && !RE::TESDataHandler::GetSingleton()->VRcompiledFileCollection ? false : ((id >> 24) == 0xFE);
     }
 
     inline std::string_view GetModNameByIndex(std::uint8_t index)
@@ -147,8 +109,8 @@ namespace Mus {
 
     inline std::string_view GetModNameByID(RE::FormID id) //if modindex is 0xFF then it'll return "Template"
     {
-        if (REL::Module::IsVR()) //why doesn't work on VR?
-            return "VR";
+        //if (REL::Module::IsVR()) //why doesn't work on VR?
+        //    return "VR";
 
         if ((id >> 24) == 0xFF)
             return "Template";
@@ -240,12 +202,24 @@ namespace Mus {
         return file ? true : false;
     }
 
+    inline float Round(float a_value, std::int8_t num = 4)
+    {
+        return round(a_value * pow(10, num - 1)) * pow(0.1, num - 1);
+    }
+    inline double Round(double a_value, std::int8_t num = 4)
+    {
+        return round(a_value * pow(10, num - 1)) * pow(0.1, num - 1);
+    }
+    inline RE::NiPoint3 Round(RE::NiPoint3 a_value, std::int8_t num = 4)
+    {
+        return RE::NiPoint3(Round(a_value.x, num), Round(a_value.y, num), Round(a_value.z, num));
+    }
+
     inline bool IsArmorSlot(RE::TESObjectARMO* thisArmor, RE::BIPED_MODEL::BipedObjectSlot slotMask)
     {
         return thisArmor->bipedModelData.bipedObjectSlots.underlying() & std::to_underlying(slotMask);
     }
-
-    inline std::int32_t GetNum(std::string str) 
+    inline std::int32_t GetNum(std::string str)
     {
         for (auto s : str)
         {
@@ -253,5 +227,12 @@ namespace Mus {
                 return -1;
         }
         return std::stoi(str);
+    }
+
+    inline std::string GetHexStr(std::uint32_t a_value)
+    {
+        std::stringstream hex;
+        hex << std::hex << a_value;
+        return std::string(hex.str());
     }
 }

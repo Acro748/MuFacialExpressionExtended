@@ -40,8 +40,8 @@ namespace MFEE {
 		virtual std::int32_t GetExpressionMorphNameNumber(std::string a_morphName) = 0;
 		virtual bool IsValidExpressionMorphName(std::string a_morphName) = 0;
 
-		virtual int32_t GetExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
-		virtual int32_t GetExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
+		virtual std::int32_t GetExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
+		virtual std::int32_t GetExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
 
 		virtual void SetExpressionByName(RE::Actor* a_actor, std::string a_morphName, int32_t a_value) = 0;
 		virtual void SetExpressionByCategory(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) = 0;
@@ -49,6 +49,12 @@ namespace MFEE {
 		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") = 0;
 		virtual void UpdateExpression(RE::Actor* a_actor) = 0;
 		virtual void InitialMorphData(RE::Actor* a_actor) = 0;
+
+		struct IActiveMorphSet {
+			std::string morphName = "";
+			std::int32_t value = 0;
+		};
+		virtual std::vector<IActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) = 0;
 	};
 
 	class InterfaceManager {

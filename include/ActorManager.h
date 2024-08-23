@@ -31,6 +31,8 @@ namespace Mus {
 
 		std::int32_t GetValue(RE::Actor* a_actor, std::string morphName);
 		std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
+
+		std::vector<MorphManager::ActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor);
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
