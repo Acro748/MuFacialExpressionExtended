@@ -7,7 +7,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 project(
         MuFacialExpressionExtended
         VERSION 0.4.0
-        DESCRIPTION "MuFacialExpressionExtended - NG by Acro."
+        DESCRIPTION "MuFacialExpressionExtended - SE/AE by Acro."
         LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 23)
