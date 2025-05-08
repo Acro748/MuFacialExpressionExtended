@@ -64,21 +64,21 @@ namespace Mus {
             return MFEE::FEE.IsValidExpressionMorphName(a_morphName.c_str());
         }
 
-        int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
+        std::int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName) {
             return MFEE::FEE.GetExpressionValueByName(a_actor, a_morphName.c_str());
         }
-        int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
+        std::int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber) {
             return MFEE::FEE.GetExpressionValueByNumber(a_actor, a_morphCategory, a_morphNumber);
         }
 
-        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, int32_t a_value) {
-           MFEE::FEE.SetExpressionByName(a_actor, a_morphName.c_str(), a_value);
+        void SetExpressionByNameEx(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, std::int32_t a_value, std::int32_t a_lerpTime) {
+           MFEE::FEE.SetExpressionByNameEx(a_actor, a_morphName.c_str(), a_value, a_lerpTime);
         }
-        void SetExpressionByCategory(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) {
-            MFEE::FEE.SetExpressionByCategory(a_actor, a_morphCategory.c_str(), a_morphNumber, a_value);
+        void SetExpressionByCategoryEx(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) {
+            MFEE::FEE.SetExpressionByCategoryEx(a_actor, a_morphCategory.c_str(), a_morphNumber, a_value, a_lerpTime);
         }
-        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber, int32_t a_value) {
-            MFEE::FEE.SetExpressionByNumber(a_actor, a_categoryNumber, a_morphNumber, a_value);
+        void SetExpressionByNumberEx(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) {
+            MFEE::FEE.SetExpressionByNumberEx(a_actor, a_categoryNumber, a_morphNumber, a_value, a_lerpTime);
         }
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory) {
             MFEE::FEE.RevertExpression(a_actor, a_morphCategory.c_str());
@@ -115,9 +115,9 @@ namespace Mus {
             vm->RegisterFunction("GetExpressionValueByName", ScriptFileName, GetExpressionValueByName);
             vm->RegisterFunction("GetExpressionValueByNumber", ScriptFileName, GetExpressionValueByNumber);
 
-            vm->RegisterFunction("SetExpressionByName", ScriptFileName, SetExpressionByName);
-            vm->RegisterFunction("SetExpressionByCategory", ScriptFileName, SetExpressionByCategory);
-            vm->RegisterFunction("SetExpressionByNumber", ScriptFileName, SetExpressionByNumber);
+            vm->RegisterFunction("SetExpressionByNameEx", ScriptFileName, SetExpressionByNameEx);
+            vm->RegisterFunction("SetExpressionByCategoryEx", ScriptFileName, SetExpressionByCategoryEx);
+            vm->RegisterFunction("SetExpressionByNumberEx", ScriptFileName, SetExpressionByNumberEx);
             vm->RegisterFunction("RevertExpression", ScriptFileName, RevertExpression);
             vm->RegisterFunction("UpdateExpression", ScriptFileName, UpdateExpression);
             vm->RegisterFunction("InitialMorphData", ScriptFileName, InitialMorphData);

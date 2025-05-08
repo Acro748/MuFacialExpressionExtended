@@ -24,12 +24,15 @@ namespace Mus {
         std::int32_t GetExpressionMorphNameNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphName);
         bool IsValidExpressionMorphName(RE::StaticFunctionTag*, RE::BSFixedString a_morphName);
 
-        int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName);
-        int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber);
+        std::int32_t GetExpressionValueByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName);
+        std::int32_t GetExpressionValueByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_categoryNumber, std::uint32_t a_morphNumber);
 
-        void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, int32_t a_value);
-        void SetExpressionByCategory(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value);
-        void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value);
+        //void SetExpressionByName(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, std::int32_t a_value);
+        void SetExpressionByNameEx(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphName, std::int32_t a_value, std::int32_t a_lerpTime);
+        //void SetExpressionByCategory(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value);
+        void SetExpressionByCategoryEx(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime);
+        //void SetExpressionByNumber(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value);
+        void SetExpressionByNumberEx(RE::StaticFunctionTag*, RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime);
         void RevertExpression(RE::StaticFunctionTag*, RE::Actor* a_actor, RE::BSFixedString a_morphCategory);
         void UpdateExpression(RE::StaticFunctionTag*, RE::Actor* a_actor);
         void InitialMorphData(RE::StaticFunctionTag*, RE::Actor* a_actor);

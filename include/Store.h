@@ -15,4 +15,5 @@ namespace Mus {
 	constexpr float TimeTick60 = 1.0f / 60.0f;
 
 	extern std::atomic<bool> IsShowracemenuLoaded;
+	extern std::atomic<bool> IsGamePaused;
 }

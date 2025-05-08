@@ -130,12 +130,15 @@ namespace util {
 
 #include "B/BSFaceGenBaseMorphExtraData.h"
 
+#include "NiVector4.h"
+
 #include "nifUtil.h"
 #include "Utility.hpp"
 #include "Store.h"
 #include "ConsoleLog.h"
 #include "Config.h"
 
+#include "Hook.h"
 #include "Command.h"
 #include "MorphDataBase.h"
 #include "MorphManager.h"

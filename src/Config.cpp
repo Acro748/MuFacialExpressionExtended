@@ -63,6 +63,10 @@ namespace Mus {
                 {
                     Max = GetConfigSettingsIntValue(variableValue);
                 }
+                else if (variableName == "DefaultLerpTime")
+                {
+                    DefaultLerpTime = GetConfigSettingsIntValue(variableValue);
+                }
             }
         }
         logger::info("Config loaded done");

@@ -28,6 +28,9 @@ namespace Mus {
         [[nodiscard]] inline int32_t GetMax() const noexcept {
             return Max;
         }
+        [[nodiscard]] inline int32_t GetDefaultLerpTime() const noexcept {
+            return DefaultLerpTime;
+        }
 
     private:
         //Debug
@@ -38,6 +41,7 @@ namespace Mus {
         bool CustomMode = false;
         int32_t Min = 0.0f;
         int32_t Max = 100.0f;
+		int32_t DefaultLerpTime = 500;
 
     public:
         // trim from start (in place)

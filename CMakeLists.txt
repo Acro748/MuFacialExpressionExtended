@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.3.5
+        VERSION 0.4.0
         DESCRIPTION "MuFacialExpressionExtended - NG by Acro."
         LANGUAGES CXX
 )
@@ -35,6 +35,8 @@ set(headers
         include/MorphManager.h
         include/ActorManager.h
         include/Store.h
+        include/NiVector4.h
+        include/Hook.h
 
         include/Interface/Interface.h
         include/InterfaceImpl.h
@@ -49,6 +51,7 @@ set(sources
         src/MorphDataBase.cpp
         src/MorphManager.cpp
         src/ActorManager.cpp
+        src/Hook.cpp
         src/Store.cpp
         src/Main.cpp
 

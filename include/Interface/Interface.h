@@ -55,6 +55,10 @@ namespace MFEE {
 			std::int32_t value = 0;
 		};
 		virtual std::vector<IActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) = 0;
+
+		virtual void SetExpressionByNameEx(RE::Actor* a_actor, std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual void SetExpressionByCategoryEx(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual void SetExpressionByNumberEx(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
 	};
 
 	class InterfaceManager {

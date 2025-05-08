@@ -87,9 +87,9 @@ namespace Mus {
 						if (numMorphName != -1)
 							name = morphNameEntry::GetSingleton().GetMorphNameByNumber(category, numMorphName);
 
-						if (!value.empty())
+						if (!value.empty() && IsNumber(value))
 						{
-							int32_t a_value = std::stoi(value);
+							std::int32_t a_value = std::stoi(value);
 							if (a_value <= Config::GetSingleton().GetMax() && Config::GetSingleton().GetMin() <= a_value)
 							{
 								ActorManager::GetSingleton().SetMorph(a_actor, name, a_value);

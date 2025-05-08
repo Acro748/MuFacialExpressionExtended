@@ -4,8 +4,8 @@ namespace Mus {
 	typedef std::shared_ptr<MorphManager> MorphManagerPtr;
 	class ActorManager :
 		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>,
-		public RE::BSTEventSink<RE::MenuOpenCloseEvent>/*,
-		public RE::BSTEventSink<RE::TESResetEvent>*/
+		public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
+		public IEventListener<FrameEvent>
 	{
 	public:
 		ActorManager() {};
@@ -22,9 +22,9 @@ namespace Mus {
 		void Save(SKSE::SerializationInterface* serde);
 		void Load(SKSE::SerializationInterface* serde, std::uint32_t type);
 
-		void SetMorph(RE::Actor* a_actor, std::string morphName, int32_t value);
-		void SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, int32_t value);
-		void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, int32_t value);
+		void SetMorph(RE::Actor* a_actor, std::string morphName, std::int32_t value, std::int32_t lerpTime = -1);
+		void SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
+		void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
 		void Revert(RE::Actor* a_actor = nullptr, std::string category = "");
 		void Update(RE::Actor* a_actor = nullptr);
 		void Initial(RE::Actor* a_actor = nullptr, std::int32_t a_slot = -2);
@@ -36,8 +36,9 @@ namespace Mus {
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
-		//EventResult ProcessEvent(const RE::TESResetEvent* evn, RE::BSTEventSource<RE::TESResetEvent>*) override;
+		void onEvent(const FrameEvent& e) override;
 	private:
 
+		bool isPaused = false;
 	};
 }

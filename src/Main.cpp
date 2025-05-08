@@ -132,6 +132,7 @@ namespace {
     {
         log::info("Building hook...");
         
+        hook();
     }
 
     void InitializeInterface()
@@ -162,6 +163,7 @@ namespace {
         Commandhook();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
+		g_frameEventDispatcher.addListener(&ActorManager::GetSingleton());
     }
 
     void InitializeMessaging() 

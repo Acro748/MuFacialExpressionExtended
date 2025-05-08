@@ -24,58 +24,53 @@ namespace Mus {
 		}
 	}
 
-	void ActorManager::SetMorph(RE::Actor* a_actor, std::string morphName, int32_t value)
+	void ActorManager::SetMorph(RE::Actor* a_actor, std::string morphName, std::int32_t value, std::int32_t lerpTime)
 	{
-		if (!a_actor || IsShowracemenuLoaded.load())
+		if (!a_actor)
 			return;
 
 		if (Config::GetSingleton().GetMin() > value || value > Config::GetSingleton().GetMax())
 			return;
 
+		if (lerpTime <= -1)
+			lerpTime = Config::GetSingleton().GetDefaultLerpTime();
+
 		bool isApplied = false;
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			isApplied = found->second->Apply(morphName, value);
+			isApplied = found->second->SetValue(morphName, value, lerpTime);
 		}
 		else {
 			auto newMorphManager = std::make_shared<MorphManager>(a_actor);
-			newMorphManager->Initial();
-			isApplied = newMorphManager->Apply(morphName, value);
+			isApplied = newMorphManager->SetValue(morphName, value, lerpTime);
 			insert(std::make_pair(a_actor->formID, newMorphManager));
 		}
-		Update(a_actor);
 
 		if (!isApplied)
 			logger::error("{:x} {} : Couldn't apply the {}", a_actor->formID, a_actor->GetName(), morphName);
 	}
-	void ActorManager::SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, int32_t value)
+	void ActorManager::SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime)
 	{
-		if (!a_actor || IsShowracemenuLoaded.load())
+		if (!a_actor)
 			return;
 
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(category);
 		if (names.size() > morphNumber)
 		{
-			SetMorph(a_actor, names.at(morphNumber), value);
+			SetMorph(a_actor, names.at(morphNumber), value, lerpTime);
 		}
 	}
-	void ActorManager::SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, int32_t value)
+	void ActorManager::SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime)
 	{
-		if (!a_actor || IsShowracemenuLoaded.load())
-			return;
-
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(categoryNumber);
 		if (names.size() > morphNumber)
 		{
-			SetMorph(a_actor, names.at(morphNumber), value);
+			SetMorph(a_actor, names.at(morphNumber), value, lerpTime);
 		}
 	}
 
 	void ActorManager::Revert(RE::Actor* a_actor, std::string category)
 	{
-		if (IsShowracemenuLoaded.load())
-			return;
-
 		if (a_actor)
 		{
 			if (auto found = find(a_actor->formID); found != end()) {
@@ -84,44 +79,42 @@ namespace Mus {
 		}
 		else
 		{
-			for (auto& morphManager : *this) {
+			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
 				morphManager.second->Revert(category);
-			}
+			});
 		}
-		Update(a_actor);
 	}
 
 	void ActorManager::Update(RE::Actor* a_actor)
 	{
-		if (IsShowracemenuLoaded.load())
-			return;
-
+		std::clock_t processTime = RE::GetSecondsSinceLastFrame() * 1000;
 		if (a_actor)
 		{
 			if (auto found = find(a_actor->formID); found != end()) {
-				found->second->Update();
+				found->second->Update(processTime);
 			}
 		}
 		else
 		{
-			for (auto& morphManager : *this) {
-				morphManager.second->Update();
-			}
+			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
+				morphManager.second->Update(processTime);
+			});
 		}
 	}
 
 	void ActorManager::Initial(RE::Actor* a_actor, std::int32_t a_slot)
 	{
-		if (IsShowracemenuLoaded.load())
-			return;
-
 		if (a_actor)
 		{
 			if (auto found = find(a_actor->formID); found != end()) {
 				found->second->Revert();
-				found->second->Update();
-				found->second->Initial(a_slot);
 			}
+		}
+		else
+		{
+			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
+				morphManager.second->Revert();
+			});
 		}
 	}
 
@@ -130,7 +123,7 @@ namespace Mus {
 		if (!a_actor)
 			return 0;
 
-		if (isPlayer(a_actor->formID) && IsShowracemenuLoaded.load())
+		if (isPlayer(a_actor->formID))
 			return 0;
 
 		auto found = find(a_actor->formID);
@@ -144,7 +137,7 @@ namespace Mus {
 		if (!a_actor)
 			return 0;
 
-		if (isPlayer(a_actor->formID) && IsShowracemenuLoaded.load())
+		if (isPlayer(a_actor->formID))
 			return 0;
 
 		auto categories = morphNameEntry::GetSingleton().GetCategories();
@@ -185,25 +178,18 @@ namespace Mus {
 		else if (!evn->opening && IsSameString(evn->menuName.c_str(), "RaceSex Menu"))
 		{
 			IsShowracemenuLoaded.store(false);
-			if (auto p = RE::PlayerCharacter::GetSingleton(); p)
-			{
-				if (auto found = find(p->formID); found != end())
-					found->second->Initial();
-			}
 		}
 		return EventResult::kContinue;
-	};
-
-	//ActorManager::EventResult ActorManager::ProcessEvent(const RE::TESResetEvent* evn, RE::BSTEventSource<RE::TESResetEvent>*)
-	//{
-	//	if (!evn || !evn->object)
-	//		return EventResult::kContinue;
-
-	//	auto found = find(evn->object->formID);
-	//	if (found == end())
-	//		return EventResult::kContinue;
-
-	//	found->second->Initial();
-	//	return EventResult::kContinue;
-	//};
+	}; 
+	
+	void ActorManager::onEvent(const FrameEvent& e)
+	{
+		if (isPaused || IsShowracemenuLoaded.load())
+		{
+			isPaused = IsGamePaused.load();
+			return;
+		}
+		Update();
+		isPaused = IsGamePaused.load(); // one frame delay
+	}
 }

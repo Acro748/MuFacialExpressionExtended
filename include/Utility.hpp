@@ -219,14 +219,19 @@ namespace Mus {
     {
         return thisArmor->bipedModelData.bipedObjectSlots.underlying() & std::to_underlying(slotMask);
     }
+
+	inline bool IsNumber(std::string str)
+	{
+		for (auto s : str)
+		{
+			if (!std::isdigit(s))
+				return false;
+		}
+		return true;
+	}
     inline std::int32_t GetNum(std::string str)
     {
-        for (auto s : str)
-        {
-            if (!std::isdigit(s))
-                return -1;
-        }
-        return std::stoi(str);
+        return IsNumber(str) ? std::stoi(str) : -1;
     }
 
     inline std::string GetHexStr(std::uint32_t a_value)

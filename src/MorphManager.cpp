@@ -1,12 +1,148 @@
 #include "MorphManager.h"
 
 namespace Mus {
-	bool MorphManagerRecord::Apply(Vertices& vertices, RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry, float a_value)
+
+	void ErrorLogger::FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath)
+	{
+		geometryName = lowLetter(geometryName);
+		morphName = lowLetter(morphName);
+		morphBasePath = lowLetter(morphBasePath);
+		if (FindErrorLog(actorID, geometryName, morphName))
+			return;
+		logger::error("{:x} : {} couldn't get morph data for {} / {}", actorID, geometryName, morphName, morphBasePath);
+		AssignErrorLog(actorID, geometryName, morphName);
+	}
+	void ErrorLogger::FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+	{
+		geometryName = lowLetter(geometryName);
+		morphName = lowLetter(morphName);
+		if (FindErrorLog(actorID, geometryName, morphName))
+			return;
+		logger::error("{:x} : {} failed to get dynamic shape", actorID, geometryName);
+		AssignErrorLog(actorID, geometryName, morphName);
+	}
+	void ErrorLogger::FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+	{
+		geometryName = lowLetter(geometryName);
+		morphName = lowLetter(morphName);
+		if (FindErrorLog(actorID, geometryName, morphName))
+			return;
+		logger::error("{:x} : {} failed to get dynamic vertices", actorID, geometryName);
+		AssignErrorLog(actorID, geometryName, morphName);
+	}
+	void ErrorLogger::FlushVertexCountErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::uint32_t geoVertexCount, std::size_t triVertexCount)
+	{
+		geometryName = lowLetter(geometryName);
+		morphName = lowLetter(morphName);
+		if (FindErrorLog(actorID, geometryName, morphName))
+			return;
+		logger::error("{:x} : {} / {} <=> {} vertex count is invalid", actorID, geometryName, geoVertexCount, triVertexCount);
+		AssignErrorLog(actorID, geometryName, morphName);
+	}
+
+	bool ErrorLogger::FindErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+	{
+		if (auto foundActor = errorMap.find(actorID); foundActor != errorMap.end())
+		{
+			if (auto foundGeometry = foundActor->second.find(geometryName); foundGeometry != foundActor->second.end())
+			{
+				if (auto foundMorphName = foundGeometry->second.find(morphName); foundMorphName != foundGeometry->second.end())
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	void ErrorLogger::AssignErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+	{
+		errorMap[actorID][geometryName].insert(morphName);
+	}
+
+	bool MorphManagerRecord::Recalculate(RE::BSGeometry* a_geometry)
+	{
+		if (!a_geometry)
+			return false;
+
+		auto vertexDesc = a_geometry->GetGeometryRuntimeData().vertexDesc;
+		if (!vertexDesc.HasFlag(RE::BSGraphics::Vertex::VF_NORMAL) && !vertexDesc.HasFlag(RE::BSGraphics::Vertex::VF_TANGENT))
+			return false;
+
+		auto& skinInstance = a_geometry->GetGeometryRuntimeData().skinInstance;
+		if (!skinInstance)
+			return false;
+
+		auto& skinPartition = skinInstance->skinPartition;
+		if (!skinPartition)
+			return false;
+
+		RE::NiPointer<RE::NiObject> newNiObject;
+		skinPartition->CreateDeepCopy(newNiObject);
+		if (!newNiObject)
+			return false;
+		RE::NiSkinPartition* newSkinPartition = netimmerse_cast<RE::NiSkinPartition*>(newNiObject.get());
+		if (!newSkinPartition)
+			return false;
+
+		auto& newPartition = newSkinPartition->partitions[0];
+		std::uint32_t vertexCount = newSkinPartition->vertexCount;
+		std::uint32_t vertexSize = newPartition.vertexDesc.GetSize();
+
+		RE::BSDynamicTriShape* dynamicTriShape = a_geometry->AsDynamicTriShape();
+		RE::BSTriShape* triShape = a_geometry->AsTriShape();
+
+		if (dynamicTriShape)
+			dynamicTriShape->GetDynamicTrishapeRuntimeData().lock.Lock();
+
+		std::unordered_set<std::uint16_t> lockVertices;
+		RE::NiIntegersExtraData* extraData = static_cast<RE::NiIntegersExtraData*>(a_geometry->GetExtraData("LOCKEDNORM"));
+		if (extraData)
+		{
+			for (std::uint32_t i = 0; i < extraData->size; ++i)
+			{
+				lockVertices.insert(static_cast<std::uint16_t>(extraData->value[i]));
+			}
+		}
+
+		std::uint32_t numVertices = vertexCount;
+		if (triShape)
+			numVertices = triShape->GetTrishapeRuntimeData().vertexCount;
+
+		if (!skinPartition->partitions[0].buffData || !skinPartition->partitions[0].buffData->rawVertexData)
+			return false;
+		std::uint8_t* vertexData = skinPartition->partitions[0].buffData->rawVertexData;
+
+		std::vector<DirectX::XMFLOAT3*> vertices(numVertices);
+		std::vector<DirectX::PackedVector::XMHALF2> uvs(numVertices);
+		for (std::uint16_t i = 0; i < numVertices; i++)
+		{
+			if (dynamicTriShape)
+				vertices[i] = reinterpret_cast<DirectX::XMFLOAT3*>(&((std::uint8_t*)dynamicTriShape->GetDynamicTrishapeRuntimeData().dynamicData)[i]);
+			else
+				vertices[i] = reinterpret_cast<DirectX::XMFLOAT3*>(&skinPartition->partitions[0].buffData->rawVertexData[i * vertexSize]);
+
+			auto uv = reinterpret_cast<DirectX::XMFLOAT2*>(&skinPartition->partitions[0].buffData->rawVertexData[i * vertexSize + 4 + 4 + 4 + 4]);
+			uvs[i] = DirectX::PackedVector::XMHALF2(uv->x, uv->y);
+		}
+
+		if (dynamicTriShape) dynamicTriShape->GetDynamicTrishapeRuntimeData().lock.Unlock();
+
+		for (std::uint32_t i = 1; i < newSkinPartition->numPartitions; ++i)
+		{
+			auto& newPartitionAlt = newSkinPartition->partitions[i];
+			memcpy(newPartitionAlt.buffData->rawVertexData, newPartition.buffData->rawVertexData, vertexCount * vertexSize);
+		}
+
+		newSkinPartition->DecRefCount();
+
+		return true;
+	}
+	bool MorphManagerRecord::Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry)
 	{
 		if (!a_headpart || !a_geometry)
 			return false;
 
-		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
+		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str();
 		if (morphBasePath.empty())
 			return false;
 		morphBasePath = fixPath(morphBasePath);
@@ -14,196 +150,80 @@ namespace Mus {
 		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, morphBasePath);
 		if (!morphData)
 		{
-			logger::error("{} couldn't get morph data for {} / {}", a_geometry->name.c_str(), morphName, morphBasePath);
+			ErrorLogger::GetSingleton().FlushMorphDataErrorLog(id, a_geometry->name.c_str(), morphName, morphBasePath);
+			return false;
+		}
+		auto dynamicShape = a_geometry->AsDynamicTriShape();
+		if (!dynamicShape)
+		{
+			ErrorLogger::GetSingleton().FlushDynamicTriErrorLog(id, a_geometry->name.c_str(), morphName);
 			return false;
 		}
 
-		auto vertexDatas = vertices.find(a_headpart->formID);
-		if (vertexDatas == vertices.end())
+		NiVector4* dynamicVertices = reinterpret_cast<NiVector4*>(dynamicShape->GetDynamicTrishapeRuntimeData().dynamicData);
+		if (!dynamicVertices)
 		{
-			logger::error("{} / {} invalid vertex data for morphData of {}", a_geometry->name.c_str(), morphBasePath, morphName);
+			ErrorLogger::GetSingleton().FlushDynamicVerticesErrorLog(id, a_geometry->name.c_str(), morphName);
 			return false;
 		}
-		if (vertexDatas->second.size() != morphData->vertexCount)
+		std::uint32_t vertexCount = dynamicShape->GetDynamicTrishapeRuntimeData().dataSize / 16;
+		if (vertexCount == 0 || morphData->vertices.size() != vertexCount)
 		{
-			logger::error("{} / {} wrong vertex count {} for morphData {} of {}", a_geometry->name.c_str(), morphBasePath, vertexDatas->second.size(), morphData->vertexCount, morphName);
+			ErrorLogger::GetSingleton().FlushVertexCountErrorLog(id, a_geometry->name.c_str(), morphName, vertexCount, morphData->vertices.size());
 			return false;
 		}
-		auto& vertexData = vertexDatas->second;
 
 		for (std::size_t i = 0; i < morphData->vertices.size(); i++)
 		{
 			auto& vert = morphData->vertices.at(i);
 
-			vertexData.at(i).x += (float)((double)vert.x * (double)morphData->multiplier * (double)a_value);
-			vertexData.at(i).y += (float)((double)vert.y * (double)morphData->multiplier * (double)a_value);
-			vertexData.at(i).z += (float)((double)vert.z * (double)morphData->multiplier * (double)a_value);
+			dynamicVertices[i].x += (float)((double)vert.x * (double)morphData->multiplier * ((double)value * 0.01f));
+			dynamicVertices[i].y += (float)((double)vert.y * (double)morphData->multiplier * ((double)value * 0.01f));
+			dynamicVertices[i].z += (float)((double)vert.z * (double)morphData->multiplier * ((double)value * 0.01f));
 		}
 		logger::debug("{} vertexData applied", a_geometry->name.c_str());
 		return true;
 	}
-	bool MorphManagerRecord::Apply(Vertices& vertices, RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode, int32_t a_value)
+	bool MorphManagerRecord::Update(RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode)
 	{
 		if (!a_headparts || !a_facegenNinode)
 			return false;
 
-		float newValue = (a_value - value) * 0.01f;
-		if (IsEqual(newValue, 0.0f))
-		{
-			logger::trace("value is not changed");
+		if (value == 0)
 			return true;
-		}
+
 		for (std::uint8_t i = 0; i < a_numHeadparts; i++) {
 			auto headpart = a_headparts[i];
 			if (!headpart || headpart->formEditorID.empty())
 				continue;
-			Apply(vertices, headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(headpart->formEditorID)), newValue);
-		}
-		value = a_value;
-		return true;
-	}
-
-	bool MorphManager::Initial(int32_t slot)
-	{
-		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
-		if (!actor)
-			return false;
-
-		RE::TESNPC* actorBase = actor->GetActorBase();
-		if (!actorBase)
-			return false;
-
-		RE::BSFaceGenNiNode* facegenNiNode = actor->GetFaceNode();
-		if (!facegenNiNode)
-			return false;
-
-		m_lock.lock();
-		std::unordered_map<std::string, std::int32_t> valueTemp;
-		for (auto& values : *this)
-		{
-			std::string morphName = values.second.GetMorphName();
-			valueTemp[morphName] = values.second.GetValue();
-		}
-		Revert();
-
-		if (slot == -1)
-		{
-			vertices.clear();
-			orig_vertices.clear();
-		}
-		RE::BGSHeadPart** headParts = actorBase->HasOverlays() ? actorBase->GetBaseOverlays() : actorBase->headParts;
-		std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
-
-		for (std::uint8_t i = 0; i < numHeadParts; i++) {
-			auto headpart = headParts[i];
-			if (!headpart || headpart->formEditorID.empty())
-				continue;
-
-			if (slot >= 0)
-			{
-				if (slot == headpart->type.underlying())
-				{
-					GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
-					for (auto extra : headpart->extraParts)
-					{
-						GetOriginalVertexData(extra, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(extra->formEditorID)));
-					}
-					break;
-				}
-				else
-					continue;
-			}
-			else if (slot == -1)
-			{
-				GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
-			}
-			else if (slot == -2)
-			{
-				if (auto found = orig_vertices.find(headpart->formID); found == orig_vertices.end())		
-					GetOriginalVertexData(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
-			}
-		}
-		SetVerticesAsOriginalVertexData();
-		clear();
-
-		for (auto v : valueTemp)
-			Apply(v.first, v.second);
-
-		m_lock.unlock();
-		logger::debug("{:x} {} : expression initialed", id, name);
-
-		return true;
-	}
-	bool MorphManager::GetOriginalVertexData(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry)
-	{
-		if (!a_headpart || !a_geometry)
-			return false;
-
-		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
-		if (morphBasePath.empty())
-			return false;
-		morphBasePath = fixPath(morphBasePath);
-
-		RE::BSFaceGenBaseMorphExtraData* extraData = MorphManager::GetMorphExtraData(a_geometry);
-		if (!extraData)
-			return false;
-
-		orig_vertices[a_headpart->formID].clear();
-		for (std::uint32_t i = 0; i < extraData->vertexCount; i++)
-		{
-			RE::NiPoint3 vertex = extraData->vertexData[i];
-			orig_vertices[a_headpart->formID].emplace_back(vertex);
+			Update(headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(headpart->formEditorID)));
 		}
 		return true;
 	}
-	void MorphManager::SetVerticesAsOriginalVertexData()
+
+	void MorphManagerRecord::SetValue(std::int32_t a_value, std::int32_t a_lerpTime)
 	{
-		vertices.clear();
-		for (auto& vertices_ : orig_vertices)
+		lerpTask.totalProcessTime = 0;
+		lerpTask.endTime = a_lerpTime;
+		lerpTask.startValue = value;
+		lerpTask.endValue = a_value;
+	}
+	void MorphManagerRecord::SetValue(std::int32_t a_value)
+	{
+		SetValue(a_value, 0);
+	}
+	void MorphManagerRecord::UpdateLerpValue(std::clock_t processTime)
+	{
+		if (lerpTask.endTime <= lerpTask.totalProcessTime)
 		{
-			RE::FormID headpartID = vertices_.first;
-			for (auto& vertex : vertices_.second)
-			{
-				RE::NiPoint3 vertex_ = vertex;
-				vertices[headpartID].emplace_back(vertex_);
-			}
+			value = lerpTask.endValue;
+			return;
 		}
+		lerpTask.totalProcessTime += processTime;
+		float t = static_cast<float>(lerpTask.totalProcessTime) / static_cast<float>(lerpTask.endTime);
+		value = static_cast<std::int32_t>(lerpTask.startValue + (lerpTask.endValue - lerpTask.startValue) * t);
 	}
-	bool MorphManager::Apply(std::string a_morphName, int32_t a_value)
-	{
-		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
-		if (!actor)
-			return false;
 
-		RE::TESNPC* actorBase = actor->GetActorBase();
-		if (!actorBase)
-			return false;
-
-		RE::BGSHeadPart** headParts = actorBase->HasOverlays() ? actorBase->GetBaseOverlays() : actorBase->headParts;
-		std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
-
-		a_morphName = lowLetter(a_morphName);
-		auto found = find(a_morphName);
-		m_lock.lock();
-		if (found != end()) {
-			found->second.Apply(vertices, headParts, numHeadParts, actor->GetFaceNode(), a_value);
-		}
-		else {
-			if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
-			{
-				logger::error("Couldn't get {} morph data", a_morphName);
-			}
-			else
-			{
-				MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(a_morphName);
-				newMorphManagerRecord.Apply(vertices, headParts, numHeadParts, actor->GetFaceNode(), a_value);
-				insert(std::make_pair(a_morphName, newMorphManagerRecord));
-			}
-		}
-		m_lock.unlock();
-		logger::debug("{:x} {} : expression updated", id, name);
-		return true;
-	}
 	void MorphManager::Revert(std::string category)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
@@ -221,44 +241,65 @@ namespace Mus {
 		if (category.empty())
 		{
 			clear();
-			SetVerticesAsOriginalVertexData();
 		}
 		else
 		{
 			category = lowLetter(category);
 			auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
-			for (auto morphName : morphNames) 
+			for (auto morphName : morphNames)
 			{
 				auto found = find(morphName);
 				if (found != end())
-					found->second.Apply(vertices, headParts, numHeadParts, actor->GetFaceNode(), 0);
+					found->second.SetValue(0);
 			}
 		}
 		m_lock.unlock();
 	}
-	void MorphManager::Update()
+	void MorphManager::Update(std::clock_t processTime)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
 		if (!actor)
 			return;
+
 		RE::TESNPC* actorBase = actor->GetActorBase();
 		if (!actorBase)
-			return;
-		RE::BSFaceGenNiNode* facegenNiNode = actor->GetFaceNode();
-		if (!facegenNiNode)
 			return;
 
 		RE::BGSHeadPart** headParts = actorBase->HasOverlays() ? actorBase->GetBaseOverlays() : actorBase->headParts;
 		std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
 
-		m_lock.lock();
-		for (std::uint32_t i = 0; i < numHeadParts; i++) {
-			auto headpart = headParts[i];
-			if (!headpart || headpart->formEditorID.empty())
-				continue;
-			Update(headpart, skyrim_cast<RE::BSGeometry*>(facegenNiNode->GetObjectByName(headpart->formEditorID)));
+		auto faceNode = actor->GetFaceNode();
+		if (!faceNode)
+			return;
+		for (auto& map : *this)
+		{
+			map.second.UpdateLerpValue(processTime);
+			map.second.Update(headParts, numHeadParts, faceNode);
 		}
-		m_lock.unlock();
+	}
+
+	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)
+	{
+		a_morphName = lowLetter(a_morphName);
+		auto found = find(a_morphName);
+		if (found != end())
+		{
+			found->second.SetValue(a_value, a_lerpTime);
+			return true;
+		}
+		if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
+		{
+			logger::error("Couldn't get {} morph data", a_morphName);
+			return false;
+		}
+		MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(id, a_morphName);
+		newMorphManagerRecord.SetValue(a_value, a_lerpTime);
+		insert(std::make_pair(a_morphName, newMorphManagerRecord));
+		return true;
+	}
+	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value)
+	{
+		return SetValue(a_morphName, a_value, 0);
 	}
 
 	int32_t MorphManager::GetValue(std::string a_morphName) const
@@ -270,51 +311,6 @@ namespace Mus {
 		return 0;
 	}
 
-	bool MorphManager::Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry)
-	{
-		if (!a_headpart || !a_geometry)
-			return false;
-
-		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].GetModel();
-		if (morphBasePath.empty())
-			return false;
-		morphBasePath = fixPath(morphBasePath);
-
-		RE::BSFaceGenBaseMorphExtraData* extraData = MorphManager::GetMorphExtraData(a_geometry);
-		if (!extraData)
-		{
-			logger::error("{} couldn't get extra data", a_geometry->name.c_str());
-			return false;
-		}
-
-		const auto vertexDatas = vertices.find(a_headpart->formID);
-		if (vertexDatas == vertices.end())
-		{
-			logger::error("{} invalid vertex data : {}", a_geometry->name.c_str(), morphBasePath);
-			return false;
-		}
-		if (vertexDatas->second.size() != extraData->vertexCount)
-		{
-			logger::error("wrong vertex count {} for extraData {} of {} / {}", vertexDatas->second.size(), extraData->vertexCount, a_geometry->name.c_str(), morphBasePath);
-			return false;
-		}
-		const auto& vertexData = vertexDatas->second;
-
-		for (std::size_t i = 0; i < vertexData.size(); i++)
-		{
-			extraData->vertexData[i].x = vertexData.at(i).x;
-			extraData->vertexData[i].y = vertexData.at(i).y;
-			extraData->vertexData[i].z = vertexData.at(i).z;
-		}
-		UpdateModelFace(a_geometry);
-		logger::debug("{} morph updated", a_geometry->name.c_str());
-		return true;
-	}
-
-	RE::BSFaceGenBaseMorphExtraData* MorphManager::GetMorphExtraData(RE::BSGeometry* a_geometry)
-	{
-		return netimmerse_cast<RE::BSFaceGenBaseMorphExtraData*>(a_geometry->GetExtraData("FOD"));
-	}
 	std::uint32_t MorphManager::UpdateModelFace(RE::NiAVObject* obj) {
 		using func_t = decltype(&MorphManager::UpdateModelFace);
 		REL::VariantID offset(26458, 27044, 0x003EB710);
