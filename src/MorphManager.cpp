@@ -4,9 +4,6 @@ namespace Mus {
 
 	void ErrorLogger::FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath)
 	{
-		geometryName = lowLetter(geometryName);
-		morphName = lowLetter(morphName);
-		morphBasePath = lowLetter(morphBasePath);
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} couldn't get morph data for {} / {}", actorID, geometryName, morphName, morphBasePath);
@@ -14,8 +11,6 @@ namespace Mus {
 	}
 	void ErrorLogger::FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
 	{
-		geometryName = lowLetter(geometryName);
-		morphName = lowLetter(morphName);
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} failed to get dynamic shape", actorID, geometryName);
@@ -23,8 +18,6 @@ namespace Mus {
 	}
 	void ErrorLogger::FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
 	{
-		geometryName = lowLetter(geometryName);
-		morphName = lowLetter(morphName);
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} failed to get dynamic vertices", actorID, geometryName);
@@ -32,8 +25,6 @@ namespace Mus {
 	}
 	void ErrorLogger::FlushVertexCountErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::uint32_t geoVertexCount, std::size_t triVertexCount)
 	{
-		geometryName = lowLetter(geometryName);
-		morphName = lowLetter(morphName);
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} / {} <=> {} vertex count is invalid", actorID, geometryName, geoVertexCount, triVertexCount);
@@ -42,17 +33,7 @@ namespace Mus {
 
 	bool ErrorLogger::FindErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
 	{
-		if (auto foundActor = errorMap.find(actorID); foundActor != errorMap.end())
-		{
-			if (auto foundGeometry = foundActor->second.find(geometryName); foundGeometry != foundActor->second.end())
-			{
-				if (auto foundMorphName = foundGeometry->second.find(morphName); foundMorphName != foundGeometry->second.end())
-				{
-					return true;
-				}
-			}
-		}
-		return false;
+		return errorMap[actorID][geometryName].find(morphName) != errorMap[actorID][geometryName].end();
 	}
 	void ErrorLogger::AssignErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
 	{
@@ -180,9 +161,9 @@ namespace Mus {
 		}
 		else
 		{*/
-			for (std::size_t i = 0; i < morphData->vertices.size(); i++)
+			for (std::size_t i = 0; i < vertexCount; i++)
 			{
-				auto& vert = morphData->vertices.at(i);
+				auto& vert = morphData->vertices[i];
 				dynamicVertices[i].x += vert.x * mvalue;
 				dynamicVertices[i].y += vert.y * mvalue;
 				dynamicVertices[i].z += vert.z * mvalue;
@@ -274,19 +255,21 @@ namespace Mus {
 			return;
 
 		std::vector<MorphManagerRecord::MorphGeoData> morphGeoDatas;
+		std::uint32_t j = 0;
 		for (std::uint32_t i = 0; i < numHeadParts; i++) {
 			if (!headParts[i] || headParts[i]->formEditorID.empty() || headParts[i]->model.empty() || headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.empty())
 				continue;
-			for (std::uint32_t j = i; j < faceNode->children.size(); j++)
+			for (; j < faceNode->children.size(); j++)
 			{
 				RE::NiAVObject* obj = faceNode->children[j].get();
 				if (!obj || obj->name != headParts[i]->formEditorID)
 					continue;
-				MorphManagerRecord::MorphGeoData morphGeoData = {
+				morphGeoDatas.emplace_back(
+					MorphManagerRecord::MorphGeoData{
 					fixPath(headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str()),
 					skyrim_cast<RE::BSGeometry*>(obj)
-				};
-				morphGeoDatas.emplace_back(morphGeoData);
+					}
+				);
 				break;
 			}
 		}
