@@ -1,5 +1,9 @@
 #pragma once
 
+#include <RE/Skyrim.h>
+#include <SKSE/SKSE.h>
+#include <REL/Relocation.h>
+
 #include <cassert>
 #include <cctype>
 #include <cerrno>
@@ -37,9 +41,13 @@
 #include <concurrent_vector.h>
 #include <concurrent_unordered_map.h>
 #include <condition_variable>
+#include <corecrt_io.h>
 #include <cstring>
+#include <d3d11.h>
 #include <deque>
 #include <direct.h>
+#include <d3dcompiler.h>
+#pragma comment(lib, "d3dcompiler.lib")
 #include <exception>
 #include <execution>
 #include <filesystem>
@@ -103,10 +111,7 @@
 #include <variant>
 #include <vector>
 #include <version>
-
-#include <RE/Skyrim.h>
-#include <SKSE/SKSE.h>
-#include <REL/Relocation.h>
+#include <wrl/client.h>
 
 #include <ShlObj_core.h>
 #include <Windows.h>
@@ -143,6 +148,8 @@ namespace util {
 #include "MorphDataBase.h"
 #include "MorphManager.h"
 #include "ActorManager.h"
+
+#include "Shader.h"
 
 #include "Interface/Interface.h"
 #include "InterfaceImpl.h"

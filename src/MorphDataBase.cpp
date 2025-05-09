@@ -340,7 +340,7 @@ namespace Mus {
 			{
 				MorphDataBase::Morph::Vertex vert;
 				Read(&file, &vert, sizeof(vert));
-				morph.vertices.emplace_back(vert);
+				morph.vertices.emplace_back(vert.GetFloat4());
 			}
 
 			std::string newMorphName = lowLetter(morphName_.c_str());

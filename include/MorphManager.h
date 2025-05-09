@@ -11,6 +11,8 @@ namespace Mus {
 			return instance;
 		}
 
+		void Initial() { errorMap.clear(); };
+
 		void FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath);
 		void FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
 		void FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
@@ -29,20 +31,26 @@ namespace Mus {
 	{
 		RE::FormID id;
 		std::string morphName;
-		std::int32_t value = 0.0f;
+		std::int32_t value = 0;
+		float fvalue = 0.0f;
 	public:
 		MorphManagerRecord(RE::FormID a_actorID, std::string a_morphName) : id(a_actorID), morphName(a_morphName) {};
 		~MorphManagerRecord() {};
 
-		bool Update(RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode);
+		struct MorphGeoData {
+			std::string morphBasePath;
+			RE::BSGeometry* geometry;
+		};
+
+		bool Update(std::vector<MorphGeoData>& a_morphGeoData);
 		std::string GetMorphName() const { return morphName; }
 		void SetValue(std::int32_t a_value, std::int32_t a_lerpTime);
 		void SetValue(std::int32_t a_value);
 		std::int32_t GetValue() const { return value; }
-		void UpdateLerpValue(std::clock_t processTime);
+		bool UpdateLerpValue(std::clock_t processTime); // true : updated
 	private:
 		bool Recalculate(RE::BSGeometry* a_geometry);
-		bool Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry);
+		bool Update(std::string a_morphBasePath, RE::BSGeometry* a_geometry);
 
 		struct LerpTask {
 			std::clock_t totalProcessTime;
@@ -77,6 +85,7 @@ namespace Mus {
 	private:
 		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
 
+		bool isNeedUpdate = false;
 		std::recursive_mutex m_lock;
 	};
 }

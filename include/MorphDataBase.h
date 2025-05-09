@@ -148,8 +148,11 @@ namespace Mus {
 			struct Vertex
 			{
 				std::int16_t x, y, z;
+				inline DirectX::XMFLOAT4 GetFloat4() {
+					return DirectX::XMFLOAT4((float)x, (float)y, (float)z, 0);
+				};
 			};
-			std::vector<Vertex> vertices;
+			std::vector<DirectX::XMFLOAT4> vertices;
 
 			bool IsValid() { return !morphBasePath.empty() && vertexCount != -1 && vertices.size() > 0; }
 		};
