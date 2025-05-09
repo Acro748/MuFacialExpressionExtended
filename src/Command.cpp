@@ -45,6 +45,7 @@ namespace Mus {
 					spdlog::set_level(Config::GetSingleton().GetLogLevel());
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
+					ErrorLogger::GetSingleton().Initial();
 					Console->Print("Reload done");
 				}
 				else if (IsSameString(name, "update"))

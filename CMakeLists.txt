@@ -36,6 +36,7 @@ set(headers
         include/ActorManager.h
         include/Store.h
         include/NiVector4.h
+        include/Shader.h
         include/Hook.h
 
         include/Interface/Interface.h
@@ -51,6 +52,7 @@ set(sources
         src/MorphDataBase.cpp
         src/MorphManager.cpp
         src/ActorManager.cpp
+        src/Shader.cpp
         src/Hook.cpp
         src/Store.cpp
         src/Main.cpp
@@ -123,6 +125,38 @@ target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/OPT:ICF>")
 
 install(TARGETS ${PROJECT_NAME}
         DESTINATION "${CMAKE_INSTALL_LIBDIR}")
+
+########################################################################################################################
+## Shader Script
+########################################################################################################################
+#set(shader_sources 
+#        ${CMAKE_CURRENT_SOURCE_DIR}/Shader/Morph.hlsl
+#)
+#set(shader_header "${CMAKE_CURRENT_SOURCE_DIR}/Shader/Shader.h")
+
+#add_custom_target(ValidateShaders ALL 
+#    COMMENT "Running Shader Validation"
+#)
+#foreach(shader ${shader_sources})
+#    get_filename_component(shader_name ${shader} NAME_WE)
+#    set(compiledShader "${CMAKE_CURRENT_SOURCE_DIR}/Shader/Compiled/${shader_name}.cso")
+#
+#    add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD
+#        TARGET ValidateShaders
+#        COMMAND fxc.exe /T cs_5_0 /E main /Fo ${compiledShader} /nologo ${shader}
+#        COMMAND ${CMAKE_COMMAND} -E echo "Shader valid : ${shader}"
+#    )
+#endforeach()
+
+#find_package(Python3 REQUIRED)
+#add_custom_target(GenerateShaderHeader ALL
+#    COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_CURRENT_SOURCE_DIR}/Shader/Compiled/"
+#    COMMAND ${Python3_EXECUTABLE} "${CMAKE_CURRENT_SOURCE_DIR}/Shader/GenerateShaderHeader.py" ${shader_header} ${shader_sources}
+#    DEPENDS ${shader_sources}
+#    COMMENT "Generating Shader Header"
+#)
+#add_dependencies(GenerateShaderHeader ValidateShaders)
+#add_dependencies(${PROJECT_NAME} GenerateShaderHeader)
 
 ########################################################################################################################
 ## Automatic plugin deployment

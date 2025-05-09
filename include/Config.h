@@ -22,14 +22,17 @@ namespace Mus {
         [[nodiscard]] inline bool GetCustomMode() const noexcept {
             return CustomMode;
         }
-        [[nodiscard]] inline int32_t GetMin() const noexcept {
+        [[nodiscard]] inline std::int32_t GetMin() const noexcept {
             return Min;
         }
-        [[nodiscard]] inline int32_t GetMax() const noexcept {
+        [[nodiscard]] inline std::int32_t GetMax() const noexcept {
             return Max;
         }
-        [[nodiscard]] inline int32_t GetDefaultLerpTime() const noexcept {
+        [[nodiscard]] inline std::int32_t GetDefaultLerpTime() const noexcept {
             return DefaultLerpTime;
+        }
+        [[nodiscard]] inline bool GetEnableGPUMode() const noexcept {
+            return EnableGPUMode;
         }
 
     private:
@@ -39,9 +42,10 @@ namespace Mus {
 
         //General
         bool CustomMode = false;
-        int32_t Min = 0.0f;
-        int32_t Max = 100.0f;
-		int32_t DefaultLerpTime = 500;
+        std::int32_t Min = 0.0f;
+        std::int32_t Max = 100.0f;
+		std::int32_t DefaultLerpTime = 500;
+        bool EnableGPUMode = true;
 
     public:
         // trim from start (in place)
@@ -168,7 +172,13 @@ namespace Mus {
         inline int GetConfigSettingsIntValue(std::string valuestr)
         {
             int value = 0;
-            value = std::stoi(valuestr);
+            try {
+                value = std::stoi(valuestr);
+            }
+            catch (...)
+            {
+                value = 0;
+            }
             return value;
         }
 

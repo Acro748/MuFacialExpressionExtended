@@ -137,20 +137,17 @@ namespace Mus {
 
 		return true;
 	}
-	bool MorphManagerRecord::Update(RE::BGSHeadPart* a_headpart, RE::BSGeometry* a_geometry)
+	bool MorphManagerRecord::Update(std::string a_morphBasePath, RE::BSGeometry* a_geometry)
 	{
-		if (!a_headpart || !a_geometry)
+		if (a_morphBasePath.empty() || !a_geometry)
 			return false;
 
-		std::string morphBasePath = a_headpart->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str();
-		if (morphBasePath.empty())
-			return false;
-		morphBasePath = fixPath(morphBasePath);
+		//PerformaceLog(std::to_string(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, false);
 
-		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, morphBasePath);
+		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, a_morphBasePath);
 		if (!morphData)
 		{
-			ErrorLogger::GetSingleton().FlushMorphDataErrorLog(id, a_geometry->name.c_str(), morphName, morphBasePath);
+			ErrorLogger::GetSingleton().FlushMorphDataErrorLog(id, a_geometry->name.c_str(), morphName, a_morphBasePath);
 			return false;
 		}
 		auto dynamicShape = a_geometry->AsDynamicTriShape();
@@ -160,7 +157,7 @@ namespace Mus {
 			return false;
 		}
 
-		NiVector4* dynamicVertices = reinterpret_cast<NiVector4*>(dynamicShape->GetDynamicTrishapeRuntimeData().dynamicData);
+		DirectX::XMFLOAT4* dynamicVertices = reinterpret_cast<DirectX::XMFLOAT4*>(dynamicShape->GetDynamicTrishapeRuntimeData().dynamicData);
 		if (!dynamicVertices)
 		{
 			ErrorLogger::GetSingleton().FlushDynamicVerticesErrorLog(id, a_geometry->name.c_str(), morphName);
@@ -173,30 +170,39 @@ namespace Mus {
 			return false;
 		}
 
-		for (std::size_t i = 0; i < morphData->vertices.size(); i++)
-		{
-			auto& vert = morphData->vertices.at(i);
+		float mvalue = morphData->multiplier * fvalue;
 
-			dynamicVertices[i].x += (float)((double)vert.x * (double)morphData->multiplier * ((double)value * 0.01f));
-			dynamicVertices[i].y += (float)((double)vert.y * (double)morphData->multiplier * ((double)value * 0.01f));
-			dynamicVertices[i].z += (float)((double)vert.z * (double)morphData->multiplier * ((double)value * 0.01f));
+		/*if (Config::GetSingleton().GetEnableGPUMode())
+		{
+			MorphProcess newMorphProcess;
+			newMorphProcess.Initial(dynamicVertices, morphData->vertices, mvalue);
+			newMorphProcess.Run();
 		}
+		else
+		{*/
+			for (std::size_t i = 0; i < morphData->vertices.size(); i++)
+			{
+				auto& vert = morphData->vertices.at(i);
+				dynamicVertices[i].x += vert.x * mvalue;
+				dynamicVertices[i].y += vert.y * mvalue;
+				dynamicVertices[i].z += vert.z * mvalue;
+			}
+		//}
+
+		//PerformaceLog(std::to_string(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, true, true, vertexCount);
 		logger::debug("{} vertexData applied", a_geometry->name.c_str());
 		return true;
 	}
-	bool MorphManagerRecord::Update(RE::BGSHeadPart** a_headparts, std::uint32_t a_numHeadparts, RE::BSFaceGenNiNode* a_facegenNinode)
+	bool MorphManagerRecord::Update(std::vector<MorphGeoData>& a_morphGeoData)
 	{
-		if (!a_headparts || !a_facegenNinode)
+		if (a_morphGeoData.size() == 0)
 			return false;
 
 		if (value == 0)
 			return true;
 
-		for (std::uint8_t i = 0; i < a_numHeadparts; i++) {
-			auto headpart = a_headparts[i];
-			if (!headpart || headpart->formEditorID.empty())
-				continue;
-			Update(headpart, skyrim_cast<RE::BSGeometry*>(a_facegenNinode->GetObjectByName(headpart->formEditorID)));
+		for (auto& data : a_morphGeoData) {
+			Update(data.morphBasePath, data.geometry);
 		}
 		return true;
 	}
@@ -212,31 +218,25 @@ namespace Mus {
 	{
 		SetValue(a_value, 0);
 	}
-	void MorphManagerRecord::UpdateLerpValue(std::clock_t processTime)
+	bool MorphManagerRecord::UpdateLerpValue(std::clock_t processTime)
 	{
+		if (value == lerpTask.endValue)
+			return false;
+		lerpTask.totalProcessTime += processTime;
 		if (lerpTask.endTime <= lerpTask.totalProcessTime)
 		{
 			value = lerpTask.endValue;
-			return;
+			fvalue = (double)value * 0.01f;
+			return true;
 		}
-		lerpTask.totalProcessTime += processTime;
 		float t = static_cast<float>(lerpTask.totalProcessTime) / static_cast<float>(lerpTask.endTime);
 		value = static_cast<std::int32_t>(lerpTask.startValue + (lerpTask.endValue - lerpTask.startValue) * t);
+		fvalue = (double)value * 0.01f;
+		return true;
 	}
 
 	void MorphManager::Revert(std::string category)
 	{
-		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
-		if (!actor)
-			return;
-
-		RE::TESNPC* actorBase = actor->GetActorBase();
-		if (!actorBase)
-			return;
-
-		RE::BGSHeadPart** headParts = actorBase->HasOverlays() ? actorBase->GetBaseOverlays() : actorBase->headParts;
-		std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
-
 		m_lock.lock();
 		if (category.empty())
 		{
@@ -258,8 +258,9 @@ namespace Mus {
 	void MorphManager::Update(std::clock_t processTime)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
-		if (!actor)
+		if (!actor || !actor->loadedData || !actor->loadedData->data3D)
 			return;
+		//PerformaceLog(std::to_string(id) + "::MorphManager::" + __func__, false);
 
 		RE::TESNPC* actorBase = actor->GetActorBase();
 		if (!actorBase)
@@ -271,11 +272,31 @@ namespace Mus {
 		auto faceNode = actor->GetFaceNode();
 		if (!faceNode)
 			return;
+
+		std::vector<MorphManagerRecord::MorphGeoData> morphGeoDatas;
+		for (std::uint32_t i = 0; i < numHeadParts; i++) {
+			if (!headParts[i] || headParts[i]->formEditorID.empty() || headParts[i]->model.empty() || headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.empty())
+				continue;
+			for (std::uint32_t j = i; j < faceNode->children.size(); j++)
+			{
+				RE::NiAVObject* obj = faceNode->children[j].get();
+				if (!obj || obj->name != headParts[i]->formEditorID)
+					continue;
+				MorphManagerRecord::MorphGeoData morphGeoData = {
+					fixPath(headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str()),
+					skyrim_cast<RE::BSGeometry*>(obj)
+				};
+				morphGeoDatas.emplace_back(morphGeoData);
+				break;
+			}
+		}
+
 		for (auto& map : *this)
 		{
 			map.second.UpdateLerpValue(processTime);
-			map.second.Update(headParts, numHeadParts, faceNode);
+			map.second.Update(morphGeoDatas);
 		}
+		//PerformaceLog(std::to_string(id) + "::MorphManager::" + __func__, true, true, this->size());
 	}
 
 	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)

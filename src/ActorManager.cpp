@@ -87,6 +87,7 @@ namespace Mus {
 
 	void ActorManager::Update(RE::Actor* a_actor)
 	{
+		//PerformaceLog(std::string("ActorManager::") + __func__, false);
 		std::clock_t processTime = RE::GetSecondsSinceLastFrame() * 1000;
 		if (a_actor)
 		{
@@ -100,6 +101,7 @@ namespace Mus {
 				morphManager.second->Update(processTime);
 			});
 		}
+		//PerformaceLog(std::string("ActorManager::") + __func__, true, true, a_actor ? 1 : size());
 	}
 
 	void ActorManager::Initial(RE::Actor* a_actor, std::int32_t a_slot)

@@ -67,6 +67,10 @@ namespace Mus {
                 {
                     DefaultLerpTime = GetConfigSettingsIntValue(variableValue);
                 }
+                else if (variableName == "DefaultLerpTime")
+                {
+                    EnableGPUMode = GetConfigSettingsBoolValue(variableValue);
+                }
             }
         }
         logger::info("Config loaded done");
