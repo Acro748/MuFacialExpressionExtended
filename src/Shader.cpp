@@ -218,7 +218,7 @@ namespace Mus {
 
 		if (morph.size() == 0)
 		{
-			logger::error("Vertex count is invaild");
+			logger::error("Vertex count is invalid");
 			return false;
 		}
 

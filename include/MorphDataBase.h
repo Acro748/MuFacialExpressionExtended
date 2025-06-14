@@ -159,9 +159,11 @@ namespace Mus {
 
 		bool Register(Morph a_morph);
 		const Morph* GetMorphData(std::string a_morphBasePath) const;
+		const Morph* GetMorphData(std::uint32_t a_vertexCount) const;
 
 	private:
 		concurrency::concurrent_unordered_map<std::string, Morph> morphData; // morphBasePath, morph
+		concurrency::concurrent_unordered_map<std::uint32_t, Morph> morphDataAlt; // vertexCount, morph
 	};
 
 	class MorphDataBaseManager :
@@ -178,6 +180,7 @@ namespace Mus {
 
 		bool Register(std::string a_morphBasePath, std::string a_morphPath);
 		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::string a_morphBasePath) const;
+		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::uint32_t vertexCount) const;
 
 		void UnRegisterAll() { clear(); };
 	private:

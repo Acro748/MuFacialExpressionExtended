@@ -137,9 +137,9 @@ namespace util {
 
 #include "NiVector4.h"
 
+#include "Store.h"
 #include "nifUtil.h"
 #include "Utility.hpp"
-#include "Store.h"
 #include "ConsoleLog.h"
 #include "Config.h"
 
@@ -152,6 +152,8 @@ namespace util {
 #include "Shader.h"
 
 #include "Interface/Interface.h"
-#include "InterfaceImpl.h"
+#include "Interface/InterfaceImpl.h"
+#include "Interface/OldInterface.h"
+#include "Interface/OldInterfaceImpl.h"
 #include "PapyrusScripts.h"
 

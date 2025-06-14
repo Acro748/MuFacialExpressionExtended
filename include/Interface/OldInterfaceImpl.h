@@ -1,13 +1,13 @@
 #pragma once
 
-namespace MFEE {
+namespace MFEEOLD {
 	class FacialExpressionExtended :
 		public IFacialExpressionExtended
 	{
 	public:
 		virtual std::uint32_t GetVersion() { return 5; };
 
-		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) { 
+		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) {
 			return Mus::MorphDataBaseManager::GetSingleton().Register(a_morphBasePath, a_morphPath);
 		};
 		virtual bool RegisterNewMorphNameOnCategory(std::string a_morphCategory, std::string a_morphName) {

@@ -58,9 +58,19 @@ namespace Mus {
 					ActorManager::GetSingleton().Initial(a_actor);
 					Console->Print("Initial done");
 				}
+				else if (IsSameString(name, "performancecheck"))
+				{
+					PerformanceCheck = !PerformanceCheck;
+					Console->Print("PerformanceCheck %s", PerformanceCheck ? "Enabled" : "Disabled");
+				}
+				else if (IsSameString(name, "performancecheckaverage"))
+				{
+					PerformanceCheckAverage = !PerformanceCheckAverage;
+					Console->Print("PerformanceCheckAverage %s", PerformanceCheckAverage ? "Enabled" : "Disabled");
+				}
 				else
 				{
-					Console->Print("debug list : reload, update, initial");
+					Console->Print("debug list : reload, update, initial, performancecheck, performancecheckaverage");
 				}
 				return false;
 			}
@@ -71,7 +81,7 @@ namespace Mus {
 			{
 				if (numMorphCategory != -1)
 				{
-					category = morphNameEntry::GetSingleton().GetCategories().at(numMorphCategory);
+					category = morphNameEntry::GetSingleton().GetCategories()[numMorphCategory];
 				}
 
 				auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
@@ -115,7 +125,7 @@ namespace Mus {
 						print += " / ";
 					print += std::to_string(i);
 					print += ":";
-					print += morphNames.at(i);
+					print += morphNames[i];
 				}
 				Console->Print("%s", print.c_str());
 				return false;
@@ -131,7 +141,7 @@ namespace Mus {
 				const auto& activeList = ActorManager::GetSingleton().GetAllActiveMorphs(a_actor);
 				for (const auto& al : activeList)
 				{
-					Console->Print("%s : %d", al.morphName, al.value);
+					Console->Print("%s : %d", al.morphName.c_str(), al.value);
 				}
 				return false;
 			}
@@ -143,7 +153,7 @@ namespace Mus {
 				print += " / ";
 			print += std::to_string(i);
 			print += ":";
-			print += categories.at(i);
+			print += categories[i];
 		}
 		Console->Print("Please enter the following form");
 		Console->Print("mfee <morphCategoryNumber> <morphNameNumber> <value>");
@@ -155,8 +165,8 @@ namespace Mus {
 	void Commandhook()
 	{
 	logger::info("Command Console Hooking...");
-	RE::SCRIPT_FUNCTION* command = nullptr;
-	for (RE::SCRIPT_FUNCTION* iter = RE::SCRIPT_FUNCTION::GetFirstConsoleCommand();
+	RE::SCRIPT_FUNCTION* command = RE::SCRIPT_FUNCTION::LocateConsoleCommand("OutputAllocations");
+	/*for (RE::SCRIPT_FUNCTION* iter = RE::SCRIPT_FUNCTION::GetFirstConsoleCommand();
 		std::to_underlying(iter->output) < RE::SCRIPT_FUNCTION::Commands::kConsoleCommandsEnd + RE::SCRIPT_FUNCTION::Commands::kConsoleOpBase;
 		++iter)
 	{
@@ -165,7 +175,7 @@ namespace Mus {
 			command = iter;
 			break;
 		}
-	}
+	}*/
 	if (command)
 	{
 		static RE::SCRIPT_PARAMETER params[3];
