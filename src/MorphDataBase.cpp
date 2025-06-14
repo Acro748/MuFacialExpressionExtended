@@ -148,7 +148,7 @@ namespace Mus {
 		morphName = lowLetter(morphName);
 		for (auto name : names) {
 			for (std::size_t i = 0; i < name.morphNames.size(); i++) {
-				if (IsSameString(name.morphNames.at(i), morphName))
+				if (IsSameString(name.morphNames[i], morphName))
 					return i;
 			}
 		}
@@ -160,7 +160,7 @@ namespace Mus {
 			return "";
 		auto morphNames = GetMorphNames(category);
 		if (morphNumber < morphNames.size())
-			return morphNames.at(morphNumber);
+			return morphNames[morphNumber];
 		return "";
 	}
 
@@ -168,7 +168,7 @@ namespace Mus {
 	{
 		std::vector<std::string> result;
 		for (std::size_t i = 0; i < names.size(); i++) {
-			std::string category = names.at(i).morphCategory;
+			std::string category = names[i].morphCategory;
 			result.emplace_back(category);
 		}
 		return result;
@@ -177,7 +177,7 @@ namespace Mus {
 	{
 		category = lowLetter(category);
 		for (std::int32_t i = 0; i < names.size(); i++) {
-			if (IsSameString(names.at(i).morphCategory, category))
+			if (IsSameString(names[i].morphCategory, category))
 				return i;
 		}
 		return -1;
@@ -188,7 +188,7 @@ namespace Mus {
 			return "";
 		auto categories = GetCategories();
 		if (categories.size() > categoryNumber)
-			return categories.at(categoryNumber);
+			return categories[categoryNumber];
 		return "";
 	}
 	std::string morphNameEntry::GetCategoryByMorphName(std::string morphName)
@@ -210,7 +210,8 @@ namespace Mus {
 			return false;
 
 		morphData[a_morph.morphBasePath] = a_morph;
-		logger::info("MorphDataBase : Registered {} for {}", morphName, a_morph.morphBasePath);
+		morphDataAlt[a_morph.vertexCount] = a_morph;
+		logger::info("MorphDataBase : Registered {} for {} / {}", morphName, a_morph.morphBasePath, a_morph.vertexCount);
 		return true;
 	}
 
@@ -219,6 +220,13 @@ namespace Mus {
 		a_morphBasePath = fixPath(a_morphBasePath);
 		auto found = morphData.find(a_morphBasePath);
 		if (found != morphData.end())
+			return &found->second;
+		return nullptr;
+	}
+	const MorphDataBase::Morph* MorphDataBase::GetMorphData(std::uint32_t a_vertexCount) const
+	{
+		auto found = morphDataAlt.find(a_vertexCount);
+		if (found != morphDataAlt.end())
 			return &found->second;
 		return nullptr;
 	}
@@ -366,6 +374,14 @@ namespace Mus {
 		auto found = find(morphName);
 		if (found != end())
 			return found->second.GetMorphData(a_morphBasePath);
+		return nullptr;
+	}
+	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string morphName, std::uint32_t vertexCount) const
+	{
+		morphName = lowLetter(morphName);
+		auto found = find(morphName);
+		if (found != end())
+			return found->second.GetMorphData(vertexCount);
 		return nullptr;
 	}
 }

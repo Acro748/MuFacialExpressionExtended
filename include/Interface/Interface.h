@@ -7,14 +7,14 @@ namespace MFEE {
 		Interface() {};
 		virtual ~Interface() {};
 
-		virtual std::uint32_t GetVersion() = 0; //current version is 3
+		virtual std::uint32_t GetVersion() = 0; //current version is 6
 	};
 
 	struct InterfaceExchangeMessage
 	{
 		enum
 		{
-			kMessage_ExchangeInterface = 0x4D464545
+			kMessage_ExchangeInterface = 0x4D464546
 		};
 
 		Interface* Interface = nullptr;
@@ -24,41 +24,108 @@ namespace MFEE {
 		public Interface
 	{
 	public:
-		virtual bool RegisterNewMorphData(std::string a_morphBasePath, std::string a_morphPath) = 0;
-		virtual bool RegisterNewMorphNameOnCategory(std::string a_morphCategory, std::string a_morphName) = 0;
+		class IString{
+		public:
+			virtual void String(const char* str) = 0;
+		};
 
-		virtual std::vector<std::string> GetExpressionCategories() = 0;
-		virtual std::string GetExpressionCategoryByNumber(std::int32_t a_categoryNumber) = 0;
-		virtual std::string GetExpressionCategoryByMorphName(std::string a_morphName) = 0;
-		virtual std::int32_t GetExpressionCategoryNumber(std::string a_morphCategory) = 0;
-		virtual bool IsValidExpressionCategory(std::string a_morphCategory) = 0;
+		virtual bool RegisterNewMorphData(const char* a_morphBasePath, const char* a_morphPath) = 0;
+		virtual bool RegisterNewMorphNameOnCategory(const char* a_morphCategory, const char* a_morphName) = 0;
 
-		virtual std::vector<std::string> GetExpressionMorphNames(std::string a_morphCategory) = 0;
-		virtual std::vector<std::string> GetExpressionMorphNamesByNumber(std::int32_t a_categoryNumber) = 0;
-		virtual std::string GetExpressionMorphNameByNumber(std::string a_morphCategory, std::int32_t a_morphNumber) = 0;
-		virtual std::string GetExpressionMorphNameByNumbers(std::int32_t a_categoryNumber, std::int32_t a_morphNumber) = 0;
-		virtual std::int32_t GetExpressionMorphNameNumber(std::string a_morphName) = 0;
-		virtual bool IsValidExpressionMorphName(std::string a_morphName) = 0;
+		virtual std::uint32_t GetExpressionCategorySize() = 0;
+		virtual void GetExpressionCategory(std::int32_t a_categoryNumber, IString& result) = 0;
+		std::vector<std::string> GetExpressionCategories() {
+			class IString_ : public IString {
+			public:
+				virtual void String(const char* str) {
+					str_ = str;
+				}
+				std::string str_;
+			};
+			std::vector<std::string> result;
+			for (std::int32_t i = 0; i < GetExpressionCategorySize(); i++) {
+				IString_ str;
+				GetExpressionCategory(i, str);
+				result.push_back(str.str_);
+			}
+			return result;
+		}
 
-		virtual std::int32_t GetExpressionValueByName(RE::Actor* a_actor, std::string a_morphName) = 0;
-		virtual std::int32_t GetExpressionValueByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
+		virtual void GetExpressionCategory(const char* a_morphName, IString& result) = 0;
+		virtual std::int32_t GetExpressionCategoryNumber(const char* a_morphCategory) = 0;
+		virtual bool IsValidExpressionCategory(const char* a_morphCategory) = 0;
 
-		virtual void SetExpressionByName(RE::Actor* a_actor, std::string a_morphName, int32_t a_value) = 0;
-		virtual void SetExpressionByCategory(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) = 0;
-		virtual void SetExpressionByNumber(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, int32_t a_value) = 0;
-		virtual void RevertExpression(RE::Actor* a_actor, std::string a_morphCategory = "") = 0;
+		virtual std::uint32_t GetExpressionMorphSize(const char* a_morphCategory) = 0;
+		virtual std::uint32_t GetExpressionMorphSize(std::int32_t a_categoryNumber) = 0;
+		virtual void GetExpressionMorph(const char* a_morphCategory, std::int32_t a_morphNumber, IString& result) = 0;
+		virtual void GetExpressionMorph(std::int32_t a_categoryNumber, std::int32_t a_morphNumber, IString& result) = 0;
+		std::vector<std::string> GetExpressionMorphs(const char* a_morphCategory) {
+			class IString_ : public IString {
+			public:
+				virtual void String(const char* str) {
+					str_ = str;
+				}
+				std::string str_;
+			};
+			std::vector<std::string> result;
+			for (std::int32_t i = 0; i < GetExpressionMorphSize(a_morphCategory); i++) {
+				IString_ str;
+				GetExpressionMorph(a_morphCategory, i, str);
+				result.push_back(str.str_);
+			}
+			return result;
+		}
+		std::vector<std::string> GetExpressionMorphs(std::int32_t a_categoryNumber) {
+			class IString_ : public IString {
+			public:
+				virtual void String(const char* str) {
+					str_ = str;
+				}
+				std::string str_;
+			};
+			std::vector<std::string> result;
+			for (std::int32_t i = 0; i < GetExpressionMorphSize(a_categoryNumber); i++) {
+				IString_ str;
+				GetExpressionMorph(a_categoryNumber, i, str);
+				result.push_back(str.str_);
+			}
+			return result;
+		}
+
+		virtual std::int32_t GetExpressionMorphNumber(const char* a_morphName) = 0;
+		virtual bool IsValidExpressionMorph(const char* a_morphName) = 0;
+
+		virtual std::int32_t GetExpressionValue(RE::Actor* a_actor, const char* a_morphName) = 0;
+		virtual std::int32_t GetExpressionValue(RE::Actor* a_actor, std::uint32_t a_morphCategoryNumber, std::uint32_t a_morphNumber) = 0;
+
+		virtual void SetExpression(RE::Actor* a_actor, const char* a_morphName, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual void SetExpression(RE::Actor* a_actor, const char* a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual void SetExpression(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual void RevertExpression(RE::Actor* a_actor, const char* a_morphCategory = "") = 0;
 		virtual void UpdateExpression(RE::Actor* a_actor) = 0;
 		virtual void InitialMorphData(RE::Actor* a_actor) = 0;
 
-		struct IActiveMorphSet {
-			std::string morphName = "";
-			std::int32_t value = 0;
-		};
-		virtual std::vector<IActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) = 0;
-
-		virtual void SetExpressionByNameEx(RE::Actor* a_actor, std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
-		virtual void SetExpressionByCategoryEx(RE::Actor* a_actor, std::string a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
-		virtual void SetExpressionByNumberEx(RE::Actor* a_actor, std::uint32_t a_morphCategory, std::uint32_t a_morphNumber, std::int32_t a_value, std::int32_t a_lerpTime) = 0;
+		virtual std::uint32_t GetActiveMorphSize(RE::Actor* a_actor) = 0;
+		virtual void GetActiveMorphName(RE::Actor* a_actor, std::uint32_t a_activeMorphNumber, IString& result) = 0;
+		virtual void GetActiveMorphCategory(RE::Actor* a_actor, std::uint32_t a_activeMorphNumber, IString& result) = 0;
+		virtual std::int32_t GetActiveMorphValue(RE::Actor* a_actor, std::uint32_t a_activeMorphNumber) = 0;
+		std::unordered_map<std::string, std::int32_t> GetAllActiveMorphValue(RE::Actor* a_actor) {
+			class IString_ : public IString {
+			public:
+				virtual void String(const char* str) {
+					str_ = str;
+				}
+				std::string str_;
+			};
+			std::unordered_map<std::string, std::int32_t> result;
+			for (std::int32_t i = 0; i < GetActiveMorphSize(a_actor); i++) {
+				IString_ str;
+				GetActiveMorphName(a_actor, i, str);
+				std::int32_t value = GetActiveMorphValue(a_actor, i);
+				result.emplace(str.str_, value);
+			}
+			return result;
+		}
 	};
 
 	class InterfaceManager {
@@ -83,8 +150,7 @@ namespace MFEE {
 		IFacialExpressionExtended* GetInterface() { 
 			if (load())
 			{
-				if (exchangeMessage.Interface->GetVersion() == 0)
-					return reinterpret_cast<IFacialExpressionExtended*>(exchangeMessage.Interface);
+				return reinterpret_cast<IFacialExpressionExtended*>(exchangeMessage.Interface);
 			}
 			return nullptr;
 		}

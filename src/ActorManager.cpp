@@ -26,7 +26,7 @@ namespace Mus {
 
 	void ActorManager::SetMorph(RE::Actor* a_actor, std::string morphName, std::int32_t value, std::int32_t lerpTime)
 	{
-		if (!a_actor)
+		if (!a_actor || morphName.empty())
 			return;
 
 		if (Config::GetSingleton().GetMin() > value || value > Config::GetSingleton().GetMax())
@@ -57,7 +57,7 @@ namespace Mus {
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(category);
 		if (names.size() > morphNumber)
 		{
-			SetMorph(a_actor, names.at(morphNumber), value, lerpTime);
+			SetMorph(a_actor, names[morphNumber], value, lerpTime);
 		}
 	}
 	void ActorManager::SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime)
@@ -65,7 +65,7 @@ namespace Mus {
 		auto names = morphNameEntry::GetSingleton().GetMorphNames(categoryNumber);
 		if (names.size() > morphNumber)
 		{
-			SetMorph(a_actor, names.at(morphNumber), value, lerpTime);
+			SetMorph(a_actor, names[morphNumber], value, lerpTime);
 		}
 	}
 
@@ -87,7 +87,7 @@ namespace Mus {
 
 	void ActorManager::Update(RE::Actor* a_actor)
 	{
-		//PerformaceLog(std::string("ActorManager::") + __func__, false);
+		PerformaceLog(std::string("ActorManager::") + __func__, false);
 		std::clock_t processTime = RE::GetSecondsSinceLastFrame() * 1000;
 		if (a_actor)
 		{
@@ -101,10 +101,10 @@ namespace Mus {
 				morphManager.second->Update(processTime);
 			});
 		}
-		//PerformaceLog(std::string("ActorManager::") + __func__, true, true, a_actor ? 1 : size());
+		PerformaceLog(std::string("ActorManager::") + __func__, true, PerformanceCheckAverage, a_actor ? 1 : size());
 	}
 
-	void ActorManager::Initial(RE::Actor* a_actor, std::int32_t a_slot)
+	void ActorManager::Initial(RE::Actor* a_actor)
 	{
 		if (a_actor)
 		{
@@ -148,9 +148,9 @@ namespace Mus {
 
 		auto found = find(a_actor->formID);
 		if (found != end()) {
-			auto names = morphNameEntry::GetSingleton().GetMorphNames(categories.at(categoryNumber));
+			auto names = morphNameEntry::GetSingleton().GetMorphNames(categories[categoryNumber]);
 			if (names.size() > morphNumber) {
-				return found->second->GetValue(names.at(morphNumber));
+				return found->second->GetValue(names[morphNumber]);
 			}
 		}
 		return 0;

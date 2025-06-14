@@ -67,9 +67,9 @@ namespace Mus {
                 {
                     DefaultLerpTime = GetConfigSettingsIntValue(variableValue);
                 }
-                else if (variableName == "DefaultLerpTime")
+                else if (variableName == "MorphByVertexCount")
                 {
-                    EnableGPUMode = GetConfigSettingsBoolValue(variableValue);
+                    MorphByVertexCount = GetConfigSettingsBoolValue(variableValue);
                 }
             }
         }
@@ -122,7 +122,7 @@ namespace Mus {
                         {
                             for (std::size_t j = 1; j < extensionfile.size(); j++)
                             {
-                                MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
+                                MorphDataBaseManager::GetSingleton().Register(extensionfile[0], extensionfile[j]);
                             }
                         }
                     }
@@ -142,7 +142,7 @@ namespace Mus {
                 {
                     for (std::size_t j = 1; j < extensionfile.size(); j++)
                     {
-                        MorphDataBaseManager::GetSingleton().Register(extensionfile.at(0), extensionfile.at(j));
+                        MorphDataBaseManager::GetSingleton().Register(extensionfile[0], extensionfile[j]);
                     }
                 }
             }
@@ -187,9 +187,9 @@ namespace Mus {
                 auto newMorph = split(line, "|");
                 if (newMorph.size() != 2)
                     continue;
-                if (newMorph.at(0).empty() || newMorph.at(1).empty())
+                if (newMorph[0].empty() || newMorph[1].empty())
                     continue;
-                morphNameEntry::GetSingleton().Register(newMorph.at(0), newMorph.at(1));
+                morphNameEntry::GetSingleton().Register(newMorph[0], newMorph[1]);
             }
         }
         return true;

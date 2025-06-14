@@ -156,7 +156,7 @@ namespace Mus::nif {
 
         node->AttachChild(newChild, true);
         setNiNodeName(newChild, name);
-        if (childs.size() > 0 && childNames.size() > 0 && !IsSameString(childNames.at(0), "empty"))
+        if (childs.size() > 0 && childNames.size() > 0 && !IsSameString(childNames[0], "empty"))
         {
             for (auto child : childs)
             {

@@ -31,8 +31,8 @@ namespace Mus {
         [[nodiscard]] inline std::int32_t GetDefaultLerpTime() const noexcept {
             return DefaultLerpTime;
         }
-        [[nodiscard]] inline bool GetEnableGPUMode() const noexcept {
-            return EnableGPUMode;
+        [[nodiscard]] inline bool GetMorphByVertexCount() const noexcept {
+            return MorphByVertexCount;
         }
 
     private:
@@ -45,7 +45,7 @@ namespace Mus {
         std::int32_t Min = 0.0f;
         std::int32_t Max = 100.0f;
 		std::int32_t DefaultLerpTime = 500;
-        bool EnableGPUMode = true;
+        bool MorphByVertexCount = true;
 
     public:
         // trim from start (in place)

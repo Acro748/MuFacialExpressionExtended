@@ -13,7 +13,7 @@ namespace Mus {
 
 		void Initial() { errorMap.clear(); };
 
-		void FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath);
+		void FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath, std::uint32_t vertexCount);
 		void FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
 		void FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
 		void FlushVertexCountErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::uint32_t geoVertexCount, std::size_t triVertexCount);

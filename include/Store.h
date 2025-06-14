@@ -4,6 +4,9 @@ namespace Mus {
 	const RE::NiPoint3 emptyPoint = RE::NiPoint3(0, 0, 0);
 	const RE::NiMatrix3 emptyRotate = RE::NiMatrix3();
 
+	extern bool PerformanceCheck;
+	extern bool PerformanceCheckAverage;
+
 	#define MATH_PI       3.14159265358979323846
 	constexpr float toDegree = 180 / MATH_PI;
 	constexpr float toRadian = MATH_PI / 180;

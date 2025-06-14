@@ -660,6 +660,9 @@ namespace Mus {
 
     inline void PerformaceLog(std::string funcStr, bool isEnd, bool isAverage = true, std::uint32_t args = 0)
     {
+        if (!PerformanceCheck)
+            return;
+
         using namespace std::chrono;
         static concurrency::concurrent_unordered_map<std::string, high_resolution_clock::time_point> funcTime;
         static concurrency::concurrent_unordered_map<std::string, long long> funcAverageTime;
@@ -686,12 +689,6 @@ namespace Mus {
                                  funcAverageArgs[funcStr] > 0 ? (std::string(" with average count ") + std::to_string(funcAverageArgs[funcStr] / funcAverageCount[funcStr]) + " ") : " ",
                                  (double)average / (double)(RE::GetSecondsSinceLastFrame() * 1000000000) * 100
                     );
-                   /* auto Console = RE::ConsoleLog::GetSingleton();
-                    if (Console)
-                        Console->Print("%s average time: %lldns%s=> %.6f%%", funcStr.c_str(), average,
-                                       funcAverageArgs[funcStr] > 0 ? (std::string(" with average count ") + std::to_string(funcAverageArgs[funcStr] / funcAverageCount[funcStr]) + " ").c_str() : " ",
-                                       (double)average / (double)(RE::GetSecondsSinceLastFrame() * 1000000000) * 100
-                        );*/
                     funcAverageTime[funcStr] = 0;
                     funcAverageCount[funcStr] = 0;
                     funcAverageArgs[funcStr] = 0;
@@ -703,12 +700,6 @@ namespace Mus {
                              args > 0 ? (std::string(" with count ") + std::to_string(args) + " ") : " ",
                              (double)duration_ns / double(RE::GetSecondsSinceLastFrame() * 1000000000) * 100
                 );
-               /* auto Console = RE::ConsoleLog::GetSingleton();
-                if (Console)
-                    Console->Print("%s time: %lld ns%s=> %.6f%%", funcStr.c_str(), duration_ns,
-                                   args > 0 ? (std::string(" with count ") + std::to_string(args) + " ").c_str() : " ",
-                                   (double)duration_ns / double(RE::GetSecondsSinceLastFrame() * 1000000000) * 100
-                    );*/
             }
         }
     }

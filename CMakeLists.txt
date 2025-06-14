@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.4.0
+        VERSION 0.4.1
         DESCRIPTION "MuFacialExpressionExtended - VR by Acro."
         LANGUAGES CXX
 )
@@ -40,7 +40,9 @@ set(headers
         include/Hook.h
 
         include/Interface/Interface.h
-        include/InterfaceImpl.h
+        include/Interface/InterfaceImpl.h
+        include/Interface/OldInterface.h
+        include/Interface/OldInterfaceImpl.h
 )
 
 set(sources
@@ -117,11 +119,9 @@ target_precompile_headers(
     ${PROJECT_NAME}
         PRIVATE
         include/PCH.h)
-
-target_compile_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/Zi>")
-target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/DEBUG>")
-target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/OPT:REF>")
-target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/OPT:ICF>")
+        
+target_compile_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/sdl;/utf-8;/Zi;/permissive-;/Zc:preprocessor;/Zc:inline;/JMC-;/O2;/Ob3>")
+target_link_options(${PROJECT_NAME} PRIVATE "$<$<CONFIG:Release>:/INCREMENTAL:NO;/OPT:REF;/OPT:ICF;/DEBUG:FULL>")
 
 install(TARGETS ${PROJECT_NAME}
         DESTINATION "${CMAKE_INSTALL_LIBDIR}")

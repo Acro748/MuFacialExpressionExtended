@@ -2,11 +2,11 @@
 
 namespace Mus {
 
-	void ErrorLogger::FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath)
+	void ErrorLogger::FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath, std::uint32_t vertexCount)
 	{
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
-		logger::error("{:x} : {} couldn't get morph data for {} / {}", actorID, geometryName, morphName, morphBasePath);
+		logger::error("{:x} : {} couldn't get morph data for {} / {} / {}", actorID, geometryName, morphName, morphBasePath, vertexCount);
 		AssignErrorLog(actorID, geometryName, morphName);
 	}
 	void ErrorLogger::FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
@@ -123,21 +123,14 @@ namespace Mus {
 		if (a_morphBasePath.empty() || !a_geometry)
 			return false;
 
-		//PerformaceLog(std::to_string(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, false);
+		//PerformaceLog(GetHexStr(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, false);
 
-		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, a_morphBasePath);
-		if (!morphData)
-		{
-			ErrorLogger::GetSingleton().FlushMorphDataErrorLog(id, a_geometry->name.c_str(), morphName, a_morphBasePath);
-			return false;
-		}
 		auto dynamicShape = a_geometry->AsDynamicTriShape();
 		if (!dynamicShape)
 		{
 			ErrorLogger::GetSingleton().FlushDynamicTriErrorLog(id, a_geometry->name.c_str(), morphName);
 			return false;
 		}
-
 		DirectX::XMFLOAT4* dynamicVertices = reinterpret_cast<DirectX::XMFLOAT4*>(dynamicShape->GetDynamicTrishapeRuntimeData().dynamicData);
 		if (!dynamicVertices)
 		{
@@ -145,6 +138,19 @@ namespace Mus {
 			return false;
 		}
 		std::uint32_t vertexCount = dynamicShape->GetDynamicTrishapeRuntimeData().dataSize / 16;
+
+		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, a_morphBasePath);
+		if (!morphData)
+		{
+			if (Config::GetSingleton().GetMorphByVertexCount())
+				morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, vertexCount);
+			if (!morphData)
+			{
+				ErrorLogger::GetSingleton().FlushMorphDataErrorLog(id, a_geometry->name.c_str(), morphName, a_morphBasePath, vertexCount);
+				return false;
+			}
+		}
+
 		if (vertexCount == 0 || morphData->vertices.size() != vertexCount)
 		{
 			ErrorLogger::GetSingleton().FlushVertexCountErrorLog(id, a_geometry->name.c_str(), morphName, vertexCount, morphData->vertices.size());
@@ -170,7 +176,7 @@ namespace Mus {
 			}
 		//}
 
-		//PerformaceLog(std::to_string(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, true, true, vertexCount);
+		//PerformaceLog(GetHexStr(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, true, PerformanceCheckAverage, vertexCount);
 		logger::debug("{} vertexData applied", a_geometry->name.c_str());
 		return true;
 	}
@@ -241,7 +247,7 @@ namespace Mus {
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
 		if (!actor || !actor->loadedData || !actor->loadedData->data3D)
 			return;
-		//PerformaceLog(std::to_string(id) + "::MorphManager::" + __func__, false);
+		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, false);
 
 		RE::TESNPC* actorBase = actor->GetActorBase();
 		if (!actorBase)
@@ -255,11 +261,10 @@ namespace Mus {
 			return;
 
 		std::vector<MorphManagerRecord::MorphGeoData> morphGeoDatas;
-		std::uint32_t j = 0;
 		for (std::uint32_t i = 0; i < numHeadParts; i++) {
 			if (!headParts[i] || headParts[i]->formEditorID.empty() || headParts[i]->model.empty() || headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.empty())
 				continue;
-			for (; j < faceNode->children.size(); j++)
+			for (std::uint32_t j = 0; j < faceNode->children.size(); j++)
 			{
 				RE::NiAVObject* obj = faceNode->children[j].get();
 				if (!obj || obj->name != headParts[i]->formEditorID)
@@ -279,7 +284,7 @@ namespace Mus {
 			map.second.UpdateLerpValue(processTime);
 			map.second.Update(morphGeoDatas);
 		}
-		//PerformaceLog(std::to_string(id) + "::MorphManager::" + __func__, true, true, this->size());
+		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, true, PerformanceCheckAverage, this->size());
 	}
 
 	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)

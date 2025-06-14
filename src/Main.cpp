@@ -145,8 +145,16 @@ namespace {
                 {
                     MFEE::InterfaceExchangeMessage* exchangeMessage = (MFEE::InterfaceExchangeMessage*)message->data;
                     exchangeMessage->Interface = &MFEE::FEE;
+                    break;
                 }
-                break;
+                case MFEEOLD::InterfaceExchangeMessage::kMessage_ExchangeInterface:
+                {
+                    MFEEOLD::InterfaceExchangeMessage* exchangeMessage = (MFEEOLD::InterfaceExchangeMessage*)message->data;
+                    exchangeMessage->Interface = &MFEEOLD::FEE;
+                    break;
+                }
+                default:
+                    break;
                 }
             })) {
             logger::critical("Couldn't get MessagingInterface for API");
