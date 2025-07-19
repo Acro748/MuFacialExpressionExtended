@@ -552,12 +552,13 @@ namespace Mus {
 
     inline bool IsNumber(std::string str)
     {
-        for (auto s : str)
-        {
-            if (!std::isdigit(s))
-                return false;
+        try {
+            auto result = stoi(str);
+            return true;
         }
-        return true;
+        catch (...) {
+            return false;
+        }
     }
     inline std::int32_t GetNum(std::string str)
     {
