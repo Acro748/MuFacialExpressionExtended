@@ -2,28 +2,28 @@
 
 namespace Mus {
 
-	void ErrorLogger::FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath, std::uint32_t vertexCount)
+	void ErrorLogger::FlushMorphDataErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName, const std::string& morphBasePath, const std::uint32_t vertexCount)
 	{
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} couldn't get morph data for {} / {} / {}", actorID, geometryName, morphName, morphBasePath, vertexCount);
 		AssignErrorLog(actorID, geometryName, morphName);
 	}
-	void ErrorLogger::FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+    void ErrorLogger::FlushDynamicTriErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName)
 	{
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} failed to get dynamic shape", actorID, geometryName);
 		AssignErrorLog(actorID, geometryName, morphName);
 	}
-	void ErrorLogger::FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+    void ErrorLogger::FlushDynamicVerticesErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName)
 	{
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
 		logger::error("{:x} : {} failed to get dynamic vertices", actorID, geometryName);
 		AssignErrorLog(actorID, geometryName, morphName);
 	}
-	void ErrorLogger::FlushVertexCountErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::uint32_t geoVertexCount, std::size_t triVertexCount)
+    void ErrorLogger::FlushVertexCountErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName, const std::uint32_t geoVertexCount, const std::size_t triVertexCount)
 	{
 		if (FindErrorLog(actorID, geometryName, morphName))
 			return;
@@ -31,11 +31,11 @@ namespace Mus {
 		AssignErrorLog(actorID, geometryName, morphName);
 	}
 
-	bool ErrorLogger::FindErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+	bool ErrorLogger::FindErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName)
 	{
 		return errorMap[actorID][geometryName].find(morphName) != errorMap[actorID][geometryName].end();
 	}
-	void ErrorLogger::AssignErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName)
+    void ErrorLogger::AssignErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName)
 	{
 		errorMap[actorID][geometryName].insert(morphName);
 	}
@@ -118,7 +118,7 @@ namespace Mus {
 
 		return true;
 	}
-	bool MorphManagerRecord::Update(std::string a_morphBasePath, RE::BSGeometry* a_geometry)
+    bool MorphManagerRecord::Update(const std::string& a_morphBasePath, RE::BSGeometry* a_geometry)
 	{
 		if (a_morphBasePath.empty() || !a_geometry)
 			return false;
@@ -159,28 +159,19 @@ namespace Mus {
 
 		float mvalue = morphData->multiplier * fvalue;
 
-		/*if (Config::GetSingleton().GetEnableGPUMode())
-		{
-			MorphProcess newMorphProcess;
-			newMorphProcess.Initial(dynamicVertices, morphData->vertices, mvalue);
-			newMorphProcess.Run();
-		}
-		else
-		{*/
-			for (std::size_t i = 0; i < vertexCount; i++)
-			{
-				auto& vert = morphData->vertices[i];
-				dynamicVertices[i].x += vert.x * mvalue;
-				dynamicVertices[i].y += vert.y * mvalue;
-				dynamicVertices[i].z += vert.z * mvalue;
-			}
-		//}
+		for (std::size_t i = 0; i < vertexCount; i++)
+        {
+            auto& vert = morphData->vertices[i];
+            dynamicVertices[i].x += vert.x * mvalue;
+            dynamicVertices[i].y += vert.y * mvalue;
+            dynamicVertices[i].z += vert.z * mvalue;
+        }
 
 		//PerformaceLog(GetHexStr(id) + a_geometry->name.c_str() + "::MorphManagerRecord::" + __func__, true, PerformanceCheckAverage, vertexCount);
 		logger::debug("{} vertexData applied", a_geometry->name.c_str());
 		return true;
 	}
-	bool MorphManagerRecord::Update(std::vector<MorphGeoData>& a_morphGeoData)
+    bool MorphManagerRecord::Update(const std::vector<MorphGeoData>& a_morphGeoData)
 	{
 		if (a_morphGeoData.size() == 0)
 			return false;
@@ -222,7 +213,7 @@ namespace Mus {
 		return true;
 	}
 
-	void MorphManager::Revert(std::string category)
+	void MorphManager::Revert(const std::string& category)
 	{
 		m_lock.lock();
 		if (category.empty())
@@ -231,9 +222,8 @@ namespace Mus {
 		}
 		else
 		{
-			category = lowLetter(category);
-			auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
-			for (auto morphName : morphNames)
+            const auto& morphNames = morphNameEntry::GetSingleton().GetMorphNames(lowLetter(category));
+			for (const auto& morphName : morphNames)
 			{
 				auto found = find(morphName);
 				if (found != end())
@@ -245,7 +235,8 @@ namespace Mus {
 	void MorphManager::Update(std::clock_t processTime)
 	{
 		RE::Actor* actor = skyrim_cast<RE::Actor*>(RE::TESForm::LookupByID(id));
-		if (!actor || !actor->loadedData || !actor->loadedData->data3D)
+        if (!actor || !actor->loadedData || !actor->loadedData->data3D ||
+            !actor->GetActorRuntimeData().boolBits.any(RE::Actor::BOOL_BITS::kProcessMe))
 			return;
 		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, false);
 
@@ -273,8 +264,7 @@ namespace Mus {
 					MorphManagerRecord::MorphGeoData{
 					fixPath(headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str()),
 					skyrim_cast<RE::BSGeometry*>(obj)
-					}
-				);
+				});
 				break;
 			}
 		}
@@ -287,9 +277,8 @@ namespace Mus {
 		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, true, PerformanceCheckAverage, this->size());
 	}
 
-	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)
+	bool MorphManager::SetValue(const std::string& a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)
 	{
-		a_morphName = lowLetter(a_morphName);
 		auto found = find(a_morphName);
 		if (found != end())
 		{
@@ -306,14 +295,13 @@ namespace Mus {
 		insert(std::make_pair(a_morphName, newMorphManagerRecord));
 		return true;
 	}
-	bool MorphManager::SetValue(std::string a_morphName, std::int32_t a_value)
+    bool MorphManager::SetValue(const std::string& a_morphName, std::int32_t a_value)
 	{
 		return SetValue(a_morphName, a_value, 0);
 	}
 
-	int32_t MorphManager::GetValue(std::string a_morphName) const
+	int32_t MorphManager::GetValue(const std::string& a_morphName) const
 	{
-		a_morphName = lowLetter(a_morphName);
 		auto found = find(a_morphName);
 		if (found != end())
 			return found->second.GetValue();
