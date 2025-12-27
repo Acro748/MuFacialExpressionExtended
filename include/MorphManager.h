@@ -13,14 +13,14 @@ namespace Mus {
 
 		void Initial() { errorMap.clear(); };
 
-		void FlushMorphDataErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::string morphBasePath, std::uint32_t vertexCount);
-		void FlushDynamicTriErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
-		void FlushDynamicVerticesErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
-		void FlushVertexCountErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName, std::uint32_t geoVertexCount, std::size_t triVertexCount);
+		void FlushMorphDataErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName, const std::string& morphBasePath, const std::uint32_t vertexCount);
+        void FlushDynamicTriErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName);
+        void FlushDynamicVerticesErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName);
+        void FlushVertexCountErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName, const std::uint32_t geoVertexCount, const std::size_t triVertexCount);
 
 	private:
-		bool FindErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
-		void AssignErrorLog(RE::FormID actorID, std::string geometryName, std::string morphName);
+        bool FindErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName);
+        void AssignErrorLog(const RE::FormID actorID, const std::string& geometryName, const std::string& morphName);
 
 		typedef std::unordered_set<std::string> MorphNameMap; //morphName
 		typedef concurrency::concurrent_unordered_map<std::string, MorphNameMap> GeometryMorphMap; //geometryName, morphName
@@ -42,7 +42,7 @@ namespace Mus {
 			RE::BSGeometry* geometry;
 		};
 
-		bool Update(std::vector<MorphGeoData>& a_morphGeoData);
+		bool Update(const std::vector<MorphGeoData>& a_morphGeoData);
 		std::string GetMorphName() const { return morphName; }
 		void SetValue(std::int32_t a_value, std::int32_t a_lerpTime);
 		void SetValue(std::int32_t a_value);
@@ -50,7 +50,7 @@ namespace Mus {
 		bool UpdateLerpValue(std::clock_t processTime); // true : updated
 	private:
 		bool Recalculate(RE::BSGeometry* a_geometry);
-		bool Update(std::string a_morphBasePath, RE::BSGeometry* a_geometry);
+        bool Update(const std::string& a_morphBasePath, RE::BSGeometry* a_geometry);
 
 		struct LerpTask {
 			std::clock_t totalProcessTime;
@@ -70,11 +70,11 @@ namespace Mus {
 		MorphManager(RE::Actor* a_actor) : id(a_actor->formID), name(a_actor->GetName()) {};
 		~MorphManager() {};
 
-		bool SetValue(std::string a_morphName, std::int32_t a_value, std::int32_t a_lerpTime);
-		bool SetValue(std::string a_morphName, std::int32_t a_value);
-		int32_t GetValue(std::string a_morphName) const;
+		bool SetValue(const std::string& a_morphName, const std::int32_t a_value, const std::int32_t a_lerpTime);
+        bool SetValue(const std::string& a_morphName, const std::int32_t a_value);
+        int32_t GetValue(const std::string& a_morphName) const;
 
-		void Revert(std::string category = "");
+		void Revert(const std::string& category = "");
 		void Update(std::clock_t processTime);
 
 		struct ActiveMorphSet {

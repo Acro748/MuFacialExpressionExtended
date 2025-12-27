@@ -149,8 +149,6 @@ namespace util {
 #include "MorphManager.h"
 #include "ActorManager.h"
 
-#include "Shader.h"
-
 #include "Interface/Interface.h"
 #include "Interface/InterfaceImpl.h"
 #include "Interface/OldInterface.h"
