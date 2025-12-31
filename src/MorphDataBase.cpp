@@ -235,9 +235,7 @@ namespace Mus {
 		if (a_morphBasePath.empty() || a_morphPath.empty())
 			return false;
 
-		a_morphBasePath = "Meshes\\" + a_morphBasePath;
-        RE::BSFixedString newBasePath(a_morphBasePath.c_str());
-
+        RE::BSFixedString newBasePath = ("Meshes\\" + a_morphBasePath).c_str();
 		RE::BSResourceNiBinaryStream basefile(newBasePath.data());
 		if (!basefile.good()) {
 			return false;
@@ -252,8 +250,7 @@ namespace Mus {
 		Read(&basefile, &baseVertexCount, sizeof(baseVertexCount));
 		logger::debug("BaseVertexCount : {}", baseVertexCount);
 
-		a_morphPath = "Meshes\\" + a_morphPath;
-        RE::BSFixedString newPath(a_morphPath.c_str());
+        RE::BSFixedString newPath = ("Meshes\\" + a_morphPath).c_str();
 
 		RE::BSResourceNiBinaryStream file(newPath.data());
 		if (!file.good()) {
