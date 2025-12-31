@@ -151,8 +151,11 @@ namespace Mus {
 				inline DirectX::XMFLOAT4 GetFloat4() {
 					return DirectX::XMFLOAT4((float)x, (float)y, (float)z, 0);
 				};
+                inline DirectX::XMVECTOR GetXMVector() {
+                    return DirectX::XMVectorSet((float)x, (float)y, (float)z, 0);
+				};
 			};
-			std::vector<DirectX::XMFLOAT4> vertices;
+            std::vector<DirectX::XMVECTOR> vertices;
 
 			bool IsValid() { return !morphBasePath.empty() && vertexCount != -1 && vertices.size() > 0; }
 		};

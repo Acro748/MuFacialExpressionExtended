@@ -172,6 +172,8 @@ namespace {
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 		g_frameEventDispatcher.addListener(&ActorManager::GetSingleton());
+        g_facegenNiNodeEventDispatcher.addListener(&ActorManager::GetSingleton());
+        g_faceUpdateEventDispatcher.addListener(&ActorManager::GetSingleton());
     }
 
     void InitializeMessaging() 

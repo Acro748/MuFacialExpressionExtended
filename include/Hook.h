@@ -40,10 +40,12 @@ namespace Mus {
 		void dispatch(const Event& event) override {
 			if (m_cacheDirt)
 			{
+                listenerLock.lock();
 				m_caches.clear();
 				for (auto& i : m_listeners)
 					m_caches.emplace_back(i);
 				m_cacheDirt = false;
+                listenerLock.unlock();
 			}
 
 			for (auto i : m_caches)
@@ -54,14 +56,28 @@ namespace Mus {
 		std::unordered_set<IEventListener<Event>*> m_listeners;
 		std::vector<IEventListener<Event>*> m_caches;
 		bool m_cacheDirt = false;
+        std::mutex listenerLock;
 	};
 
 	struct FrameEvent
 	{
 		bool gamePaused;
 	};
+    
+	struct FacegenNiNodeEvent {
+        RE::NiNode* root;
+        RE::BSFaceGenNiNode* facegenNiNode;
+        bool skinned;
+    };
 
-	extern EventDispatcherImpl<FrameEvent>  g_frameEventDispatcher;
+	struct FaceUpdateEvent
+	{
+        RE::TESObjectREFR* ref;
+	};
+
+	extern EventDispatcherImpl<FrameEvent> g_frameEventDispatcher;
+    extern EventDispatcherImpl<FacegenNiNodeEvent> g_facegenNiNodeEventDispatcher;
+    extern EventDispatcherImpl<FaceUpdateEvent> g_faceUpdateEventDispatcher;
 
 	void hook();
 }

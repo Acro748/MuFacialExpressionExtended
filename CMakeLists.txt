@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.4.3
+        VERSION 0.4.4
         DESCRIPTION "MuFacialExpressionExtended - SE/AE by Acro."
         LANGUAGES CXX
 )
@@ -72,6 +72,8 @@ source_group(
 find_package(CommonLibSSE REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 find_package(Directxtk CONFIG REQUIRED)
+find_package(xxhash CONFIG REQUIRED)
+find_package(detours)
 
 add_commonlibsse_plugin(${PROJECT_NAME} SOURCES ${headers} ${sources})
 add_library("${PROJECT_NAME}::${PROJECT_NAME}" ALIAS "${PROJECT_NAME}")
@@ -103,6 +105,7 @@ target_include_directories(
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/ExtraRE>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/extern/rapidhash/rapidhash-c/cpp>
 )
 
 target_link_libraries(
@@ -111,6 +114,8 @@ target_link_libraries(
         CommonLibSSE::CommonLibSSE
     PRIVATE
         magic_enum::magic_enum
+        xxHash::xxhash
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows-static-md/lib/detours.lib>
 )
 
 target_precompile_headers(

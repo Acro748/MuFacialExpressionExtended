@@ -13,7 +13,9 @@
         "commonlibsse-ng-flatrim",
         "magic-enum",
         "jsoncpp",
+        "xxhash",
         "xbyak",
+        "detours",
         "directxtk"
       ]
     }
