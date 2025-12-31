@@ -32,16 +32,20 @@ namespace Mus {
 		RE::FormID id;
 		std::string morphName;
 		std::int32_t value = 0;
+		std::int32_t pvalue = 0;
 		float fvalue = 0.0f;
+		float pfvalue = 0.0f;
 	public:
-		MorphManagerRecord(RE::FormID a_actorID, std::string a_morphName) : id(a_actorID), morphName(a_morphName) {};
+		MorphManagerRecord(RE::FormID a_actorID, std::string a_morphName) : id(a_actorID), morphName(lowLetter(a_morphName)) {};
 		~MorphManagerRecord() {};
 
-		struct MorphGeoData {
-			std::string morphBasePath;
-			RE::BSGeometry* geometry;
-		};
-
+        struct MorphGeoData {
+            const std::string morphBasePath = "";
+            RE::BSDynamicTriShape* dynamicShape = nullptr;
+            DirectX::XMVECTOR* __restrict dynamicVertices = nullptr;
+            const std::uint32_t vertexCount = 0;
+            bool isSameHash = false;
+        };
 		bool Update(const std::vector<MorphGeoData>& a_morphGeoData);
 		std::string GetMorphName() const { return morphName; }
 		void SetValue(std::int32_t a_value, std::int32_t a_lerpTime);
@@ -49,8 +53,7 @@ namespace Mus {
 		std::int32_t GetValue() const { return value; }
 		bool UpdateLerpValue(std::clock_t processTime); // true : updated
 	private:
-		bool Recalculate(RE::BSGeometry* a_geometry);
-        bool Update(const std::string& a_morphBasePath, RE::BSGeometry* a_geometry);
+        bool Update(const MorphGeoData& data);
 
 		struct LerpTask {
 			std::clock_t totalProcessTime;
@@ -72,7 +75,7 @@ namespace Mus {
 
 		bool SetValue(const std::string& a_morphName, const std::int32_t a_value, const std::int32_t a_lerpTime);
         bool SetValue(const std::string& a_morphName, const std::int32_t a_value);
-        int32_t GetValue(const std::string& a_morphName) const;
+        std::int32_t GetValue(const std::string& a_morphName) const;
 
 		void Revert(const std::string& category = "");
 		void Update(std::clock_t processTime);
@@ -82,10 +85,16 @@ namespace Mus {
 			std::int32_t value = 0;
 		};
 		std::vector<ActiveMorphSet> GetAllActiveMorphs();
-	private:
-		static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
 
-		bool isNeedUpdate = false;
-		std::recursive_mutex m_lock;
+		inline void SetNeedUpdateFacegenMeshes() { isNeedUpdateFacegen = true; };
+    private:
+        std::vector<MorphManagerRecord::MorphGeoData> morphGeoDatas;
+        std::unordered_map<std::string, RE::BSDynamicTriShape*> faceGenMeshes;
+        bool isNeedUpdateFacegen = true;
+        std::unordered_map<RE::BSDynamicTriShape*, std::uint64_t> lastHash;
+        std::uint64_t GetHash(const MorphManagerRecord::MorphGeoData& data);
+        bool Recalculate(const MorphManagerRecord::MorphGeoData& data);
+        static std::uint32_t UpdateModelFace(RE::NiAVObject* obj);
+		std::mutex m_lock;
 	};
 }

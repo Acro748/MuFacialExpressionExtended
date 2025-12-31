@@ -13,7 +13,9 @@
         "commonlibsse-ng-vr",
         "magic-enum",
         "jsoncpp",
+        "xxhash",
         "xbyak",
+        "detours",
         "directxtk"
       ]
     }

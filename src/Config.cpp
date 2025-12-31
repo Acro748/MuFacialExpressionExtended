@@ -71,6 +71,14 @@ namespace Mus {
                 {
                     MorphByVertexCount = GetConfigSettingsBoolValue(variableValue);
                 }
+                else if (variableName == "DisableDistance")
+                {
+                    DisableDistance = GetConfigSettingsBoolValue(variableValue);
+                }
+                else if (variableName == "Recalculate")
+                {
+                    Recalculate = GetConfigSettingsBoolValue(variableValue);
+                }
             }
         }
         logger::info("Config loaded done");

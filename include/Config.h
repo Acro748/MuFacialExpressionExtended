@@ -19,20 +19,26 @@ namespace Mus {
         }
 
         //General
-        [[nodiscard]] inline bool GetCustomMode() const noexcept {
+        [[nodiscard]] inline auto GetCustomMode() const noexcept {
             return CustomMode;
         }
-        [[nodiscard]] inline std::int32_t GetMin() const noexcept {
+        [[nodiscard]] inline auto GetMin() const noexcept {
             return Min;
         }
-        [[nodiscard]] inline std::int32_t GetMax() const noexcept {
+        [[nodiscard]] inline auto GetMax() const noexcept {
             return Max;
         }
-        [[nodiscard]] inline std::int32_t GetDefaultLerpTime() const noexcept {
+        [[nodiscard]] inline auto GetDefaultLerpTime() const noexcept {
             return DefaultLerpTime;
         }
-        [[nodiscard]] inline bool GetMorphByVertexCount() const noexcept {
+        [[nodiscard]] inline auto GetMorphByVertexCount() const noexcept {
             return MorphByVertexCount;
+        }
+        [[nodiscard]] inline auto GetDisableDistance() const noexcept {
+            return DisableDistance;
+        }
+        [[nodiscard]] inline auto GetRecalculate() const noexcept {
+            return Recalculate;
         }
 
     private:
@@ -46,6 +52,8 @@ namespace Mus {
         std::int32_t Max = 100.0f;
 		std::int32_t DefaultLerpTime = 500;
         bool MorphByVertexCount = true;
+        bool DisableDistance = false;
+        bool Recalculate = false;
 
     public:
         // trim from start (in place)

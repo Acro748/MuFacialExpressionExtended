@@ -5,7 +5,9 @@ namespace Mus {
 	class ActorManager :
 		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>,
 		public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
-		public IEventListener<FrameEvent>
+		public IEventListener<FrameEvent>,
+		public IEventListener<FacegenNiNodeEvent>,
+		public IEventListener<FaceUpdateEvent>
 	{
 	public:
 		ActorManager() {};
@@ -37,8 +39,10 @@ namespace Mus {
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
 		void onEvent(const FrameEvent& e) override;
+        void onEvent(const FacegenNiNodeEvent& e) override;
+        void onEvent(const FaceUpdateEvent& e) override;
 	private:
-
+        concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr> queueUpdate;
 		bool isPaused = false;
 	};
 }

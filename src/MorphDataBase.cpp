@@ -217,7 +217,6 @@ namespace Mus {
 
 	const MorphDataBase::Morph* MorphDataBase::GetMorphData(std::string a_morphBasePath) const
 	{
-		a_morphBasePath = fixPath(a_morphBasePath);
 		auto found = morphData.find(a_morphBasePath);
 		if (found != morphData.end())
 			return &found->second;
@@ -236,11 +235,7 @@ namespace Mus {
 		if (a_morphBasePath.empty() || a_morphPath.empty())
 			return false;
 
-		char basefilePath[MAX_PATH];
-		memset(basefilePath, 0, MAX_PATH);
-		sprintf_s(basefilePath, MAX_PATH, "Meshes\\%s", a_morphBasePath.c_str());
-		RE::BSFixedString newBasePath(basefilePath);
-
+        RE::BSFixedString newBasePath = ("Meshes\\" + a_morphBasePath).c_str();
 		RE::BSResourceNiBinaryStream basefile(newBasePath.data());
 		if (!basefile.good()) {
 			return false;
@@ -255,11 +250,7 @@ namespace Mus {
 		Read(&basefile, &baseVertexCount, sizeof(baseVertexCount));
 		logger::debug("BaseVertexCount : {}", baseVertexCount);
 
-
-		char filePath[MAX_PATH];
-		memset(filePath, 0, MAX_PATH);
-		sprintf_s(filePath, MAX_PATH, "Meshes\\%s", a_morphPath.c_str());
-		RE::BSFixedString newPath(filePath);
+        RE::BSFixedString newPath = ("Meshes\\" + a_morphPath).c_str();
 
 		RE::BSResourceNiBinaryStream file(newPath.data());
 		if (!file.good()) {
@@ -348,7 +339,7 @@ namespace Mus {
 			{
 				MorphDataBase::Morph::Vertex vert;
 				Read(&file, &vert, sizeof(vert));
-				morph.vertices.emplace_back(vert.GetFloat4());
+				morph.vertices.emplace_back(vert.GetXMVector());
 			}
 
 			std::string newMorphName = lowLetter(morphName_.c_str());
@@ -370,7 +361,6 @@ namespace Mus {
 
 	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string morphName, std::string a_morphBasePath) const
 	{
-		morphName = lowLetter(morphName);
 		auto found = find(morphName);
 		if (found != end())
 			return found->second.GetMorphData(a_morphBasePath);
@@ -378,7 +368,6 @@ namespace Mus {
 	}
 	const MorphDataBase::Morph* MorphDataBaseManager::GetMorphData(std::string morphName, std::uint32_t vertexCount) const
 	{
-		morphName = lowLetter(morphName);
 		auto found = find(morphName);
 		if (found != end())
 			return found->second.GetMorphData(vertexCount);

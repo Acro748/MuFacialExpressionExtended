@@ -35,6 +35,7 @@ namespace Mus {
 		if (lerpTime <= -1)
 			lerpTime = Config::GetSingleton().GetDefaultLerpTime();
 
+		morphName = lowLetter(morphName);
 		bool isApplied = false;
 		auto found = find(a_actor->formID);
 		if (found != end()) {
@@ -97,9 +98,10 @@ namespace Mus {
 		}
 		else
 		{
-			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
+            concurrency::parallel_for_each(queueUpdate.begin(), queueUpdate.end(), [&](auto& morphManager) {
 				morphManager.second->Update(processTime);
 			});
+            queueUpdate.clear();
 		}
 		PerformaceLog(std::string("ActorManager::") + __func__, true, PerformanceCheckAverage, a_actor ? 1 : size());
 	}
@@ -193,5 +195,24 @@ namespace Mus {
 		}
 		Update();
 		isPaused = IsGamePaused.load(); // one frame delay
+    }
+	void ActorManager::onEvent(const FacegenNiNodeEvent& e)
+    {
+        if (!e.root || !e.root->userData)
+            return;
+        RE::Actor* a_actor = skyrim_cast<RE::Actor*>(e.root->userData);
+        if (!a_actor)
+            return;
+        auto found = find(a_actor->formID);
+        if (found == end())
+            return;
+        found->second->SetNeedUpdateFacegenMeshes();
+	}
+    void ActorManager::onEvent(const FaceUpdateEvent& e)
+	{
+        auto found = find(e.ref->formID);
+        if (found == end())
+			return;
+        queueUpdate[e.ref->formID] = found->second;
 	}
 }
