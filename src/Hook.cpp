@@ -5,6 +5,7 @@ namespace Mus {
 	EventDispatcherImpl<FrameEvent>  g_frameEventDispatcher;
     EventDispatcherImpl<FacegenNiNodeEvent> g_facegenNiNodeEventDispatcher;
     EventDispatcherImpl<FaceUpdateEvent> g_faceUpdateEventDispatcher;
+    EventDispatcherImpl<ActorChangeHeadPartEvent> g_actorChangeHeadPartEventDispatcher;
 
 	typedef void (*_NullSub)();
 	REL::Relocation<_NullSub> NullSubOrig;
@@ -78,9 +79,23 @@ namespace Mus {
 	}
     void hookFaceMorphingFunction(SKSE::Trampoline& trampoline)
     {
-        constexpr REL::VariantID FaceMorphingFunction(26418, 26999, 0x005BAB10);
+        constexpr REL::VariantID FaceMorphingFunction(26418, 26999, 0x003E91D0);
         constexpr auto FaceMorphingFunctionOffset = REL::VariantOffset(0x13, 0x13, 0x13);
         FaceMorphingFunctionOrig = trampoline.write_call<5>(FaceMorphingFunction.address() + FaceMorphingFunctionOffset.offset(), onFaceMorphingFunction);
+    }
+
+    constexpr REL::VariantID ActorChangeHeadPartFunction(26468, 27063, 0x003EBD30);
+    typedef void* (*_ActorChangeHeadPart)(RE::Actor*, RE::BGSHeadPart*, RE::BGSHeadPart*);
+    REL::Relocation<_ActorChangeHeadPart> onActorChangeHeadPart_Orig(ActorChangeHeadPartFunction);
+    void* __fastcall onActorChangeHeadPart(RE::Actor* actor, RE::BGSHeadPart* oldPart, RE::BGSHeadPart* newPart)
+    {
+        void* result = onActorChangeHeadPart_Orig(actor, oldPart, newPart);
+        ActorChangeHeadPartEvent e;
+        e.actor = actor;
+        e.oldHeadPart = oldPart;
+        e.newHeadPart = newPart;
+        g_actorChangeHeadPartEventDispatcher.dispatch(e);
+        return result;
     }
 	
 	void hook()
@@ -96,6 +111,7 @@ namespace Mus {
         DetourTransactionBegin();
         DetourUpdateThread(GetCurrentThread());
         DetourAttach(&(PVOID&)onFaceGen_Orig, onFaceGen);
+        DetourAttach(&(PVOID&)onActorChangeHeadPart_Orig, onActorChangeHeadPart);
         DetourTransactionCommit();
 	}
 }

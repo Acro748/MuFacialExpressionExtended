@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.4.4
+        VERSION 0.4.5
         DESCRIPTION "MuFacialExpressionExtended - SE/AE by Acro."
         LANGUAGES CXX
 )

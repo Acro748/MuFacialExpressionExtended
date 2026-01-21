@@ -133,6 +133,7 @@ namespace {
         log::info("Building hook...");
         
         hook();
+        Commandhook();
     }
 
     void InitializeInterface()
@@ -162,13 +163,12 @@ namespace {
     }
     void kPostLoadFunction()
     {
-        ActorManager::GetSingleton().Init();
-        morphNameEntry::GetSingleton().Init();
         InitializeInterface();
     }
     void kDataloadedFunction()
     {
-        Commandhook();
+        ActorManager::GetSingleton().Init();
+        morphNameEntry::GetSingleton().Init();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 		g_frameEventDispatcher.addListener(&ActorManager::GetSingleton());
@@ -241,7 +241,7 @@ SKSEPluginLoad(const LoadInterface* skse)
     auto runtime = REL::Module::get().version();
     log::info("Working on skyrim version : {}.{}.{}.{}", runtime.major(), runtime.minor(), runtime.patch(), runtime.build());
 
-    Init(skse);
+    Init(skse, false);
     InitializeMessaging();
     InitializeSerialization();
     InitializePapyrus();
