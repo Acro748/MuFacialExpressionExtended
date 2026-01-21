@@ -210,9 +210,20 @@ namespace Mus {
 	}
     void ActorManager::onEvent(const FaceUpdateEvent& e)
 	{
+        if (!e.ref)
+            return;
         auto found = find(e.ref->formID);
         if (found == end())
 			return;
         queueUpdate[e.ref->formID] = found->second;
-	}
+    }
+    void ActorManager::onEvent(const ActorChangeHeadPartEvent& e)
+    {
+        if (!e.actor)
+            return;
+        auto found = find(e.actor->formID);
+        if (found == end())
+            return;
+        found->second->SetNeedUpdateFacegenMeshes();
+    }
 }

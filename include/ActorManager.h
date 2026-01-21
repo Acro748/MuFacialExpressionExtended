@@ -7,7 +7,8 @@ namespace Mus {
 		public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
 		public IEventListener<FrameEvent>,
 		public IEventListener<FacegenNiNodeEvent>,
-		public IEventListener<FaceUpdateEvent>
+		public IEventListener<FaceUpdateEvent>,
+		public IEventListener<ActorChangeHeadPartEvent>
 	{
 	public:
 		ActorManager() {};
@@ -41,6 +42,7 @@ namespace Mus {
 		void onEvent(const FrameEvent& e) override;
         void onEvent(const FacegenNiNodeEvent& e) override;
         void onEvent(const FaceUpdateEvent& e) override;
+        void onEvent(const ActorChangeHeadPartEvent& e) override;
 	private:
         concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr> queueUpdate;
 		bool isPaused = false;

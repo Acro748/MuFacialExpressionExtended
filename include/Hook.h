@@ -73,11 +73,18 @@ namespace Mus {
 	struct FaceUpdateEvent
 	{
         RE::TESObjectREFR* ref;
-	};
+    };
+
+    struct ActorChangeHeadPartEvent {
+        RE::Actor* actor;
+        RE::BGSHeadPart* oldHeadPart;
+        RE::BGSHeadPart* newHeadPart;
+    };
 
 	extern EventDispatcherImpl<FrameEvent> g_frameEventDispatcher;
     extern EventDispatcherImpl<FacegenNiNodeEvent> g_facegenNiNodeEventDispatcher;
     extern EventDispatcherImpl<FaceUpdateEvent> g_faceUpdateEventDispatcher;
+    extern EventDispatcherImpl<ActorChangeHeadPartEvent> g_actorChangeHeadPartEventDispatcher;
 
 	void hook();
 }
