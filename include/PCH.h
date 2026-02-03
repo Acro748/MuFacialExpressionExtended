@@ -42,7 +42,6 @@
 #include <concurrent_unordered_map.h>
 #include <condition_variable>
 #include <corecrt_io.h>
-#include <cstring>
 #include <d3d11.h>
 #include <deque>
 #include <direct.h>
@@ -135,11 +134,12 @@ namespace util {
 
 #include "B/BSFaceGenBaseMorphExtraData.h"
 
-#include "NiVector4.h"
+#include "lString.h"
 
 #include "Store.h"
 #include "nifUtil.h"
 #include "Utility.hpp"
+
 #include "ConsoleLog.h"
 #include "Config.h"
 

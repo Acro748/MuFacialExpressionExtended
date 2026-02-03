@@ -103,46 +103,50 @@ namespace Mus {
 		};
 
 		struct morphNameEntryData {
-			std::string morphCategory;
-			std::vector<std::string> morphNames;
+            const lString morphCategory;
+            std::vector<lString> morphNames;
 		};
 
-		bool Register(std::string category, std::string morphName);
-		bool RegisterCategory(std::string category);
+		bool Register(const lString& category, const lString& morphName);
+        bool RegisterCategory(const lString& category);
 		void UnRegisterAll() { 
+			std::lock_guard lg(namesLock);
 			names.clear(); 
 			Init();
 		};
 
-		std::vector<std::string> GetMorphNames(std::string category);
-		std::vector<std::string> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
+		std::vector<std::string> GetMorphNamesBasic(const lString& category);
+		std::vector<lString> GetMorphNames(const lString& category);
+        std::vector<std::string> GetMorphNamesBasic(std::int32_t categoryNumber) { return GetMorphNamesBasic(GetCategoryByNumber(categoryNumber)); };
+        std::vector<lString> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
 
-		std::int32_t GetMorphNameNumber(std::string morphName);
-		std::string GetMorphNameByNumber(std::string category, std::int32_t morphNumber);
-		std::string GetMorphNameByNumber(std::int32_t categoryNumber, std::int32_t morphNumber) { return GetMorphNameByNumber(GetCategoryByNumber(categoryNumber), morphNumber); };
+		std::int32_t GetMorphNameNumber(const lString& morphName);
+        lString GetMorphNameByNumber(const lString& category, std::int32_t morphNumber);
+		lString GetMorphNameByNumber(std::int32_t categoryNumber, std::int32_t morphNumber) { return GetMorphNameByNumber(GetCategoryByNumber(categoryNumber), morphNumber); };
 
 		std::vector<std::string> GetCategories();
-		std::int32_t GetCategoryNumber(std::string category);
-		std::string GetCategoryByNumber(std::int32_t categoryNumber);
-		std::string GetCategoryByMorphName(std::string morphName);
+        std::int32_t GetCategoryNumber(const lString& category);
+		lString GetCategoryByNumber(std::int32_t categoryNumber);
+		lString GetCategoryByMorphName(const lString& morphName);
 
-		bool IsValidName(std::string morphName) { return GetMorphNameNumber(morphName) != -1; }
-		bool IsValidCategory(std::string category) { return GetCategoryNumber(category) != -1; }
+		bool IsValidName(const lString& morphName) { return GetMorphNameNumber(morphName) != -1; }
+        bool IsValidCategory(const lString& category) { return GetCategoryNumber(category) != -1; }
 	private:
+        std::shared_mutex namesLock;
 		std::vector<morphNameEntryData> names; //morphCategory, morphNames
 	};
 
 
 	class MorphDataBase 
 	{
-		std::string morphName;
+        const lString morphName;
 	public:
-		MorphDataBase(std::string a_morphName) : morphName(lowLetter(a_morphName)) {};
+        MorphDataBase(const lString& a_morphName) : morphName(a_morphName) {};
 		~MorphDataBase() {};
 
 		struct Morph {
-			std::string morphBasePath;
-			std::int32_t vertexCount = -1;
+            const lString morphBasePath;
+            const std::int32_t vertexCount = -1;
 			float multiplier = 1.0f;
 
 			struct Vertex
@@ -157,21 +161,23 @@ namespace Mus {
 			};
             std::vector<DirectX::XMVECTOR> vertices;
 
-			bool IsValid() { return !morphBasePath.empty() && vertexCount != -1 && vertices.size() > 0; }
+			inline bool IsValid() const { return !morphBasePath.empty() && vertexCount != -1 && vertices.size() > 0; }
 		};
 
-		bool Register(Morph a_morph);
-		const Morph* GetMorphData(std::string a_morphBasePath) const;
-		const Morph* GetMorphData(std::uint32_t a_vertexCount) const;
+		bool Register(const Morph& a_morph);
+        const Morph* GetMorphData(const lString& a_morphBasePath) const;
+        const Morph* GetMorphData(const std::uint32_t a_vertexCount) const;
 
 	private:
-		concurrency::concurrent_unordered_map<std::string, Morph> morphData; // morphBasePath, morph
-		concurrency::concurrent_unordered_map<std::uint32_t, Morph> morphDataAlt; // vertexCount, morph
+        mutable std::mutex morphDataLock;
+        std::unordered_map<lString, Morph> morphData;          // morphBasePath, morph
+		std::unordered_map<std::uint32_t, Morph> morphDataAlt; // vertexCount, morph
 	};
+    typedef std::shared_ptr<MorphDataBase> MorphDataBasePtr;
 
-	class MorphDataBaseManager :
-		public concurrency::concurrent_unordered_map<std::string, MorphDataBase> //morphName, triDataBase
-	{
+	class MorphDataBaseManager {
+        mutable std::mutex dbLock;
+        std::unordered_map<lString, MorphDataBasePtr> db; // morphName, triDataBase
 	public:
 		MorphDataBaseManager() {};
 		~MorphDataBaseManager() {};
@@ -181,11 +187,16 @@ namespace Mus {
 			return instance;
 		}
 
-		bool Register(std::string a_morphBasePath, std::string a_morphPath);
-		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::string a_morphBasePath) const;
-		const MorphDataBase::Morph* GetMorphData(std::string morphName, std::uint32_t vertexCount) const;
+		bool Register(const lString& a_morphBasePath, const lString& a_morphPath);
+        const MorphDataBase::Morph* GetMorphData(const lString& morphName, const lString& a_morphBasePath) const;
+        const MorphDataBase::Morph* GetMorphData(const lString& morphName, const std::uint32_t vertexCount) const;
 
-		void UnRegisterAll() { clear(); };
+		void UnRegisterAll() { 
+			std::lock_guard lg(dbLock);
+			db.clear(); 
+		};
+		
+		bool IsValidMorphName(const lString& morphName);
 	private:
 		static std::uint32_t Read(RE::BSResourceNiBinaryStream* stream, void* dst, std::uint32_t len) {
 			using func_t = decltype(&MorphDataBaseManager::Read);

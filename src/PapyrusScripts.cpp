@@ -43,13 +43,13 @@ namespace Mus {
         }
 
         std::vector<std::string> GetExpressionMorphNames(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
-            return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_morphCategory.c_str());
+            return Mus::morphNameEntry::GetSingleton().GetMorphNamesBasic(a_morphCategory.c_str());
         }
         std::size_t GetExpressionMorphNamesSize(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory) {
             return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_morphCategory.c_str()).size();
         }
         std::vector<std::string> GetExpressionMorphNamesByNumber(RE::StaticFunctionTag*, std::int32_t a_categoryNumber) {
-            return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_categoryNumber);
+            return Mus::morphNameEntry::GetSingleton().GetMorphNamesBasic(a_categoryNumber);
         }
         std::string GetExpressionMorphNameByNumber(RE::StaticFunctionTag*, RE::BSFixedString a_morphCategory, std::int32_t a_morphNumber) {
             return Mus::morphNameEntry::GetSingleton().GetMorphNameByNumber(a_morphCategory.c_str(), a_morphNumber);

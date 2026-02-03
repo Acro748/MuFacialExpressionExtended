@@ -29,7 +29,14 @@ namespace MFEE {
 			virtual void String(const char* str) = 0;
 		};
 
-		virtual bool RegisterNewMorphData(const char* a_morphBasePath, const char* a_morphPath) = 0;
+        // Add morph data on the morph name
+		// write without read - thread safe / write and read - no thread safe
+		// recommend to use when main menu (after data loaded)
+        virtual bool RegisterNewMorphData(const char* a_morphBasePath, const char* a_morphPath) = 0;
+
+		// Create category/morph name if there are no
+        // write without read - thread safe / write and read - no thread safe
+        // recommend to use when main menu (after data loaded)
 		virtual bool RegisterNewMorphNameOnCategory(const char* a_morphCategory, const char* a_morphName) = 0;
 
 		virtual std::uint32_t GetExpressionCategorySize() = 0;
@@ -37,7 +44,7 @@ namespace MFEE {
 		std::vector<std::string> GetExpressionCategories() {
 			class IString_ : public IString {
 			public:
-				virtual void String(const char* str) {
+                void String(const char* str) override {
 					str_ = str;
 				}
 				std::string str_;
@@ -62,13 +69,14 @@ namespace MFEE {
 		std::vector<std::string> GetExpressionMorphs(const char* a_morphCategory) {
 			class IString_ : public IString {
 			public:
-				virtual void String(const char* str) {
+                void String(const char* str) override {
 					str_ = str;
 				}
 				std::string str_;
 			};
 			std::vector<std::string> result;
-			for (std::int32_t i = 0; i < GetExpressionMorphSize(a_morphCategory); i++) {
+            const std::uint32_t morphSize = GetExpressionMorphSize(a_morphCategory);
+			for (std::uint32_t i = 0; i < morphSize; i++) {
 				IString_ str;
 				GetExpressionMorph(a_morphCategory, i, str);
 				result.push_back(str.str_);
@@ -78,13 +86,14 @@ namespace MFEE {
 		std::vector<std::string> GetExpressionMorphs(std::int32_t a_categoryNumber) {
 			class IString_ : public IString {
 			public:
-				virtual void String(const char* str) {
+                void String(const char* str) override {
 					str_ = str;
 				}
 				std::string str_;
 			};
-			std::vector<std::string> result;
-			for (std::int32_t i = 0; i < GetExpressionMorphSize(a_categoryNumber); i++) {
+            std::vector<std::string> result;
+            const std::uint32_t morphSize = GetExpressionMorphSize(a_categoryNumber); 
+			for (std::int32_t i = 0; i < morphSize; i++) {
 				IString_ str;
 				GetExpressionMorph(a_categoryNumber, i, str);
 				result.push_back(str.str_);
@@ -112,13 +121,14 @@ namespace MFEE {
 		std::unordered_map<std::string, std::int32_t> GetAllActiveMorphValue(RE::Actor* a_actor) {
 			class IString_ : public IString {
 			public:
-				virtual void String(const char* str) {
+				void String(const char* str) override {
 					str_ = str;
 				}
 				std::string str_;
 			};
 			std::unordered_map<std::string, std::int32_t> result;
-			for (std::int32_t i = 0; i < GetActiveMorphSize(a_actor); i++) {
+            const std::uint32_t activeMorphSize = GetActiveMorphSize(a_actor);
+            for (std::uint32_t i = 0; i < activeMorphSize; i++) {
 				IString_ str;
 				GetActiveMorphName(a_actor, i, str);
 				std::int32_t value = GetActiveMorphValue(a_actor, i);
