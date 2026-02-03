@@ -110,8 +110,10 @@ namespace Mus {
 		bool Register(const lString& category, const lString& morphName);
         bool RegisterCategory(const lString& category);
 		void UnRegisterAll() { 
-			std::lock_guard lg(namesLock);
-			names.clear(); 
+			{
+                std::lock_guard lg(namesLock);
+                names.clear();
+            }
 			Init();
 		};
 
