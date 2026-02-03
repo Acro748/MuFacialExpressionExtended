@@ -3,13 +3,14 @@
 namespace Mus {
 	typedef std::shared_ptr<MorphManager> MorphManagerPtr;
 	class ActorManager :
-		public concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr>,
 		public RE::BSTEventSink<RE::MenuOpenCloseEvent>,
 		public IEventListener<FrameEvent>,
 		public IEventListener<FacegenNiNodeEvent>,
 		public IEventListener<FaceUpdateEvent>,
-		public IEventListener<ActorChangeHeadPartEvent>
+		public IEventListener<ActorChangeHeadPartEvent> 
 	{
+        std::unordered_map<RE::FormID, MorphManagerPtr> map;
+        mutable std::shared_mutex morphManagerLock;
 	public:
 		ActorManager() {};
 		~ActorManager() {};
@@ -25,17 +26,17 @@ namespace Mus {
 		void Save(SKSE::SerializationInterface* serde);
 		void Load(SKSE::SerializationInterface* serde, std::uint32_t type);
 
-		void SetMorph(RE::Actor* a_actor, std::string morphName, std::int32_t value, std::int32_t lerpTime = -1);
-		void SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
-		void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
-		void Revert(RE::Actor* a_actor = nullptr, std::string category = "");
+		void SetMorph(RE::Actor* a_actor, const lString& morphName, std::int32_t value, std::int32_t lerpTime = -1);
+        void SetMorph(RE::Actor* a_actor, const lString& category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
+        void SetMorph(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime = -1);
+        void Revert(RE::Actor* a_actor = nullptr, const lString& category = "");
 		void Update(RE::Actor* a_actor = nullptr);
 		void Initial(RE::Actor* a_actor = nullptr);
 
-		std::int32_t GetValue(RE::Actor* a_actor, std::string morphName);
-		std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber);
+		std::int32_t GetValue(RE::Actor* a_actor, const lString& morphName) const;
+		std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber) const;
 
-		std::vector<MorphManager::ActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor);
+		std::vector<MorphManager::ActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) const;
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
@@ -44,7 +45,7 @@ namespace Mus {
         void onEvent(const FaceUpdateEvent& e) override;
         void onEvent(const ActorChangeHeadPartEvent& e) override;
 	private:
-        concurrency::concurrent_unordered_map<RE::FormID, MorphManagerPtr> queueUpdate;
+        std::unordered_map<RE::FormID, MorphManagerPtr> queueUpdate;
 		bool isPaused = false;
 	};
 }

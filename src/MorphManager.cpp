@@ -43,8 +43,6 @@ namespace Mus {
 
     bool MorphManagerRecord::Update(const MorphGeoData& data)
 	{
-		//PerformaceLog(GetHexStr(id) + data.dynamicShape->name.c_str() + "::MorphManagerRecord::" + __func__, false);
-
 		const MorphDataBase::Morph* morphData = MorphDataBaseManager::GetSingleton().GetMorphData(morphName, data.morphBasePath);
 		if (!morphData)
 		{
@@ -67,16 +65,15 @@ namespace Mus {
         if (mvalue == 0.0f)
             return true;
 
-        data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Lock();
         const DirectX::XMVECTOR vmvalue = DirectX::XMVectorReplicate(mvalue);
         const DirectX::XMVECTOR* __restrict morphVert = morphData->vertices.data();
+        data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Lock();
         for (std::size_t i = 0; i < data.vertexCount; i++)
         {
             data.dynamicVertices[i] = DirectX::XMVectorMultiplyAdd(morphVert[i], vmvalue, data.dynamicVertices[i]);
         }
         data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Unlock();
 
-		//PerformaceLog(GetHexStr(id) + data.dynamicShape->name.c_str() + "::MorphManagerRecord::" + __func__, true, PerformanceCheckAverage, vertexCount);
         logger::debug("{} vertexData applied", data.dynamicShape->name.c_str());
 		return true;
 	}
@@ -85,9 +82,9 @@ namespace Mus {
 		if (a_morphGeoData.size() == 0)
 			return false;
 
+        std::lock_guard lg(valueLock);
 		if (value == 0)
             return false;
-
 		for (auto& data : a_morphGeoData) {
 			Update(data);
 		}
@@ -98,6 +95,7 @@ namespace Mus {
 
 	void MorphManagerRecord::SetValue(std::int32_t a_value, std::int32_t a_lerpTime)
 	{
+        std::lock_guard lg(valueLock);
 		lerpTask.totalProcessTime = 0;
 		lerpTask.endTime = a_lerpTime;
 		lerpTask.startValue = value;
@@ -108,7 +106,8 @@ namespace Mus {
 		SetValue(a_value, 0);
 	}
 	bool MorphManagerRecord::UpdateLerpValue(std::clock_t processTime)
-	{
+    {
+        std::lock_guard lg(valueLock);
 		if (value == lerpTask.endValue)
 			return false;
 		lerpTask.totalProcessTime += processTime;
@@ -118,31 +117,31 @@ namespace Mus {
 		}
         else
         {
-            float t = static_cast<float>(lerpTask.totalProcessTime) / static_cast<float>(lerpTask.endTime);
+            const float t = static_cast<float>(lerpTask.totalProcessTime) / static_cast<float>(lerpTask.endTime);
             value = static_cast<std::int32_t>(lerpTask.startValue + (lerpTask.endValue - lerpTask.startValue) * t);
         }
         fvalue = static_cast<float>(value) * 0.01f;
 		return true;
 	}
 
-	void MorphManager::Revert(const std::string& category)
+	void MorphManager::Revert(const lString& category)
 	{
-		m_lock.lock();
 		if (category.empty())
-		{
-			clear();
+        {
+            std::lock_guard lg(recordLock);
+            record.clear();
 		}
 		else
 		{
-            const auto& morphNames = morphNameEntry::GetSingleton().GetMorphNames(lowLetter(category));
+            const auto& morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
+            std::lock_guard lg(recordLock);
 			for (const auto& morphName : morphNames)
 			{
-				auto found = find(morphName);
-				if (found != end())
-					found->second.SetValue(0);
+                auto found = record.find(morphName);
+                if (found != record.end())
+					found->second->SetValue(0);
 			}
 		}
-		m_lock.unlock();
 	}
 	void MorphManager::Update(std::clock_t processTime)
 	{
@@ -153,7 +152,7 @@ namespace Mus {
             morphGeoDatas.clear();
             return;
         }
-		//PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, false);
+		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, false);
 
 		if (isNeedUpdateFacegen)
 		{
@@ -196,12 +195,12 @@ namespace Mus {
                 const std::uint32_t vertexCount = dynamicTri->GetDynamicTrishapeRuntimeData().dataSize / 16;
                 if (vertexCount == 0)
                     continue;
-                MorphManagerRecord::MorphGeoData data{
-                    fixPath(headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str()),
-                    dynamicTri,
-                    dynamicVertices,
-                    vertexCount,
-					false
+                MorphManagerRecord::MorphGeoData data = {
+                    .morphBasePath = fixPath(headParts[i]->morphs[RE::BGSHeadPart::MorphIndices::kDefaultMorph].model.c_str()),
+                    .dynamicShape = dynamicTri,
+                    .dynamicVertices = dynamicVertices,
+                    .vertexCount = vertexCount,
+					.isSameHash = false
 				};
                 morphGeoDatas.push_back(std::move(data));
             }
@@ -214,53 +213,55 @@ namespace Mus {
             data.isSameHash = (newHash == lastHash[data.dynamicShape]);
         }
         bool isUpdated = false;
-		for (auto& map : *this)
+        for (const auto& map : record)
 		{
-			map.second.UpdateLerpValue(processTime);
-            isUpdated |= map.second.Update(morphGeoDatas);
+			map.second->UpdateLerpValue(processTime);
+            isUpdated |= map.second->Update(morphGeoDatas);
 		}
         if (!isUpdated)
             return;
-		for (auto& data : morphGeoDatas)
+		for (const auto& data : morphGeoDatas)
 		{
             lastHash[data.dynamicShape] = GetHash(data);
             //Recalculate(data);
 		}
-		//PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, true, PerformanceCheckAverage, this->size());
+		PerformaceLog(GetHexStr(id) + "::MorphManager::" + __func__, true, PerformanceCheckAverage, morphGeoDatas.size());
 	}
 
-	bool MorphManager::SetValue(const std::string& a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)
+	bool MorphManager::SetValue(const lString& a_morphName, std::int32_t a_value, std::int32_t a_lerpTime)
 	{
-		auto found = find(a_morphName);
-		if (found != end())
+        std::lock_guard lg(recordLock);
+        auto found = record.find(a_morphName);
+        if (found != record.end())
 		{
-			found->second.SetValue(a_value, a_lerpTime);
+			found->second->SetValue(a_value, a_lerpTime);
 			return true;
 		}
-		if (MorphDataBaseManager::GetSingleton().find(a_morphName) == MorphDataBaseManager::GetSingleton().end())
+        if (!MorphDataBaseManager::GetSingleton().IsValidMorphName(a_morphName))
 		{
 			logger::error("Couldn't get {} morph data", a_morphName);
 			return false;
 		}
-		MorphManagerRecord newMorphManagerRecord = MorphManagerRecord(id, a_morphName);
-		newMorphManagerRecord.SetValue(a_value, a_lerpTime);
-		insert(std::make_pair(a_morphName, newMorphManagerRecord));
+        MorphManagerRecordPtr newMorphManagerRecord = std::make_shared<MorphManagerRecord>(id, a_morphName);
+		newMorphManagerRecord->SetValue(a_value, a_lerpTime);
+        record.insert(std::make_pair(a_morphName, newMorphManagerRecord));
 		return true;
 	}
-    bool MorphManager::SetValue(const std::string& a_morphName, std::int32_t a_value)
+    bool MorphManager::SetValue(const lString& a_morphName, std::int32_t a_value)
 	{
 		return SetValue(a_morphName, a_value, 0);
 	}
 
-	int32_t MorphManager::GetValue(const std::string& a_morphName) const
-	{
-		auto found = find(a_morphName);
-		if (found != end())
-			return found->second.GetValue();
+	std::int32_t MorphManager::GetValue(const lString& a_morphName) const
+    {
+        std::lock_guard lg(recordLock);
+        auto found = record.find(a_morphName);
+        if (found != record.end())
+			return found->second->GetValue();
 		return 0;
 	}
 
-    bool MorphManager::Recalculate(const MorphManagerRecord::MorphGeoData& data)
+    /*bool MorphManager::Recalculate(const MorphManagerRecord::MorphGeoData& data)
     {
         if (!Config::GetSingleton().GetRecalculate() || data.isSameHash)
             return false;
@@ -339,169 +340,6 @@ namespace Mus {
             }
         }
 
-        const std::uint32_t triCount = indices.size() / 3;
-
-		struct FaceNormal
-        {
-            std::uint32_t v0, v1, v2;
-            DirectX::XMFLOAT3 normal;
-        };
-        std::vector<FaceNormal> faceNormals(triCount);
-        std::vector<std::vector<std::uint32_t>> vertexToFaceMap(triCount);
-
-        struct FaceTangent
-        {
-            std::uint32_t v0, v1, v2;
-            DirectX::XMFLOAT3 tangent;
-            DirectX::XMFLOAT3 bitangent;
-        };
-        std::vector<FaceTangent> faceTangents(triCount);
-
-        constexpr float floatPrecision = 1e-6f;
-        const DirectX::XMVECTOR emptyVector = DirectX::XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-
-		struct PositionKey
-        {
-            std::int32_t x, y, z;
-            bool operator==(const PositionKey& other) const
-            {
-                return x == other.x && y == other.y && z == other.z;
-            }
-        };
-        struct PositionKeyHash
-        {
-            std::size_t operator()(const PositionKey& k) const
-            {
-                return std::hash<std::int32_t>()(k.x) ^
-                       (std::hash<std::int32_t>()(k.y) << 1) ^
-                       (std::hash<std::int32_t>()(k.z) << 2);
-            }
-        };
-        auto MakePositionKey = [](const DirectX::XMFLOAT3& pos) -> PositionKey {
-            return {
-                std::int32_t(std::floor(pos.x * 0.0001f)),
-                std::int32_t(std::floor(pos.y * 0.0001f)),
-                std::int32_t(std::floor(pos.z * 0.0001f))};
-        };
-        // without uv seam
-        std::unordered_map<PositionKey, std::unordered_map<std::uint32_t, bool>, PositionKeyHash> positionMap; // vertex, indices
-
-        for (std::size_t i = 0; i < triCount; i++)
-        {
-            const std::size_t offset = i * 3;
-            const std::uint32_t i0 = indices[offset + 0];
-            const std::uint32_t i1 = indices[offset + 1];
-            const std::uint32_t i2 = indices[offset + 2];
-
-            const DirectX::XMFLOAT3& p0 = vertices[i0];
-            const DirectX::XMFLOAT3& p1 = vertices[i1];
-            const DirectX::XMFLOAT3& p2 = vertices[i2];
-
-            const DirectX::XMVECTOR v0 = DirectX::XMLoadFloat3(&p0);
-            const DirectX::XMVECTOR v1 = DirectX::XMLoadFloat3(&p1);
-            const DirectX::XMVECTOR v2 = DirectX::XMLoadFloat3(&p2);
-
-            const DirectX::XMFLOAT2& uv0 = uvs[i0];
-            const DirectX::XMFLOAT2& uv1 = uvs[i1];
-            const DirectX::XMFLOAT2& uv2 = uvs[i2];
-
-            // Normal
-            const DirectX::XMVECTOR normalVec = DirectX::XMVector3Normalize(
-                DirectX::XMVector3Cross(
-                    DirectX::XMVectorSubtract(v1, v0),
-                    DirectX::XMVectorSubtract(v2, v0)));
-            DirectX::XMFLOAT3 normal;
-            DirectX::XMStoreFloat3(&normal, normalVec);
-            faceNormals[i] = {i0, i1, i2, normal};
-
-            vertexToFaceMap[i0].push_back(i);
-            vertexToFaceMap[i1].push_back(i);
-            vertexToFaceMap[i2].push_back(i);
-
-            // Tangent / Bitangent
-            const DirectX::XMVECTOR dp1 = DirectX::XMVectorSubtract(v1, v0);
-            const DirectX::XMVECTOR dp2 = DirectX::XMVectorSubtract(v2, v0);
-
-            const DirectX::XMFLOAT2 duv1 = {uv1.x - uv0.x, uv1.y - uv0.y};
-            const DirectX::XMFLOAT2 duv2 = {uv2.x - uv0.x, uv2.y - uv0.y};
-
-            float r = duv1.x * duv2.y - duv2.x * duv1.y;
-            r = (fabs(r) < floatPrecision) ? 1.0f : 1.0f / r;
-
-            const DirectX::XMVECTOR tangentVec = DirectX::XMVectorScale(
-                DirectX::XMVectorSubtract(
-                    DirectX::XMVectorScale(dp1, duv2.y),
-                    DirectX::XMVectorScale(dp2, duv1.y)),
-                r);
-
-            const DirectX::XMVECTOR bitangentVec = DirectX::XMVectorScale(
-                DirectX::XMVectorSubtract(
-                    DirectX::XMVectorScale(dp2, duv1.x),
-                    DirectX::XMVectorScale(dp1, duv2.x)),
-                r);
-
-            DirectX::XMFLOAT3 tangent, bitangent;
-            DirectX::XMStoreFloat3(&tangent, tangentVec);
-            DirectX::XMStoreFloat3(&bitangent, bitangentVec);
-            faceTangents[i] = {i0, i1, i2, tangent, bitangent};
-
-            positionMap[MakePositionKey(p0)][i0];
-            positionMap[MakePositionKey(p1)][i1];
-            positionMap[MakePositionKey(p2)][i2];
-        }
-
-        for (std::size_t i = 0; i < data.vertexCount; i++)
-        {
-            const DirectX::XMFLOAT3& pos = vertices[i];
-            const DirectX::XMFLOAT2& uv = uvs[i];
-
-            const PositionKey pkey = MakePositionKey(pos);
-            const auto posIt = positionMap.find(pkey);
-            if (posIt == positionMap.end())
-                continue;
-
-            DirectX::XMVECTOR nSum = emptyVector;
-            DirectX::XMVECTOR tSum = emptyVector;
-            DirectX::XMVECTOR bSum = emptyVector;
-
-            DirectX::XMVECTOR nSelf = emptyVector;
-            std::unordered_set<std::uint32_t> pastVertices;
-            for (const auto& vi : posIt->second)
-            {
-                pastVertices.insert(vi.first);
-                for (const auto& fi : vertexToFaceMap[vi.first])
-                {
-                    const auto& fn = faceNormals[fi];
-                    DirectX::XMVECTOR fnVec = DirectX::XMLoadFloat3(&fn.normal);
-                    float dot = DirectX::XMVectorGetX(DirectX::XMVector3Dot(fnVec, nSelf));
-                    if (dot < smoothCos)
-                        continue;
-                    const auto& ft = faceTangents[fi];
-                    nSum = DirectX::XMVectorAdd(nSum, fnVec);
-                    tSum = DirectX::XMVectorAdd(tSum, DirectX::XMLoadFloat3(&ft.tangent));
-                    bSum = DirectX::XMVectorAdd(bSum, DirectX::XMLoadFloat3(&ft.bitangent));
-                }
-            }
-            if (DirectX::XMVector3Equal(nSum, emptyVector))
-                continue;
-
-            DirectX::XMVECTOR t = DirectX::XMVectorGetX(DirectX::XMVector3Length(tSum)) > floatPrecision ? DirectX::XMVector3Normalize(tSum) : emptyVector;
-            DirectX::XMVECTOR b = DirectX::XMVectorGetX(DirectX::XMVector3Length(bSum)) > floatPrecision ? DirectX::XMVector3Normalize(bSum) : emptyVector;
-            const DirectX::XMVECTOR n = DirectX::XMVector3Normalize(nSum);
-
-            if (!DirectX::XMVector3Equal(t, emptyVector))
-            {
-                t = DirectX::XMVector3Normalize(DirectX::XMVectorSubtract(t, DirectX::XMVectorScale(n, DirectX::XMVectorGetX(DirectX::XMVector3Dot(n, t)))));
-                b = DirectX::XMVector3Normalize(DirectX::XMVector3Cross(n, t));
-            }
-
-            if (!DirectX::XMVector3Equal(t, emptyVector))
-                DirectX::XMStoreFloat3(&tangents[i], t);
-            if (!DirectX::XMVector3Equal(b, emptyVector))
-                DirectX::XMStoreFloat3(&bitangents[i], b);
-            DirectX::XMStoreFloat3(&normals[i], n);
-        }
-
         for (std::uint32_t i = 0; i < data.vertexCount; i++)
         {
             if (lockVertices.find(i) != lockVertices.end())
@@ -536,7 +374,7 @@ namespace Mus {
         }
         data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Unlock();
         return true;
-    }
+    }*/
 
 	std::uint64_t MorphManager::GetHash(const MorphManagerRecord::MorphGeoData& data)
     {
@@ -552,14 +390,16 @@ namespace Mus {
 
 	std::vector<MorphManager::ActiveMorphSet> MorphManager::GetAllActiveMorphs()
 	{
-		std::vector<ActiveMorphSet> result;
-		for (const auto& m : *this)
+        std::vector<ActiveMorphSet> result;
+        std::lock_guard lg(recordLock);
+        for (const auto& m : record)
 		{
-			if (m.second.GetValue() != 0)
+			if (m.second->GetValue() != 0)
 			{
-				ActiveMorphSet newActiveMorphSet;
-				newActiveMorphSet.morphName = m.first;
-				newActiveMorphSet.value = m.second.GetValue();
+                ActiveMorphSet newActiveMorphSet = {.
+                    morphName = m.first, 
+                    .value = m.second->GetValue()
+                };
 				result.push_back(newActiveMorphSet);
 			}
 		}

@@ -91,6 +91,8 @@ namespace MFEE {
 		virtual std::int32_t GetActiveMorphValue(RE::Actor* a_actor, std::uint32_t a_activeMorphNumber) override {
 			return Mus::ActorManager::GetSingleton().GetAllActiveMorphs(a_actor)[a_activeMorphNumber].value;
 		};
+
+
 	};
 	static FacialExpressionExtended FEE;
 }

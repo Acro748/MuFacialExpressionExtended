@@ -24,33 +24,31 @@ namespace Mus {
 		}
 	}
 
-	void ActorManager::SetMorph(RE::Actor* a_actor, std::string morphName, std::int32_t value, std::int32_t lerpTime)
-	{
-		if (!a_actor || morphName.empty())
-			return;
+	void ActorManager::SetMorph(RE::Actor* a_actor, const lString& morphName, std::int32_t value, std::int32_t lerpTime)
+    {
+        if (!a_actor || morphName.empty())
+            return;
 
-		if (Config::GetSingleton().GetMin() > value || value > Config::GetSingleton().GetMax())
-			return;
+        if (Config::GetSingleton().GetMin() > value || value > Config::GetSingleton().GetMax())
+            return;
 
-		if (lerpTime <= -1)
-			lerpTime = Config::GetSingleton().GetDefaultLerpTime();
+        if (lerpTime <= -1)
+            lerpTime = Config::GetSingleton().GetDefaultLerpTime();
 
-		morphName = lowLetter(morphName);
-		bool isApplied = false;
-		auto found = find(a_actor->formID);
-		if (found != end()) {
-			isApplied = found->second->SetValue(morphName, value, lerpTime);
-		}
-		else {
-			auto newMorphManager = std::make_shared<MorphManager>(a_actor);
-			isApplied = newMorphManager->SetValue(morphName, value, lerpTime);
-			insert(std::make_pair(a_actor->formID, newMorphManager));
-		}
-
-		if (!isApplied)
-			logger::error("{:x} {} : Couldn't apply the {}", a_actor->formID, a_actor->GetName(), morphName);
-	}
-	void ActorManager::SetMorph(RE::Actor* a_actor, std::string category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime)
+        {
+            std::shared_lock sl(morphManagerLock);
+            if (auto found = map.find(a_actor->formID); found != map.end())
+            {
+                found->second->SetValue(morphName, value, lerpTime);
+                return;
+            }
+        }
+        std::lock_guard lg(morphManagerLock);
+        auto newMorphManager = std::make_shared<MorphManager>(a_actor);
+        newMorphManager->SetValue(morphName, value, lerpTime);
+        map.insert(std::make_pair(a_actor->formID, newMorphManager));
+    }
+	void ActorManager::SetMorph(RE::Actor* a_actor, const lString& category, std::uint32_t morphNumber, std::int32_t value, std::int32_t lerpTime)
 	{
 		if (!a_actor)
 			return;
@@ -70,17 +68,19 @@ namespace Mus {
 		}
 	}
 
-	void ActorManager::Revert(RE::Actor* a_actor, std::string category)
-	{
+	void ActorManager::Revert(RE::Actor* a_actor, const lString& category)
+    {
+        std::shared_lock sl(morphManagerLock);
 		if (a_actor)
 		{
-			if (auto found = find(a_actor->formID); found != end()) {
+            if (auto found = map.find(a_actor->formID); found != map.end())
+            {
 				found->second->Revert(category);
 			}
 		}
 		else
 		{
-			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
+            concurrency::parallel_for_each(map.begin(), map.end(), [&](auto& morphManager) {
 				morphManager.second->Revert(category);
 			});
 		}
@@ -89,54 +89,65 @@ namespace Mus {
 	void ActorManager::Update(RE::Actor* a_actor)
 	{
 		PerformaceLog(std::string("ActorManager::") + __func__, false);
-		std::clock_t processTime = RE::GetSecondsSinceLastFrame() * 1000;
+        std::clock_t processTime = RE::GetSecondsSinceLastFrame() * 1000;
 		if (a_actor)
-		{
-			if (auto found = find(a_actor->formID); found != end()) {
-				found->second->Update(processTime);
-			}
+        {
+            MorphManagerPtr mm = nullptr;
+            {
+                std::shared_lock sl(morphManagerLock);
+                if (auto found = map.find(a_actor->formID); found != map.end())
+                    mm = found->second;
+            }
+            if (mm)
+                mm->Update(processTime);
 		}
-		else
-		{
-            concurrency::parallel_for_each(queueUpdate.begin(), queueUpdate.end(), [&](auto& morphManager) {
-				morphManager.second->Update(processTime);
-			});
-            queueUpdate.clear();
-		}
-		PerformaceLog(std::string("ActorManager::") + __func__, true, PerformanceCheckAverage, a_actor ? 1 : size());
+        else
+        {
+            std::unordered_map<RE::FormID, MorphManagerPtr> queueUpdate_;
+            {
+				std::lock_guard sl(morphManagerLock);
+                queueUpdate_ = std::move(queueUpdate);
+            }
+            concurrency::parallel_for_each(queueUpdate_.begin(), queueUpdate_.end(), [&](auto& morphManager) {
+                morphManager.second->Update(processTime);
+            });
+        }
+        PerformaceLog(std::string("ActorManager::") + __func__, true, PerformanceCheckAverage, a_actor ? 1 : map.size());
 	}
 
 	void ActorManager::Initial(RE::Actor* a_actor)
-	{
+    {
+        std::shared_lock sl(morphManagerLock);
 		if (a_actor)
 		{
-			if (auto found = find(a_actor->formID); found != end()) {
+            if (auto found = map.find(a_actor->formID); found != map.end())
+            {
 				found->second->Revert();
 			}
 		}
 		else
 		{
-			concurrency::parallel_for_each(this->begin(), this->end(), [&](auto& morphManager) {
+            concurrency::parallel_for_each(map.begin(), map.end(), [&](auto& morphManager) {
 				morphManager.second->Revert();
 			});
 		}
 	}
 
-	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, std::string morphName)
+	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, const lString& morphName) const
 	{
 		if (!a_actor)
 			return 0;
-
 		if (isPlayer(a_actor->formID))
 			return 0;
-
-		auto found = find(a_actor->formID);
-		if (found != end()) {
+        std::shared_lock sl(morphManagerLock);
+        auto found = map.find(a_actor->formID);
+        if (found != map.end())
+        {
 			return found->second->GetValue(morphName);
 		}
 		return 0;
 	}
-	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber)
+	std::int32_t ActorManager::GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber) const
 	{
 		if (!a_actor)
 			return 0;
@@ -148,8 +159,10 @@ namespace Mus {
 		if (categories.size() <= categoryNumber)
 			return 0;
 
-		auto found = find(a_actor->formID);
-		if (found != end()) {
+        std::shared_lock sl(morphManagerLock);
+        auto found = map.find(a_actor->formID);
+        if (found != map.end())
+        {
 			auto names = morphNameEntry::GetSingleton().GetMorphNames(categories[categoryNumber]);
 			if (names.size() > morphNumber) {
 				return found->second->GetValue(names[morphNumber]);
@@ -158,12 +171,13 @@ namespace Mus {
 		return 0;
 	}
 
-	std::vector<MorphManager::ActiveMorphSet> ActorManager::GetAllActiveMorphs(RE::Actor* a_actor)
+	std::vector<MorphManager::ActiveMorphSet> ActorManager::GetAllActiveMorphs(RE::Actor* a_actor) const
 	{
 		if (!a_actor)
 			return std::vector<MorphManager::ActiveMorphSet>();
 
-		if (const auto found = find(a_actor->formID); found != end())
+        std::shared_lock sl(morphManagerLock);
+        if (const auto found = map.find(a_actor->formID); found != map.end())
 		{
 			return found->second->GetAllActiveMorphs();
 		}
@@ -203,8 +217,9 @@ namespace Mus {
         RE::Actor* a_actor = skyrim_cast<RE::Actor*>(e.root->userData);
         if (!a_actor)
             return;
-        auto found = find(a_actor->formID);
-        if (found == end())
+        std::shared_lock sl(morphManagerLock);
+        auto found = map.find(a_actor->formID);
+        if (found == map.end())
             return;
         found->second->SetNeedUpdateFacegenMeshes();
 	}
@@ -212,17 +227,27 @@ namespace Mus {
 	{
         if (!e.ref)
             return;
-        auto found = find(e.ref->formID);
-        if (found == end())
-			return;
-        queueUpdate[e.ref->formID] = found->second;
+
+		MorphManagerPtr mm = nullptr;
+        {
+            std::shared_lock sl(morphManagerLock);
+            auto found = map.find(e.ref->formID);
+            if (found == map.end())
+                return;
+            mm = found->second;
+        }
+        if (!mm)
+            return;
+        std::lock_guard lg(morphManagerLock);
+        queueUpdate[e.ref->formID] = mm;
     }
     void ActorManager::onEvent(const ActorChangeHeadPartEvent& e)
     {
         if (!e.actor)
             return;
-        auto found = find(e.actor->formID);
-        if (found == end())
+        std::shared_lock sl(morphManagerLock);
+        auto found = map.find(e.actor->formID);
+        if (found == map.end())
             return;
         found->second->SetNeedUpdateFacegenMeshes();
     }
