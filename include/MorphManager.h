@@ -47,10 +47,10 @@ namespace Mus {
             bool isSameHash = false;
         };
 		bool Update(const std::vector<MorphGeoData>& a_morphGeoData);
-		std::string GetMorphName() const { return morphName; }
+		inline std::string GetMorphName() const { return morphName; }
 		void SetValue(std::int32_t a_value, std::int32_t a_lerpTime);
 		void SetValue(std::int32_t a_value);
-		std::int32_t GetValue() const { return value; }
+        inline std::int32_t GetValue(bool destination = false) const { return !destination ? value : lerpTask.endValue; }
 		bool UpdateLerpValue(std::clock_t processTime); // true : updated
 	private:
         bool Update(const MorphGeoData& data);
@@ -77,7 +77,7 @@ namespace Mus {
 
 		bool SetValue(const lString& a_morphName, const std::int32_t a_value, const std::int32_t a_lerpTime);
         bool SetValue(const lString& a_morphName, const std::int32_t a_value);
-        std::int32_t GetValue(const lString& a_morphName) const;
+        std::int32_t GetValue(const lString& a_morphName, bool destination = false) const;
 
 		void Revert(const lString& category = "");
 		void Update(std::clock_t processTime);

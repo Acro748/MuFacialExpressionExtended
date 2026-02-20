@@ -33,10 +33,11 @@ namespace Mus {
 		void Update(RE::Actor* a_actor = nullptr);
 		void Initial(RE::Actor* a_actor = nullptr);
 
-		std::int32_t GetValue(RE::Actor* a_actor, const lString& morphName) const;
-		std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber) const;
+		std::int32_t GetValue(RE::Actor* a_actor, const lString& morphName, bool destination = false) const;
+        std::int32_t GetValue(RE::Actor* a_actor, std::uint32_t categoryNumber, std::uint32_t morphNumber, bool destination = false) const;
 
 		std::vector<MorphManager::ActiveMorphSet> GetAllActiveMorphs(RE::Actor* a_actor) const;
+        std::vector<std::pair<lString, std::vector<MorphManager::ActiveMorphSet>>> GetAllMorphs(RE::Actor* a_actor, bool destination = false) const;
 	protected:
 		using EventResult = RE::BSEventNotifyControl;
 		EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;

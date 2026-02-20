@@ -6,7 +6,7 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.4.6
+        VERSION 0.5.0
         DESCRIPTION "MuFacialExpressionExtended - VR by Acro."
         LANGUAGES CXX
 )
@@ -25,11 +25,14 @@ configure_file(
 set(headers
         ExtraRE/B/BSFaceGenBaseMorphExtraData.h
 
+        include/PrismaUI/PrismaUI_API.h
+        include/PrismaUI/PrismaUI.h
         include/Utility.hpp
         include/nifUtil.h
         include/Config.h
         include/lString.h
         include/ConsoleLog.h
+        include/InputManager.h
         include/PapyrusScripts.h
         include/Command.h
         include/MorphDataBase.h
@@ -45,9 +48,11 @@ set(headers
 )
 
 set(sources
+        include/PrismaUI/PrismaUI.cpp
         src/nifUtil.cpp
         src/Config.cpp
         src/ConsoleLog.cpp
+        src/InputManager.cpp
         src/PapyrusScripts.cpp
         src/Command.cpp
         src/MorphDataBase.cpp
@@ -71,6 +76,7 @@ source_group(
 ########################################################################################################################
 find_package(CommonLibSSE REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
+find_package(JsonCpp CONFIG REQUIRED)
 find_package(Directxtk CONFIG REQUIRED)
 find_package(xxhash CONFIG REQUIRED)
 find_package(detours)
@@ -114,6 +120,7 @@ target_link_libraries(
         CommonLibSSE::CommonLibSSE
     PRIVATE
         magic_enum::magic_enum
+        JsonCpp::JsonCpp
         xxHash::xxhash
         $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/vcpkg_installed/x64-windows-static-md/lib/detours.lib>
 )

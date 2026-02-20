@@ -37,7 +37,7 @@ namespace Mus {
                 continue;
             }
             std::string variableName;
-            std::string variableValue = GetConfigSettingsStringValue(line, variableName);
+            std::string variableValue = GetValue(line, variableName);
             if (currentSetting == "[Debug]")
             {
                 if (variableName == "logLevel")
@@ -53,31 +53,70 @@ namespace Mus {
             {
                 if (variableName == "CustomMode")
                 {
-                    CustomMode = GetConfigSettingsBoolValue(variableValue);
+                    CustomMode = GetBoolValue(variableValue);
                 }
                 else if (variableName == "Min")
                 {
-                    Min = GetConfigSettingsIntValue(variableValue);
+                    Min = GetIntValue(variableValue);
                 }
                 else if (variableName == "Max")
                 {
-                    Max = GetConfigSettingsIntValue(variableValue);
+                    Max = GetIntValue(variableValue);
                 }
                 else if (variableName == "DefaultLerpTime")
                 {
-                    DefaultLerpTime = GetConfigSettingsIntValue(variableValue);
+                    DefaultLerpTime = GetIntValue(variableValue);
                 }
                 else if (variableName == "MorphByVertexCount")
                 {
-                    MorphByVertexCount = GetConfigSettingsBoolValue(variableValue);
+                    MorphByVertexCount = GetBoolValue(variableValue);
                 }
                 else if (variableName == "DisableDistance")
                 {
-                    DisableDistance = GetConfigSettingsBoolValue(variableValue);
+                    DisableDistance = GetBoolValue(variableValue);
                 }
                 else if (variableName == "Recalculate")
                 {
-                    Recalculate = GetConfigSettingsBoolValue(variableValue);
+                    Recalculate = GetBoolValue(variableValue);
+                }
+            }
+            else if (currentSetting == "[UI]")
+            {
+                if (variableName == "PosX")
+                {
+                    PosX = GetFloatValue(variableValue);
+                }
+                else if (variableName == "PosY")
+                {
+                    PosY = GetFloatValue(variableValue);
+                }
+                else if (variableName == "PosY")
+                {
+                    PosY = GetFloatValue(variableValue);
+                }
+                else if (variableName == "Scale")
+                {
+                    Scale = GetFloatValue(variableValue);
+                }
+                else if (variableName == "CategoryLeftKey")
+                {
+                    CategoryLeftKey = GetUIntValue(variableValue);
+                }
+                else if (variableName == "CategoryRightKey")
+                {
+                    CategoryRightKey = GetUIntValue(variableValue);
+                }
+                else if (variableName == "ScrollUpKey")
+                {
+                    ScrollUpKey = GetUIntValue(variableValue);
+                }
+                else if (variableName == "ScrollDownKey")
+                {
+                    ScrollDownKey = GetUIntValue(variableValue);
+                }
+                else if (variableName == "ScrollSpeed")
+                {
+                    ScrollSpeed = GetIntValue(variableValue);
                 }
             }
         }
@@ -119,7 +158,7 @@ namespace Mus {
                     continue;
 
                 std::string variableName;
-                std::string variableValue = GetConfigSettingsStringValue(line, variableName);
+                std::string variableValue = GetValue(line, variableName);
 
                 if (variableName == "ExtensionFile")
                 {

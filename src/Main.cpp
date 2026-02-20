@@ -42,7 +42,7 @@ namespace {
         log->flush_on(Config::GetSingleton().GetFlushLevel());
 
         spdlog::set_default_logger(std::move(log));
-        spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%n] [%l] [%t] [%s:%#] %v");
+        spdlog::set_pattern("[%H:%M:%S.%e][%L][%t][%s:%#] %v");
     }
 
     /**
@@ -174,6 +174,7 @@ namespace {
 		g_frameEventDispatcher.addListener(&ActorManager::GetSingleton());
         g_facegenNiNodeEventDispatcher.addListener(&ActorManager::GetSingleton());
         g_faceUpdateEventDispatcher.addListener(&ActorManager::GetSingleton());
+        UIManager::GetSingleton().Init();
     }
 
     void InitializeMessaging() 

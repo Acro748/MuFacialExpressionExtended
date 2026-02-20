@@ -138,13 +138,17 @@ namespace util {
 
 #include "Store.h"
 #include "nifUtil.h"
+#include "InputManager.h"
 #include "Utility.hpp"
 
 #include "ConsoleLog.h"
 #include "Config.h"
 
 #include "Hook.h"
+#include "PrismaUI/PrismaUI_API.h"
+#include "PrismaUI/PrismaUI.h"
 #include "Command.h"
+
 #include "MorphDataBase.h"
 #include "MorphManager.h"
 #include "ActorManager.h"
@@ -154,4 +158,5 @@ namespace util {
 #include "Interface/OldInterface.h"
 #include "Interface/OldInterfaceImpl.h"
 #include "PapyrusScripts.h"
+
 

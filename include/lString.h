@@ -9,6 +9,7 @@ namespace Mus {
         lString(const char* s) : str(lower(s)) {}
         lString(const std::string& s) : str(lower(s)) {}
         lString(const lString& s) : str(s.str) {}
+        lString(const std::size_t len) { str.resize(len); }
 
         lString& operator=(const char* s) {
             str = lower(s);
@@ -36,6 +37,10 @@ namespace Mus {
             return left.str + lString(right).str;
         }
 
+        lString& operator+=(char other) {
+            str += std::tolower(other);
+            return *this;
+        }
         lString& operator+=(const char* other) {
             str += lower(other);
             return *this;
@@ -59,6 +64,10 @@ namespace Mus {
             return str == other.str;
         }
 
+        bool operator<(const lString& other) const {
+            return string() < other.string();
+        }
+
         operator const std::string&() const {
             return str;
         }
@@ -67,6 +76,11 @@ namespace Mus {
         }
         operator std::string_view() const {
             return std::string_view(str);
+        }
+
+        
+        char& operator[](std::size_t p) {
+            return str[p];
         }
 
         const char* c_str() const {
@@ -139,6 +153,10 @@ namespace Mus {
             if (starts_with(suffix))
                 str = std::string(str.begin(), str.end() - suffix.str.size());
             return *this;
+        }
+
+        char* data() noexcept {
+            return str.data();
         }
 
     private:

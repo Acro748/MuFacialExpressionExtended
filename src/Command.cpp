@@ -46,6 +46,7 @@ namespace Mus {
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();
 					static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphConfig();
 					ErrorLogger::GetSingleton().Initial();
+                    UIManager::GetSingleton().OpenUI();
 					Console->Print("Reload done");
 				}
 				else if (IsSameString(name, "update"))
@@ -70,7 +71,7 @@ namespace Mus {
 				}
 				else
 				{
-					Console->Print("debug list : reload, update, initial, performancecheck, performancecheckaverage");
+					Console->Print("debug list : reload, update, initial, performancecheck, performancecheckaverage, uireload");
 				}
 				return false;
 			}
@@ -166,16 +167,6 @@ namespace Mus {
 	{
 	logger::info("Command Console Hooking...");
 	RE::SCRIPT_FUNCTION* command = RE::SCRIPT_FUNCTION::LocateConsoleCommand("OutputAllocations");
-	/*for (RE::SCRIPT_FUNCTION* iter = RE::SCRIPT_FUNCTION::GetFirstConsoleCommand();
-		std::to_underlying(iter->output) < RE::SCRIPT_FUNCTION::Commands::kConsoleCommandsEnd + RE::SCRIPT_FUNCTION::Commands::kConsoleOpBase;
-		++iter)
-	{
-		if (IsSameString(iter->functionName, "OutputAllocations"))
-		{
-			command = iter;
-			break;
-		}
-	}*/
 	if (command)
 	{
 		static RE::SCRIPT_PARAMETER params[3];

@@ -67,13 +67,13 @@ namespace Mus {
 
         const DirectX::XMVECTOR vmvalue = DirectX::XMVectorReplicate(mvalue);
         const DirectX::XMVECTOR* __restrict morphVert = morphData->vertices.data();
-        data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Lock();
-        for (std::size_t i = 0; i < data.vertexCount; i++)
         {
-            data.dynamicVertices[i] = DirectX::XMVectorMultiplyAdd(morphVert[i], vmvalue, data.dynamicVertices[i]);
+            RE::BSSpinLockGuard slg(data.dynamicShape->GetDynamicTrishapeRuntimeData().lock);
+            for (std::size_t i = 0; i < data.vertexCount; i++)
+            {
+                data.dynamicVertices[i] = DirectX::XMVectorMultiplyAdd(morphVert[i], vmvalue, data.dynamicVertices[i]);
+            }
         }
-        data.dynamicShape->GetDynamicTrishapeRuntimeData().lock.Unlock();
-
         logger::debug("{} vertexData applied", data.dynamicShape->name.c_str());
 		return true;
 	}
@@ -252,12 +252,12 @@ namespace Mus {
 		return SetValue(a_morphName, a_value, 0);
 	}
 
-	std::int32_t MorphManager::GetValue(const lString& a_morphName) const
+	std::int32_t MorphManager::GetValue(const lString& a_morphName, bool destination) const
     {
         std::lock_guard lg(recordLock);
         auto found = record.find(a_morphName);
         if (found != record.end())
-			return found->second->GetValue();
+            return found->second->GetValue(destination);
 		return 0;
 	}
 

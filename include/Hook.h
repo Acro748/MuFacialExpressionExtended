@@ -30,22 +30,23 @@ namespace Mus {
 		~EventDispatcherImpl() {}
 
 		void addListener(IEventListener<Event>* listener) override {
+            std::lock_guard lg(listenerLock);
 			m_listeners.insert(listener);
 			m_cacheDirt = true;
 		};
-		void removeListener(IEventListener<Event>* listener) override {
+        void removeListener(IEventListener<Event>* listener) override {
+            std::lock_guard lg(listenerLock);
 			m_listeners.erase(listener);
 			m_cacheDirt = true;
 		};
 		void dispatch(const Event& event) override {
 			if (m_cacheDirt)
 			{
-                listenerLock.lock();
+                std::lock_guard lg(listenerLock);
 				m_caches.clear();
 				for (auto& i : m_listeners)
 					m_caches.emplace_back(i);
 				m_cacheDirt = false;
-                listenerLock.unlock();
 			}
 
 			for (auto i : m_caches)
