@@ -5,7 +5,7 @@ namespace MFEE {
 		public IFacialExpressionExtended
 	{
 	public:
-		virtual std::uint32_t GetVersion() { return 6; };
+        virtual std::uint32_t GetVersion() override { return 7; };
 
 		virtual bool RegisterNewMorphData(const char* a_morphBasePath, const char* a_morphPath) override {
 			return Mus::MorphDataBaseManager::GetSingleton().Register(a_morphBasePath, a_morphPath);
@@ -92,7 +92,32 @@ namespace MFEE {
 			return Mus::ActorManager::GetSingleton().GetAllActiveMorphs(a_actor)[a_activeMorphNumber].value;
 		};
 
-
+		virtual void GetAllExpressionList(IContainer& a_container) override {
+            const auto categories = Mus::morphNameEntry::GetSingleton().GetCategories();
+			for (const auto& category : categories) {
+				const auto morphNames = Mus::morphNameEntry::GetSingleton().GetMorphNames(category);
+				for (const auto& morphName : morphNames) {
+					a_container.Container(category.c_str(), morphName.c_str(), 0);
+				}
+            }
+        };
+        virtual void GetAllActiveMorph(RE::Actor* a_actor, IContainer& a_container, bool a_destination) override {
+            auto expressions = Mus::ActorManager::GetSingleton().GetAllMorphs(a_actor, a_destination);
+            for (const auto& category : expressions) {
+                for (const auto& morph : category.second) {
+                    if (morph.value != 0)
+						a_container.Container(category.first.c_str(), morph.morphName.c_str(), morph.value);
+                }
+            }
+        };
+        virtual void GetAllMorph(RE::Actor* a_actor, IContainer& a_container, bool a_destination) override {
+            auto expressions = Mus::ActorManager::GetSingleton().GetAllMorphs(a_actor, a_destination);
+            for (const auto& category : expressions) {
+                for (const auto& morph : category.second) {
+                    a_container.Container(category.first.c_str(), morph.morphName.c_str(), morph.value);
+                }
+            }
+        };
 	};
 	static FacialExpressionExtended FEE;
 }

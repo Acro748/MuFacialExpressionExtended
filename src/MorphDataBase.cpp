@@ -244,100 +244,129 @@ namespace Mus {
 		if (a_morphBasePath.empty() || a_morphPath.empty())
 			return false;
 
-        RE::BSFixedString newBasePath = ("Meshes\\" + a_morphBasePath).c_str();
-		RE::BSResourceNiBinaryStream basefile(newBasePath.data());
-		if (!basefile.good()) {
-			return false;
-		}
+        logger::info("Register {} file for {}...", a_morphPath, a_morphBasePath);
 
-		char baseheader[0x08];
-		Read(&basefile, baseheader, 0x08);
-		if (strncmp(baseheader, "FRTRI003", 8) != 0)
-			return false;
+		const lString basePath = "Meshes\\" + a_morphBasePath;
+        RE::BSResourceNiBinaryStream baseFile(basePath);
+        if (!baseFile.good() || !baseFile.stream)
+        {
+            logger::error("Unable to open the file : {}", basePath);
+            return false;
+        }
+
+        auto baseErrorCode = baseFile.stream->DoOpen();
+        if (baseErrorCode != RE::BSResource::ErrorCode::kNone)
+        {
+            logger::error("Failed to open the file : {} ({})", basePath, magic_enum::enum_name(baseErrorCode).data());
+            return false;
+        }
+
+        std::uint64_t baseReadBytes;
+		char baseHeader[0x08];
+        baseFile.stream->DoRead(baseHeader, 0x08, baseReadBytes);
+        if (strncmp(baseHeader, "FRTRI003", 8) != 0)
+        {
+            logger::error("Invalid tri header : {}", basePath);
+            return false;
+        }
 
 		std::int32_t baseVertexCount;
-		Read(&basefile, &baseVertexCount, sizeof(baseVertexCount));
+        baseFile.stream->DoRead(&baseVertexCount, sizeof(baseVertexCount), baseReadBytes);
 		logger::debug("BaseVertexCount : {}", baseVertexCount);
 
-        RE::BSFixedString newPath = ("Meshes\\" + a_morphPath).c_str();
+        const lString newPath = "Meshes\\" + a_morphPath;
+        RE::BSResourceNiBinaryStream file(newPath);
+        if (!file.good() || !file.stream)
+        {
+            logger::error("Unable to open the file : {}", newPath);
+            return false;
+        }
 
-		RE::BSResourceNiBinaryStream file(newPath.data());
-		if (!file.good()) {
-			return false;
-		}
+        auto errorCode = file.stream->DoOpen();
+        if (errorCode != RE::BSResource::ErrorCode::kNone)
+        {
+            logger::error("Failed to open the file : {} ({})", newPath, magic_enum::enum_name(errorCode).data());
+            return false;
+        }
 
-		logger::debug("Register {} file for {}...", a_morphPath, a_morphBasePath);
-
+        std::uint64_t readBytes;
 		char header[0x08];
-		Read(&file, header, 0x08);
+        file.stream->DoRead(header, 0x08, readBytes);
 		if (strncmp(header, "FRTRI003", 8) != 0)
-			return false;
+        {
+            logger::error("Invalid tri header : {}", newPath);
+            return false;
+        }
 
 		std::int32_t vertexCount;
-		Read(&file, &vertexCount, sizeof(vertexCount));
+        file.stream->DoRead(&vertexCount, sizeof(vertexCount), readBytes);
 		logger::debug("vertexCount : {}", vertexCount);
 		if (baseVertexCount != vertexCount)
-			return false;
+        {
+            logger::error("Does not match the vertex count : {} / {}", basePath, newPath);
+            return false;
+        }
 
 		std::uint32_t polytris = 0, polyquads = 0, lverts = 0, lsurfs = 0,
 			uvverts = 0, flags = 0, morphCount = 0, statMorphs = 0,
 			statVerts = 0, unk7 = 0, unk8 = 0, unk9 = 0, unk10 = 0;
 
-		Read(&file, &polytris, sizeof(polytris));
-		logger::debug("polytris : {}", polytris);
-		Read(&file, &polyquads, sizeof(polyquads));
-		logger::debug("polyquads : {}", polyquads);
-		Read(&file, &lverts, sizeof(lverts));
-		logger::debug("lverts : {}", lverts);
-		Read(&file, &lsurfs, sizeof(lsurfs));
-		logger::debug("lsurfs : {}", lsurfs);
-		Read(&file, &uvverts, sizeof(uvverts));
-		logger::debug("uvverts : {}", uvverts);
-		Read(&file, &flags, sizeof(flags));
-		logger::debug("flags : {}", flags);
-		Read(&file, &morphCount, sizeof(morphCount));
-		logger::debug("morphCount : {}", morphCount);
-		Read(&file, &statMorphs, sizeof(statMorphs));
-		logger::debug("statMorphs : {}", statMorphs);
-		Read(&file, &statVerts, sizeof(statVerts));
-		logger::debug("statVerts : {}", statVerts);
-		Read(&file, &unk7, sizeof(unk7));
-		logger::debug("unk7 : {}", unk7);
-		Read(&file, &unk8, sizeof(unk8));
-		logger::debug("unk8 : {}", unk8);
-		Read(&file, &unk9, sizeof(unk9));
-		logger::debug("unk9 : {}", unk9);
-		Read(&file, &unk10, sizeof(unk10));
+        file.stream->DoRead(&polytris, sizeof(polytris), readBytes);
+        logger::debug("polytris : {}", polytris);
+        file.stream->DoRead(&polyquads, sizeof(polyquads), readBytes);
+        logger::debug("polyquads : {}", polyquads);
+        file.stream->DoRead(&lverts, sizeof(lverts), readBytes);
+        logger::debug("lverts : {}", lverts);
+        file.stream->DoRead(&lsurfs, sizeof(lsurfs), readBytes);
+        logger::debug("lsurfs : {}", lsurfs);
+        file.stream->DoRead(&uvverts, sizeof(uvverts), readBytes);
+        logger::debug("uvverts : {}", uvverts);
+        file.stream->DoRead(&flags, sizeof(flags), readBytes);
+        logger::debug("flags : {}", flags);
+        file.stream->DoRead(&morphCount, sizeof(morphCount), readBytes);
+        logger::debug("morphCount : {}", morphCount);
+        file.stream->DoRead(&statMorphs, sizeof(statMorphs), readBytes);
+        logger::debug("statMorphs : {}", statMorphs);
+        file.stream->DoRead(&statVerts, sizeof(statVerts), readBytes);
+        logger::debug("statVerts : {}", statVerts);
+        file.stream->DoRead(&unk7, sizeof(unk7), readBytes);
+        logger::debug("unk7 : {}", unk7);
+        file.stream->DoRead(&unk8, sizeof(unk8), readBytes);
+        logger::debug("unk8 : {}", unk8);
+        file.stream->DoRead(&unk9, sizeof(unk9), readBytes);
+        logger::debug("unk9 : {}", unk9);
+        file.stream->DoRead(&unk10, sizeof(unk10), readBytes);
 		logger::debug("unk10 : {}", unk10);
 
 		// Skip reference verts
-		Seek(&file, vertexCount * 3 * sizeof(float));
+        file.stream->DoSeek(vertexCount * 3 * sizeof(float), RE::BSResource::SeekMode::kCur, readBytes);
 
 		// Skip polytris
-		Seek(&file, polytris * 3 * sizeof(std::uint32_t));
+        file.stream->DoSeek(polytris * 3 * sizeof(std::uint32_t), RE::BSResource::SeekMode::kCur, readBytes);
 
-		// Skip UV
-		if (uvverts > 0)
-			Seek(&file, uvverts * 2 * sizeof(float));
+		// Skip uvs
+        if (uvverts > 0)
+            file.stream->DoSeek(uvverts * 2 * sizeof(float), RE::BSResource::SeekMode::kCur, readBytes);
 
-		// Skip text coords
-		Seek(&file, polytris * 3 * sizeof(std::uint32_t));
+		// Skip texture coords
+        file.stream->DoSeek(polytris * 3 * sizeof(std::uint32_t), RE::BSResource::SeekMode::kCur, readBytes);
 
 		for (std::uint32_t i = 0; i < morphCount; i++)
 		{
-			std::uint32_t strLen = 0;
-			Read(&file, &strLen, sizeof(strLen));
+            std::uint32_t strLen = 0;
+            file.stream->DoRead(&strLen, sizeof(strLen), readBytes);
 
-			char* morphName = new char[strLen + 1];
+			lString morphName = "";
 			for (std::uint32_t l = 0; l < strLen; l++)
-			{
-				Read(&file, &morphName[l], sizeof(char));
+            {
+                char c;
+                file.stream->DoRead(&c, sizeof(c), readBytes);
+                if (l < strLen - 1)
+					morphName += c;
 			}
-			morphName[strLen] = 0;
-			lString morphName_(morphName);
 
 			float mult = 0.0f;
-			Read(&file, &mult, sizeof(mult));
+            file.stream->DoRead(&mult, sizeof(mult), readBytes);
 
 			MorphDataBase::Morph morph = { 
 				.morphBasePath = fixPath(a_morphBasePath),
@@ -347,21 +376,20 @@ namespace Mus {
 
 			for (std::int32_t v = 0; v < vertexCount; v++)
 			{
-				MorphDataBase::Morph::Vertex vert;
-				Read(&file, &vert, sizeof(vert));
+                MorphDataBase::Morph::Vertex vert;
+                file.stream->DoRead(&vert, sizeof(vert), readBytes);
 				morph.vertices.emplace_back(vert.GetXMVector());
 			}
 
             std::lock_guard lg(dbLock);
-            auto found = db.find(morphName_);
+            auto found = db.find(morphName);
             if (found != db.end())
 				found->second->Register(morph);
 			else {
-                auto newMorphDataBase = std::make_shared<MorphDataBase>(morphName_);
+                auto newMorphDataBase = std::make_shared<MorphDataBase>(morphName);
 				newMorphDataBase->Register(morph);
-                db.insert(std::make_pair(morphName_, newMorphDataBase));
+                db.insert(std::make_pair(morphName, newMorphDataBase));
 			}
-			logger::debug("Registered {} morph", morphName_);
 		}
 		logger::info("Registered {} file", a_morphBasePath);
 		return true;

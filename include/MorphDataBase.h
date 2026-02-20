@@ -200,7 +200,15 @@ namespace Mus {
 		
 		bool IsValidMorphName(const lString& morphName);
 	private:
-		static std::uint32_t Read(RE::BSResourceNiBinaryStream* stream, void* dst, std::uint32_t len) {
+        /*template <typename T>
+        bool Read(RE::BSResourceNiBinaryStream& stream, T& var, std::uint64_t& readBytes) const {
+            auto ec = stream.stream->DoRead(&var, sizeof(var), readBytes);
+            if (ec != RE::BSResource::ErrorCode::kNone) {
+                logger::error("Failed to read the file : {} ({})", baseFilePath, magic_enum::enum_name(ec).data());
+                return false;
+            }
+        };*/
+		/*static std::uint32_t Read(RE::BSResourceNiBinaryStream* stream, void* dst, std::uint32_t len) {
 			using func_t = decltype(&MorphDataBaseManager::Read);
 			REL::VariantID offset(69647, 71027, 0x00CBCBE0);
 			REL::Relocation<func_t> func{ offset };
@@ -211,7 +219,7 @@ namespace Mus {
 			REL::VariantID offset(69640, 71018, 0x00CBC8C0);
 			REL::Relocation<func_t> func{ offset };
 			return func(stream, delta);
-		}
+		}*/
 	};
 }
 

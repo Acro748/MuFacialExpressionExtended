@@ -41,6 +41,33 @@ namespace Mus {
             return Recalculate;
         }
 
+        //UI
+        [[nodiscard]] inline auto GetPosX() const noexcept {
+            return PosX;
+        }
+        [[nodiscard]] inline auto GetPosY() const noexcept {
+            return PosY;
+        }
+        [[nodiscard]] inline auto GetScale() const noexcept {
+            return Scale;
+        }
+        [[nodiscard]] inline auto GetCategoryLeftKey() const noexcept {
+            return CategoryLeftKey;
+        }
+        [[nodiscard]] inline auto GetCategoryRightKey() const noexcept {
+            return CategoryRightKey;
+        }
+        [[nodiscard]] inline auto GetScrollUpKey() const noexcept {
+            return ScrollUpKey;
+        }
+        [[nodiscard]] inline auto GetScrollDownKey() const noexcept {
+            return ScrollDownKey;
+        }
+        [[nodiscard]] inline auto GetScrollSpeed() const noexcept {
+            return ScrollSpeed;
+        }
+
+
     private:
         //Debug
         spdlog::level::level_enum logLevel{ spdlog::level::level_enum::info };
@@ -54,6 +81,16 @@ namespace Mus {
         bool MorphByVertexCount = true;
         bool DisableDistance = false;
         bool Recalculate = false;
+
+        //UI
+        float PosX = 92.0f;
+        float PosY = 39.0f;
+        float Scale = 1.0f;
+        std::uint32_t CategoryLeftKey = 58;
+        std::uint32_t CategoryRightKey = 15;
+        std::uint32_t ScrollUpKey = 201;
+        std::uint32_t ScrollDownKey = 209;
+        std::int32_t ScrollSpeed = 5;
 
     public:
         // trim from start (in place)
@@ -155,7 +192,7 @@ namespace Mus {
             }
         }
 
-        inline std::string GetConfigSettingsStringValue(std::string line, std::string& variable)
+        inline std::string GetValue(std::string line, std::string& variable)
         {
             std::string value = "";
             std::vector<std::string> splittedLine = split(line, "=");
@@ -177,7 +214,7 @@ namespace Mus {
             return (RE::FormID)strtoul(hexstr.c_str(), 0, 16);
         }
 
-        inline int GetConfigSettingsIntValue(std::string valuestr)
+        inline int GetIntValue(std::string valuestr)
         {
             int value = 0;
             try {
@@ -190,14 +227,27 @@ namespace Mus {
             return value;
         }
 
-        inline float GetConfigSettingsFloatValue(std::string valuestr)
+        inline std::uint32_t GetUIntValue(std::string valuestr)
+        {
+            std::uint32_t value = 0;
+            try {
+                value = std::stoul(valuestr);
+            }
+            catch (...)
+            {
+                value = 0;
+            }
+            return value;
+        }
+
+        inline float GetFloatValue(std::string valuestr)
         {
             float value = 0;
             value = strtof(valuestr.c_str(), 0);
             return value;
         }
 
-        inline bool GetConfigSettingsBoolValue(std::string valuestr)
+        inline bool GetBoolValue(std::string valuestr)
         {
             bool value = false;
             valuestr = lowLetter(valuestr.c_str());
@@ -205,14 +255,14 @@ namespace Mus {
             return value;
         }
 
-        inline RE::FormID GetConfigSettingsFormIDValue(std::string valuestr)
+        inline RE::FormID GetFormIDValue(std::string valuestr)
         {
             RE::FormID value;
             value = getHex(valuestr.c_str());
             return value;
         }
 
-        inline std::vector<RE::FormID> ConfigLineSplitterFormID(std::string valuestr)
+        inline std::vector<RE::FormID> ConfigFormIDs(std::string valuestr)
         {
             std::vector<std::string> SplittedFormID = split(valuestr,"|");
             std::vector<RE::FormID> value;
