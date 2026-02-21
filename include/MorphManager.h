@@ -31,12 +31,13 @@ namespace Mus {
 	{
 		const RE::FormID id;
         const lString morphName;
+        const std::string morphNameOrg;
 		std::int32_t value = 0;
 		std::int32_t pvalue = 0;
 		float fvalue = 0.0f;
 		float pfvalue = 0.0f;
 	public:
-		MorphManagerRecord(RE::FormID a_actorID, const lString& a_morphName) : id(a_actorID), morphName(a_morphName) {};
+        MorphManagerRecord(RE::FormID a_actorID, const std::string& a_morphName) : id(a_actorID), morphName(a_morphName), morphNameOrg(a_morphName) {};
 		~MorphManagerRecord() {};
 
         struct MorphGeoData {
@@ -47,7 +48,7 @@ namespace Mus {
             bool isSameHash = false;
         };
 		bool Update(const std::vector<MorphGeoData>& a_morphGeoData);
-		inline std::string GetMorphName() const { return morphName; }
+		inline std::string GetMorphName() const { return morphNameOrg; }
 		void SetValue(std::int32_t a_value, std::int32_t a_lerpTime);
 		void SetValue(std::int32_t a_value);
         inline std::int32_t GetValue(bool destination = false) const { return !destination ? value : lerpTask.endValue; }
@@ -68,7 +69,7 @@ namespace Mus {
 
 	class MorphManager {
 		const RE::FormID id;
-        const lString name;
+        const std::string name;
         std::unordered_map<lString, MorphManagerRecordPtr> record; // morphName, record
         mutable std::mutex recordLock;
 	public:
@@ -83,7 +84,7 @@ namespace Mus {
 		void Update(std::clock_t processTime);
 
 		struct ActiveMorphSet {
-			const lString morphName = "";
+            const std::string morphName = "";
 			const std::int32_t value = 0;
 		};
 		std::vector<ActiveMorphSet> GetAllActiveMorphs();

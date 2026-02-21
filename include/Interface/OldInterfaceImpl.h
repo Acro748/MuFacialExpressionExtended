@@ -33,10 +33,10 @@ namespace MFEEOLD {
 		};
 
 		virtual std::vector<std::string> GetExpressionMorphNames(std::string a_morphCategory) {
-			return Mus::morphNameEntry::GetSingleton().GetMorphNamesBasic(a_morphCategory);
+			return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_morphCategory);
 		};
 		virtual std::vector<std::string> GetExpressionMorphNamesByNumber(std::int32_t a_categoryNumber) {
-            return Mus::morphNameEntry::GetSingleton().GetMorphNamesBasic(a_categoryNumber);
+            return Mus::morphNameEntry::GetSingleton().GetMorphNames(a_categoryNumber);
 		};
 		virtual std::string GetExpressionMorphNameByNumber(std::string a_morphCategory, std::int32_t a_morphNumber) {
 			return Mus::morphNameEntry::GetSingleton().GetMorphNameByNumber(a_morphCategory, a_morphNumber);
