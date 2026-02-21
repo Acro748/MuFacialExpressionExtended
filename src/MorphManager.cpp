@@ -396,8 +396,8 @@ namespace Mus {
 		{
 			if (m.second->GetValue() != 0)
 			{
-                ActiveMorphSet newActiveMorphSet = {.
-                    morphName = m.first, 
+                ActiveMorphSet newActiveMorphSet = {
+                    .morphName = m.second->GetMorphName(), 
                     .value = m.second->GetValue()
                 };
 				result.push_back(newActiveMorphSet);

@@ -179,17 +179,17 @@ namespace Mus {
 		}
 		return std::vector<MorphManager::ActiveMorphSet>();
 	}
-    std::vector<std::pair<lString, std::vector<MorphManager::ActiveMorphSet>>> ActorManager::GetAllMorphs(RE::Actor* a_actor, bool destination) const
+    std::vector<std::pair<std::string, std::vector<MorphManager::ActiveMorphSet>>> ActorManager::GetAllMorphs(RE::Actor* a_actor, bool destination) const
     {
-        std::vector<std::pair<lString, std::vector<MorphManager::ActiveMorphSet>>> result;
+        std::vector<std::pair<std::string, std::vector<MorphManager::ActiveMorphSet>>> result;
         if (!a_actor)
             return result;
 
-		auto categories = morphNameEntry::GetSingleton().GetCategories();
+		const auto categories = morphNameEntry::GetSingleton().GetCategories();
         for (const auto& category : categories)
         {
             std::vector<MorphManager::ActiveMorphSet> morphValues;
-            auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
+            const auto morphNames = morphNameEntry::GetSingleton().GetMorphNames(category);
             for (const auto& morphName : morphNames)
             {
                 MorphManager::ActiveMorphSet set{

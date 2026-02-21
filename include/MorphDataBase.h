@@ -104,11 +104,13 @@ namespace Mus {
 
 		struct morphNameEntryData {
             const lString morphCategory;
+            const std::string morphCategoryOrg;
             std::vector<lString> morphNames;
+            std::vector<std::string> morphNamesOrg;
 		};
 
-		bool Register(const lString& category, const lString& morphName);
-        bool RegisterCategory(const lString& category);
+		bool Register(const std::string& category, const std::string& morphName);
+        bool RegisterCategory(const std::string& category);
 		void UnRegisterAll() { 
 			{
                 std::lock_guard lg(namesLock);
@@ -117,19 +119,17 @@ namespace Mus {
 			Init();
 		};
 
-		std::vector<std::string> GetMorphNamesBasic(const lString& category);
-		std::vector<lString> GetMorphNames(const lString& category);
-        std::vector<std::string> GetMorphNamesBasic(std::int32_t categoryNumber) { return GetMorphNamesBasic(GetCategoryByNumber(categoryNumber)); };
-        std::vector<lString> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
+		std::vector<std::string> GetMorphNames(const lString& category);
+        std::vector<std::string> GetMorphNames(std::int32_t categoryNumber) { return GetMorphNames(GetCategoryByNumber(categoryNumber)); };
 
 		std::int32_t GetMorphNameNumber(const lString& morphName);
-        lString GetMorphNameByNumber(const lString& category, std::int32_t morphNumber);
-		lString GetMorphNameByNumber(std::int32_t categoryNumber, std::int32_t morphNumber) { return GetMorphNameByNumber(GetCategoryByNumber(categoryNumber), morphNumber); };
+        std::string GetMorphNameByNumber(const lString& category, std::int32_t morphNumber);
+        std::string GetMorphNameByNumber(std::int32_t categoryNumber, std::int32_t morphNumber) { return GetMorphNameByNumber(GetCategoryByNumber(categoryNumber), morphNumber); };
 
 		std::vector<std::string> GetCategories();
         std::int32_t GetCategoryNumber(const lString& category);
-		lString GetCategoryByNumber(std::int32_t categoryNumber);
-		lString GetCategoryByMorphName(const lString& morphName);
+        std::string GetCategoryByNumber(std::int32_t categoryNumber);
+        std::string GetCategoryByMorphName(const lString& morphName);
 
 		bool IsValidName(const lString& morphName) { return GetMorphNameNumber(morphName) != -1; }
         bool IsValidCategory(const lString& category) { return GetCategoryNumber(category) != -1; }
@@ -142,8 +142,9 @@ namespace Mus {
 	class MorphDataBase 
 	{
         const lString morphName;
+        const std::string morphNameOrg;
 	public:
-        MorphDataBase(const lString& a_morphName) : morphName(a_morphName) {};
+        MorphDataBase(const std::string& a_morphName) : morphName(a_morphName), morphNameOrg(a_morphName) {};
 		~MorphDataBase() {};
 
 		struct Morph {

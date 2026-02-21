@@ -261,13 +261,13 @@ namespace Mus {
         std::uint32_t categoryNum = 0;
         for (const auto& category : allMorphs) {
             Json::Value categoryObj;
-            categoryObj["category"] = std::to_string(categoryNum) + " " + category.first.string();
+            categoryObj["category"] = std::to_string(categoryNum) + " " + category.first;
             categoryNum++;
             std::vector<Json::Value> items;
             std::uint32_t morphNum = 0;
             for (const auto& morph : category.second) {
                 Json::Value item;
-                item["name"] = std::to_string(morphNum) + " " + morph.morphName.string();
+                item["name"] = std::to_string(morphNum) + " " + morph.morphName;
                 morphNum++;
                 item["value"] = morph.value;
                 items.push_back(item);
