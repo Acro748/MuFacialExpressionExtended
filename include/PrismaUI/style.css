@@ -8,7 +8,7 @@ body {
     margin: 0;
     padding: 0;
     background-color: transparent;
-    font-family: 'Helvetica';
+    font-family: Calibri, "Segoe UI", Arial, sans-serif;
     user-select: none;
     overflow: hidden;
     color: #FFFFFF;
@@ -68,7 +68,20 @@ body {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
     row-gap: 0.6vh;
     column-gap: 1vw;
+    position: relative;
 }
+    #data-list::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 1px;
+        background-color: rgba(255, 255, 255, 0.5);
+        pointer-events: none;
+    }
+
     #data-list::-webkit-scrollbar {
         width: 2px;
     }

@@ -66,6 +66,12 @@ namespace Mus {
         [[nodiscard]] inline auto GetScrollSpeed() const noexcept {
             return ScrollSpeed;
         }
+        [[nodiscard]] inline auto GetOtherMethod() const noexcept {
+            return OtherMethod;
+        }
+        [[nodiscard]] inline auto GetMFGState() const noexcept {
+            return MFGState;
+        }
 
 
     private:
@@ -86,11 +92,13 @@ namespace Mus {
         float PosX = 92.0f;
         float PosY = 39.0f;
         float Scale = 1.0f;
-        std::uint32_t CategoryLeftKey = 58;
+        std::uint32_t CategoryLeftKey = 29;
         std::uint32_t CategoryRightKey = 15;
         std::uint32_t ScrollUpKey = 201;
         std::uint32_t ScrollDownKey = 209;
         std::int32_t ScrollSpeed = 5;
+        std::uint8_t OtherMethod = 0; // 0: Left Right Left Right, 1: Left Left Right Right
+        bool MFGState = true;
 
     public:
         // trim from start (in place)

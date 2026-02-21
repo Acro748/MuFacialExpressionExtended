@@ -23,6 +23,10 @@ namespace Mus {
         void SetUIPositionUI(float xPercent, float yPercent);
         void SetUIScaleUI(float scaleMultiplier);
 
+        inline void StoreMFGExpressionOverride(const std::uint32_t index, const float value) { 
+            mfgExpressionIndex = index; 
+            mfgExpressionValue = value;
+        }
     protected:
         using EventResult = RE::BSEventNotifyControl;
         EventResult ProcessEvent(const RE::MenuOpenCloseEvent* evn, RE::BSTEventSource<RE::MenuOpenCloseEvent>*) override;
@@ -39,5 +43,8 @@ namespace Mus {
         RE::Actor* currentTarget = nullptr;
         bool isCategoryLeftPressed = false;
         bool isCategoryRightPressed = false;
+
+        std::uint32_t mfgExpressionIndex = 0;
+        float mfgExpressionValue = 0.0f;
     };
 }

@@ -97,7 +97,25 @@ namespace Mus {
         g_actorChangeHeadPartEventDispatcher.dispatch(e);
         return result;
     }
-	
+
+    constexpr REL::VariantID ModifyFaceGenCommandFunction(22542, 23017, 0x0032B450);
+    typedef bool (*_ModifyFaceGenCommand)(const RE::SCRIPT_PARAMETER*, RE::SCRIPT_FUNCTION::ScriptData*, RE::TESObjectREFR*, RE::TESObjectREFR*, RE::Script*, RE::ScriptLocals*, double&, std::uint32_t&);
+    REL::Relocation<_ModifyFaceGenCommand> onModifyFaceGenCommand_Orig(ModifyFaceGenCommandFunction);
+    bool onModifyFaceGenCommand(const RE::SCRIPT_PARAMETER* a_paramInfo, RE::SCRIPT_FUNCTION::ScriptData* a_scriptData, RE::TESObjectREFR* a_thisObj, RE::TESObjectREFR* a_containingObj, RE::Script* a_scriptObj, RE::ScriptLocals* a_locals, double& a_result, std::uint32_t& a_opcodeOffsetPtr)
+    {
+        bool result = onModifyFaceGenCommand_Orig(a_paramInfo, a_scriptData, a_thisObj, a_containingObj, a_scriptObj, a_locals, a_result, a_opcodeOffsetPtr);
+        UIManager::GetSingleton().UpdateData();
+        return result;
+    }
+
+    typedef bool (*_SetExpressionOverride)(RE::BSFaceGenAnimationData*, std::uint32_t, float);
+    REL::Relocation<_SetExpressionOverride> onSetExpressionOverride_Orig(RELOCATION_ID(25980, 26594));
+    void onSetExpressionOverride(RE::BSFaceGenAnimationData* animData, std::uint32_t index, float value)
+    {
+        onSetExpressionOverride_Orig(animData, index, value);
+        UIManager::GetSingleton().StoreMFGExpressionOverride(index, value);
+    }
+
 	void hook()
 	{
 		logger::info("Skyrim Hooking...");
@@ -112,6 +130,11 @@ namespace Mus {
         DetourUpdateThread(GetCurrentThread());
         DetourAttach(&(PVOID&)onFaceGen_Orig, onFaceGen);
         DetourAttach(&(PVOID&)onActorChangeHeadPart_Orig, onActorChangeHeadPart);
+        if (Config::GetSingleton().GetMFGState())
+        {
+            DetourAttach(&(PVOID&)onModifyFaceGenCommand_Orig, onModifyFaceGenCommand);
+            DetourAttach(&(PVOID&)onSetExpressionOverride_Orig, onSetExpressionOverride);
+        }
         DetourTransactionCommit();
 	}
 }

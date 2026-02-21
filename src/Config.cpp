@@ -118,6 +118,14 @@ namespace Mus {
                 {
                     ScrollSpeed = GetIntValue(variableValue);
                 }
+                else if (variableName == "OtherMethod")
+                {
+                    OtherMethod = GetUIntValue(variableValue);
+                }
+                else if (variableName == "MFGState")
+                {
+                    MFGState = GetBoolValue(variableValue);
+                }
             }
         }
         logger::info("Config loaded done");
