@@ -71,7 +71,7 @@ namespace Mus {
 		const RE::FormID id;
         const std::string name;
         std::unordered_map<lString, MorphManagerRecordPtr> record; // morphName, record
-        mutable std::mutex recordLock;
+        mutable std::shared_mutex recordLock;
 	public:
 		MorphManager(RE::Actor* a_actor) : id(a_actor->formID), name(a_actor->GetName()) {};
 		~MorphManager() {};
