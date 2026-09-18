@@ -12,7 +12,7 @@ namespace Mus::nif {
 
     }
 
-    class TaskupdateNode : public SKSE::detail::TaskDelegate
+    class TaskupdateNode : public SKSE::Impl::TaskDelegate
     {
     public:
         TaskupdateNode(RE::NiAVObject* node) : obj(node) { }

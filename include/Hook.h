@@ -88,4 +88,5 @@ namespace Mus {
     extern EventDispatcherImpl<ActorChangeHeadPartEvent> g_actorChangeHeadPartEventDispatcher;
 
 	void hook();
+	void posthook();
 }

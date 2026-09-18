@@ -6,8 +6,8 @@ message("Using toolchain file ${CMAKE_TOOLCHAIN_FILE}.")
 ########################################################################################################################
 project(
         MuFacialExpressionExtended
-        VERSION 0.5.2
-        DESCRIPTION "MuFacialExpressionExtended - SE/AE by Acro."
+        VERSION 0.5.3
+        DESCRIPTION "MuFacialExpressionExtended by Acro."
         LANGUAGES CXX
 )
 set(CMAKE_CXX_STANDARD 23)
@@ -23,8 +23,6 @@ configure_file(
 )
 
 set(headers
-        ExtraRE/B/BSFaceGenBaseMorphExtraData.h
-
         include/PrismaUI/PrismaUI_API.h
         include/PrismaUI/PrismaUI.h
         include/Utility.hpp

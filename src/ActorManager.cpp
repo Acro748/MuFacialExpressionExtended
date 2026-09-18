@@ -234,9 +234,9 @@ namespace Mus {
     }
 	void ActorManager::onEvent(const FacegenNiNodeEvent& e)
     {
-        if (!e.root || !e.root->userData)
+        if (!e.root)
             return;
-        RE::Actor* a_actor = skyrim_cast<RE::Actor*>(e.root->userData);
+        RE::Actor* a_actor = skyrim_cast<RE::Actor*>(e.root->GetUserData());
         if (!a_actor)
             return;
         std::shared_lock sl(morphManagerLock);

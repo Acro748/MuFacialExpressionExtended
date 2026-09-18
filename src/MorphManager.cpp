@@ -164,7 +164,7 @@ namespace Mus {
             }
             else
             {
-                auto& children = facegen->children;
+                auto& children = facegen->GetChildren();
                 for (const auto& data : morphGeoDatas)
                 {
                     bool found = false;
@@ -192,18 +192,21 @@ namespace Mus {
             std::uint32_t numHeadParts = actorBase->HasOverlays() ? actorBase->GetNumBaseOverlays() : actorBase->numHeadParts;
 
             faceGenMeshes.clear();
-            for (std::uint32_t j = 0; j < facegen->children.size(); j++)
             {
-                RE::NiAVObject* obj = facegen->children[j].get();
-                if (!obj || obj->name.empty())
-                    continue;
-                auto geo = obj->AsGeometry();
-                if (!geo)
-                    continue;
-                auto dynamicTri = geo->AsDynamicTriShape();
-                if (!dynamicTri)
-                    continue;
-                faceGenMeshes[obj->name.c_str()] = dynamicTri;
+                auto& children = facegen->GetChildren();
+                for (std::uint32_t j = 0; j < children.size(); j++)
+                {
+                    RE::NiAVObject* obj = children[j].get();
+                    if (!obj || obj->name.empty())
+                        continue;
+                    auto geo = obj->AsGeometry();
+                    if (!geo)
+                        continue;
+                    auto dynamicTri = geo->AsDynamicTriShape();
+                    if (!dynamicTri)
+                        continue;
+                    faceGenMeshes[obj->name.c_str()] = dynamicTri;
+                }
             }
 
             morphGeoDatas.clear();

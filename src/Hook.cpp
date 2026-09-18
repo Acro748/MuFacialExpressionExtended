@@ -15,7 +15,7 @@ namespace Mus {
 
 		FrameEvent e;
 		const auto main = RE::Main::GetSingleton();
-		e.gamePaused = (main && main->freezeTime);
+		e.gamePaused = (main && main->GetRuntimeData().freezeTime);
 		const auto menu = RE::UI::GetSingleton();
 		IsGamePaused.store(e.gamePaused || (menu && menu->numPausesGame > 0));
 		g_frameEventDispatcher.dispatch(e);
@@ -28,25 +28,11 @@ namespace Mus {
         NullSubOrig = trampoline.write_call<5>(GameLoopFunction.address() + GameLoopFunctionOffset.offset(), onNullSub);
 	}
 
-    constexpr REL::VariantID BSFaceGenNiNodeFunction(26405, 26986, 0x003E8120);
-	#ifndef ENABLE_SKYRIM_VR
-    typedef void (*_onFaceGen)(RE::BSFaceGenNiNode*, RE::NiNode*, RE::BSGeometry*, std::uint8_t);
-#else
-    typedef void (*_onFaceGen)(RE::BSFaceGenNiNode*, RE::NiNode*, RE::BSGeometry*);
-#endif
-    REL::Relocation<_onFaceGen> onFaceGen_Orig(BSFaceGenNiNodeFunction);
-
-#ifndef ENABLE_SKYRIM_VR
-    void __fastcall onFaceGen(RE::BSFaceGenNiNode* facegen, RE::NiNode* root, RE::BSGeometry* geometry, std::uint8_t unk4)
-#else
-    void __fastcall onFaceGen(RE::BSFaceGenNiNode* facegen, RE::NiNode* root, RE::BSGeometry* geometry)
-#endif
+    typedef void (*_onFaceGen)(RE::BSFaceGenNiNode*, RE::NiNode*, std::uint8_t);
+    _onFaceGen onFaceGen_Orig;
+    void __fastcall onFaceGen(RE::BSFaceGenNiNode* facegen, RE::NiNode* root, std::uint8_t unk3)
     {
-#ifndef ENABLE_SKYRIM_VR
-        onFaceGen_Orig(facegen, root, geometry, unk4);
-#else
-        onFaceGen_Orig(facegen, root, geometry);
-#endif
+        onFaceGen_Orig(facegen, root, unk3);
         FacegenNiNodeEvent e;
         e.root = root;
         e.facegenNiNode = facegen;
@@ -137,4 +123,11 @@ namespace Mus {
         }
         DetourTransactionCommit();
 	}
+
+    void posthook()
+    {
+        REL::Relocation<std::uintptr_t> vtbl{RE::VTABLE_BSFaceGenNiNode[0]};
+        REL::VariantOffset index(0x3E, 0x3E, 0x3F);
+        onFaceGen_Orig = reinterpret_cast<_onFaceGen>(vtbl.write_vfunc(index.offset(), onFaceGen));
+    }
 }

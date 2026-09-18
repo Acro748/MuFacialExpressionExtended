@@ -133,8 +133,6 @@ namespace util {
     using SKSE::stl::report_and_fail;
 }
 
-#include "B/BSFaceGenBaseMorphExtraData.h"
-
 #include "lString.h"
 
 #include "Store.h"

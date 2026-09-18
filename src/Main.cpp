@@ -167,6 +167,7 @@ namespace {
     }
     void kDataloadedFunction()
     {
+        posthook();
         ActorManager::GetSingleton().Init();
         morphNameEntry::GetSingleton().Init();
         static_cast<MultipleConfig>(Config::GetSingleton()).LoadMorphNameConfig();

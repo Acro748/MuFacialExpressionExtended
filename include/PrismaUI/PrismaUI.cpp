@@ -37,7 +37,7 @@ namespace Mus {
 
                 using namespace InputManager;
                 std::uint32_t keyCode = 0;
-                std::uint32_t keyMask = button->idCode;
+                std::uint32_t keyMask = button->GetIDCode();
                 if (button->device.all(RE::INPUT_DEVICE::kMouse))
                     keyCode = InputMap::kMacro_MouseButtonOffset + keyMask;
                 else if (REL::Module::IsVR() &&
@@ -129,9 +129,9 @@ namespace Mus {
                 {
                     float maxValue = 0;
                     std::uint32_t maxIndex = RE::BSFaceGenKeyframeMultiple::Expression::MoodNeutral;
-                    const bool isExpression2Zero = animData->unk040.IsZero();
-                    const std::uint32_t count = isExpression2Zero || animData->expressionKeyFrame.count >= animData->unk040.count 
-                        ? animData->expressionKeyFrame.count : animData->unk040.count;
+                    const bool isExpression2Zero = animData->expressionKeyFrame2.IsZero();
+                    const std::uint32_t count = isExpression2Zero || animData->expressionKeyFrame.count >= animData->expressionKeyFrame2.count 
+                        ? animData->expressionKeyFrame.count : animData->expressionKeyFrame2.count;
                     for (std::uint32_t i = 0; i < count; i++) {
                         float value = 0.0f;
                         if (i == RE::BSFaceGenKeyframeMultiple::Expression::MoodNeutral)
@@ -139,8 +139,8 @@ namespace Mus {
                         if (isExpression2Zero)
                             value = animData->expressionKeyFrame.values[i];
                         else {
-                            if (i < animData->unk040.count)
-                                value = animData->unk040.values[i];
+                            if (i < animData->expressionKeyFrame2.count)
+                                value = animData->expressionKeyFrame2.values[i];
                             else
                                 value = animData->expressionKeyFrame.values[i];
                         }
